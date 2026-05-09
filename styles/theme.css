@@ -1,0 +1,46 @@
+/* NIH-derived palette — primary blues with restrained accents.
+   References: NIH brand guidelines (NIH Blue family + complementary tones). */
+:root {
+  --nih-blue: #20558A;
+  --nih-navy: #002F6C;
+  --nih-sky: #5694C4;
+  --nih-mist: #BAD3E9;
+  --nih-accent: #F8C72A;
+
+  --bg-page: #F4F7FB;
+  --bg-card: #FFFFFF;
+  --bg-screen: #F7F9FC;
+  --bg-soft: #EEF3F8;
+
+  --text-primary: #0E1F36;
+  --text-secondary: #44617F;
+  --text-muted: #7A8AA0;
+  --text-on-dark: #FFFFFF;
+
+  --good: #1F7A4D;
+  --warn: #B26B00;
+  --bad:  #B23A48;
+
+  --radius-card: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 4px 16px rgba(0, 47, 108, 0.08);
+  --shadow-soft: 0 2px 6px rgba(0, 47, 108, 0.06);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-page: #0B1626;
+    --bg-card: #14253D;
+    --bg-screen: #0F1E32;
+    --bg-soft: #1A2B45;
+    --text-primary: #ECF2FA;
+    --text-secondary: #BAD3E9;
+    --text-muted: #8AA0BD;
+    --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.45);
+    --shadow-soft: 0 2px 6px rgba(0, 0, 0, 0.35);
+  }
+}

@@ -1,0 +1,2084 @@
+[
+  {
+    "id": 1,
+    "name": "Lentil soup with whole-grain bread",
+    "category": "prepared_meal",
+    "cuisine": "mediterranean",
+    "servingG": 380,
+    "servingLabel": "1 bowl + 1 slice",
+    "cost": 4.5,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 380,
+      "protein": 18,
+      "carbs": 60,
+      "fat": 6,
+      "saturatedFat": 1.2,
+      "fiber": 14,
+      "sugar": 5,
+      "addedSugar": 1,
+      "sodium": 810,
+      "potassium": 720,
+      "calcium": 95,
+      "iron": 4.2,
+      "magnesium": 80,
+      "zinc": 2.5,
+      "vitA": 250,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 220
+    }
+  },
+  {
+    "id": 2,
+    "name": "Black bean burrito bowl",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 420,
+    "servingLabel": "1 bowl",
+    "cost": 6.5,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 4,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "fast_food"
+    ],
+    "nutrients": {
+      "calories": 480,
+      "protein": 22,
+      "carbs": 70,
+      "fat": 10,
+      "saturatedFat": 2,
+      "fiber": 16,
+      "sugar": 4,
+      "addedSugar": 0,
+      "sodium": 620,
+      "potassium": 880,
+      "calcium": 140,
+      "iron": 5.0,
+      "magnesium": 95,
+      "zinc": 3.0,
+      "vitA": 320,
+      "vitC": 12,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 260
+    }
+  },
+  {
+    "id": 3,
+    "name": "Chickpea curry with brown rice",
+    "category": "prepared_meal",
+    "cuisine": "indian",
+    "servingG": 400,
+    "servingLabel": "1 bowl",
+    "cost": 5.25,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 5,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 460,
+      "protein": 16,
+      "carbs": 72,
+      "fat": 10,
+      "saturatedFat": 2,
+      "fiber": 12,
+      "sugar": 6,
+      "addedSugar": 0,
+      "sodium": 540,
+      "potassium": 720,
+      "calcium": 90,
+      "iron": 4.8,
+      "magnesium": 100,
+      "zinc": 2.4,
+      "vitA": 260,
+      "vitC": 14,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 240
+    }
+  },
+  {
+    "id": 4,
+    "name": "Greek yogurt with berries and oats",
+    "category": "dairy",
+    "cuisine": "mediterranean",
+    "servingG": 280,
+    "servingLabel": "1 cup",
+    "cost": 3.75,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 280,
+      "protein": 18,
+      "carbs": 38,
+      "fat": 5,
+      "saturatedFat": 2.5,
+      "fiber": 5,
+      "sugar": 18,
+      "addedSugar": 4,
+      "sodium": 80,
+      "potassium": 320,
+      "calcium": 220,
+      "iron": 1.4,
+      "magnesium": 36,
+      "zinc": 1.4,
+      "vitA": 80,
+      "vitC": 12,
+      "vitD": 0.5,
+      "vitB12": 1.0,
+      "folate": 30
+    }
+  },
+  {
+    "id": 5,
+    "name": "Peanut butter & banana sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 200,
+    "servingLabel": "1 sandwich",
+    "cost": 1.8,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "breakfast",
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "peanut",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "convenience",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 410,
+      "protein": 14,
+      "carbs": 56,
+      "fat": 16,
+      "saturatedFat": 3,
+      "fiber": 7,
+      "sugar": 18,
+      "addedSugar": 6,
+      "sodium": 320,
+      "potassium": 540,
+      "calcium": 80,
+      "iron": 2.4,
+      "magnesium": 80,
+      "zinc": 1.5,
+      "vitA": 60,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 70
+    }
+  },
+  {
+    "id": 6,
+    "name": "Grilled chicken Caesar salad",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 340,
+    "servingLabel": "1 entr\u00e9e",
+    "cost": 7.99,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "egg",
+      "fish",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "fast_food"
+    ],
+    "nutrients": {
+      "calories": 520,
+      "protein": 38,
+      "carbs": 22,
+      "fat": 32,
+      "saturatedFat": 8,
+      "fiber": 4,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 1180,
+      "potassium": 580,
+      "calcium": 220,
+      "iron": 2.6,
+      "magnesium": 50,
+      "zinc": 3.0,
+      "vitA": 480,
+      "vitC": 18,
+      "vitD": 0.4,
+      "vitB12": 0.8,
+      "folate": 80
+    }
+  },
+  {
+    "id": 7,
+    "name": "Microwave oatmeal with milk",
+    "category": "grain_whole",
+    "cuisine": "american",
+    "servingG": 240,
+    "servingLabel": "1 cup cooked",
+    "cost": 0.85,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 10,
+      "carbs": 36,
+      "fat": 4,
+      "saturatedFat": 1.5,
+      "fiber": 4,
+      "sugar": 8,
+      "addedSugar": 2,
+      "sodium": 130,
+      "potassium": 260,
+      "calcium": 180,
+      "iron": 2.0,
+      "magnesium": 60,
+      "zinc": 1.6,
+      "vitA": 100,
+      "vitC": 0,
+      "vitD": 1.2,
+      "vitB12": 0.5,
+      "folate": 30
+    }
+  },
+  {
+    "id": 8,
+    "name": "Apple with almond butter packet",
+    "category": "fruit",
+    "cuisine": null,
+    "servingG": 200,
+    "servingLabel": "1 apple + 30 g",
+    "cost": 2.25,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack"
+    ],
+    "allergens": [
+      "tree_nut"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 280,
+      "protein": 7,
+      "carbs": 32,
+      "fat": 16,
+      "saturatedFat": 1.5,
+      "fiber": 7,
+      "sugar": 22,
+      "addedSugar": 0,
+      "sodium": 70,
+      "potassium": 380,
+      "calcium": 90,
+      "iron": 1.0,
+      "magnesium": 75,
+      "zinc": 1.0,
+      "vitA": 30,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 18
+    }
+  },
+  {
+    "id": 9,
+    "name": "Tuna salad on whole-wheat",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 220,
+    "servingLabel": "1 sandwich",
+    "cost": 3.5,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch"
+    ],
+    "allergens": [
+      "fish",
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 380,
+      "protein": 24,
+      "carbs": 36,
+      "fat": 16,
+      "saturatedFat": 2.5,
+      "fiber": 5,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 720,
+      "potassium": 320,
+      "calcium": 60,
+      "iron": 2.6,
+      "magnesium": 50,
+      "zinc": 1.4,
+      "vitA": 80,
+      "vitC": 4,
+      "vitD": 1.6,
+      "vitB12": 1.8,
+      "folate": 60
+    }
+  },
+  {
+    "id": 10,
+    "name": "Rice & beans (canned)",
+    "category": "legume",
+    "cuisine": "caribbean",
+    "servingG": 260,
+    "servingLabel": "1 cup",
+    "cost": 1.2,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 320,
+      "protein": 13,
+      "carbs": 60,
+      "fat": 3,
+      "saturatedFat": 0.5,
+      "fiber": 10,
+      "sugar": 2,
+      "addedSugar": 0,
+      "sodium": 760,
+      "potassium": 540,
+      "calcium": 60,
+      "iron": 3.4,
+      "magnesium": 60,
+      "zinc": 1.8,
+      "vitA": 30,
+      "vitC": 4,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 160
+    }
+  },
+  {
+    "id": 11,
+    "name": "Hummus with carrot sticks",
+    "category": "legume",
+    "cuisine": "mediterranean",
+    "servingG": 180,
+    "servingLabel": "1/2 cup + 1 cup",
+    "cost": 2.75,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack",
+      "lunch"
+    ],
+    "allergens": [
+      "sesame"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 240,
+      "protein": 8,
+      "carbs": 26,
+      "fat": 12,
+      "saturatedFat": 1.5,
+      "fiber": 8,
+      "sugar": 6,
+      "addedSugar": 0,
+      "sodium": 380,
+      "potassium": 420,
+      "calcium": 70,
+      "iron": 2.0,
+      "magnesium": 50,
+      "zinc": 1.4,
+      "vitA": 720,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 80
+    }
+  },
+  {
+    "id": 12,
+    "name": "Cheese pizza slice",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 130,
+    "servingLabel": "1 slice",
+    "cost": 2.5,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "fast_food",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 290,
+      "protein": 12,
+      "carbs": 36,
+      "fat": 11,
+      "saturatedFat": 5,
+      "fiber": 2,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 620,
+      "potassium": 180,
+      "calcium": 180,
+      "iron": 2.0,
+      "magnesium": 24,
+      "zinc": 1.4,
+      "vitA": 220,
+      "vitC": 2,
+      "vitD": 0.4,
+      "vitB12": 0.6,
+      "folate": 60
+    }
+  },
+  {
+    "id": 13,
+    "name": "Pork carnitas tacos",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 280,
+    "servingLabel": "2 tacos",
+    "cost": 5.99,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 4,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "pork"
+      },
+      {
+        "religion": "kosher",
+        "reason": "pork"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "fast_food"
+    ],
+    "nutrients": {
+      "calories": 460,
+      "protein": 26,
+      "carbs": 38,
+      "fat": 22,
+      "saturatedFat": 7,
+      "fiber": 4,
+      "sugar": 3,
+      "addedSugar": 0,
+      "sodium": 880,
+      "potassium": 380,
+      "calcium": 120,
+      "iron": 2.4,
+      "magnesium": 36,
+      "zinc": 3.4,
+      "vitA": 60,
+      "vitC": 6,
+      "vitD": 0.2,
+      "vitB12": 1.4,
+      "folate": 30
+    }
+  },
+  {
+    "id": 14,
+    "name": "Vegetable stir-fry with tofu",
+    "category": "prepared_meal",
+    "cuisine": "asian",
+    "servingG": 360,
+    "servingLabel": "1 plate",
+    "cost": 4.95,
+    "costConfidence": "medium",
+    "prep": "stove",
+    "prepTimeMin": 12,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "soy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 380,
+      "protein": 20,
+      "carbs": 42,
+      "fat": 14,
+      "saturatedFat": 2,
+      "fiber": 8,
+      "sugar": 10,
+      "addedSugar": 4,
+      "sodium": 640,
+      "potassium": 720,
+      "calcium": 280,
+      "iron": 4.0,
+      "magnesium": 90,
+      "zinc": 2.0,
+      "vitA": 580,
+      "vitC": 38,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 140
+    }
+  },
+  {
+    "id": 15,
+    "name": "Banana",
+    "category": "fruit",
+    "cuisine": null,
+    "servingG": 120,
+    "servingLabel": "1 medium",
+    "cost": 0.3,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack",
+      "breakfast"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 105,
+      "protein": 1.3,
+      "carbs": 27,
+      "fat": 0.4,
+      "saturatedFat": 0.1,
+      "fiber": 3,
+      "sugar": 14,
+      "addedSugar": 0,
+      "sodium": 1,
+      "potassium": 420,
+      "calcium": 6,
+      "iron": 0.3,
+      "magnesium": 32,
+      "zinc": 0.2,
+      "vitA": 4,
+      "vitC": 10,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 24
+    }
+  },
+  {
+    "id": 16,
+    "name": "Hard-boiled eggs (2)",
+    "category": "protein_animal",
+    "cuisine": null,
+    "servingG": 100,
+    "servingLabel": "2 eggs",
+    "cost": 1.1,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "egg"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "egg"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 156,
+      "protein": 13,
+      "carbs": 1,
+      "fat": 11,
+      "saturatedFat": 3.4,
+      "fiber": 0,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 124,
+      "potassium": 126,
+      "calcium": 50,
+      "iron": 1.2,
+      "magnesium": 12,
+      "zinc": 1.1,
+      "vitA": 280,
+      "vitC": 0,
+      "vitD": 2.2,
+      "vitB12": 1.1,
+      "folate": 44
+    }
+  },
+  {
+    "id": 17,
+    "name": "Whole-wheat pasta with marinara",
+    "category": "grain_whole",
+    "cuisine": "italian",
+    "servingG": 280,
+    "servingLabel": "1.5 cups",
+    "cost": 1.95,
+    "costConfidence": "high",
+    "prep": "stove",
+    "prepTimeMin": 12,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 380,
+      "protein": 14,
+      "carbs": 78,
+      "fat": 4,
+      "saturatedFat": 0.8,
+      "fiber": 9,
+      "sugar": 9,
+      "addedSugar": 2,
+      "sodium": 480,
+      "potassium": 540,
+      "calcium": 60,
+      "iron": 3.2,
+      "magnesium": 80,
+      "zinc": 1.8,
+      "vitA": 360,
+      "vitC": 14,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 90
+    }
+  },
+  {
+    "id": 18,
+    "name": "Salmon fillet with quinoa",
+    "category": "protein_animal",
+    "cuisine": "mediterranean",
+    "servingG": 280,
+    "servingLabel": "4 oz + 1 cup",
+    "cost": 8.5,
+    "costConfidence": "medium",
+    "prep": "oven",
+    "prepTimeMin": 18,
+    "mealTypes": [
+      "dinner"
+    ],
+    "allergens": [
+      "fish"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "fish"
+      },
+      {
+        "religion": "jain",
+        "reason": "fish"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 480,
+      "protein": 38,
+      "carbs": 36,
+      "fat": 18,
+      "saturatedFat": 3,
+      "fiber": 5,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 280,
+      "potassium": 760,
+      "calcium": 50,
+      "iron": 3.0,
+      "magnesium": 110,
+      "zinc": 2.4,
+      "vitA": 60,
+      "vitC": 4,
+      "vitD": 11,
+      "vitB12": 4.2,
+      "folate": 120
+    }
+  },
+  {
+    "id": 19,
+    "name": "Cup of mixed nuts",
+    "category": "snack",
+    "cuisine": null,
+    "servingG": 30,
+    "servingLabel": "1/4 cup",
+    "cost": 1.5,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack"
+    ],
+    "allergens": [
+      "tree_nut",
+      "peanut"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 180,
+      "protein": 6,
+      "carbs": 6,
+      "fat": 16,
+      "saturatedFat": 2,
+      "fiber": 3,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 90,
+      "potassium": 200,
+      "calcium": 40,
+      "iron": 1.0,
+      "magnesium": 70,
+      "zinc": 1.2,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 20
+    }
+  },
+  {
+    "id": 20,
+    "name": "Bean & cheese quesadilla",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 240,
+    "servingLabel": "1 quesadilla",
+    "cost": 3.2,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "fast_food",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 420,
+      "protein": 18,
+      "carbs": 50,
+      "fat": 16,
+      "saturatedFat": 7,
+      "fiber": 8,
+      "sugar": 3,
+      "addedSugar": 1,
+      "sodium": 880,
+      "potassium": 380,
+      "calcium": 280,
+      "iron": 3.0,
+      "magnesium": 60,
+      "zinc": 2.0,
+      "vitA": 240,
+      "vitC": 4,
+      "vitD": 0.4,
+      "vitB12": 0.8,
+      "folate": 100
+    }
+  },
+  {
+    "id": 21,
+    "name": "Vegetable lentil dal",
+    "category": "legume",
+    "cuisine": "indian",
+    "servingG": 320,
+    "servingLabel": "1 bowl",
+    "cost": 2.8,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 4,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 320,
+      "protein": 18,
+      "carbs": 48,
+      "fat": 5,
+      "saturatedFat": 1,
+      "fiber": 14,
+      "sugar": 6,
+      "addedSugar": 0,
+      "sodium": 460,
+      "potassium": 740,
+      "calcium": 80,
+      "iron": 5.5,
+      "magnesium": 110,
+      "zinc": 2.6,
+      "vitA": 380,
+      "vitC": 12,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 280
+    }
+  },
+  {
+    "id": 22,
+    "name": "Trail mix bar",
+    "category": "snack",
+    "cuisine": null,
+    "servingG": 40,
+    "servingLabel": "1 bar",
+    "cost": 1.2,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack"
+    ],
+    "allergens": [
+      "tree_nut",
+      "peanut",
+      "soy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 180,
+      "protein": 4,
+      "carbs": 24,
+      "fat": 8,
+      "saturatedFat": 1.5,
+      "fiber": 2,
+      "sugar": 14,
+      "addedSugar": 8,
+      "sodium": 90,
+      "potassium": 140,
+      "calcium": 30,
+      "iron": 1.0,
+      "magnesium": 30,
+      "zinc": 0.6,
+      "vitA": 20,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 12
+    }
+  },
+  {
+    "id": 23,
+    "name": "Cottage cheese with pineapple",
+    "category": "dairy",
+    "cuisine": null,
+    "servingG": 240,
+    "servingLabel": "1 cup",
+    "cost": 2.4,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 24,
+      "carbs": 18,
+      "fat": 5,
+      "saturatedFat": 2.5,
+      "fiber": 1,
+      "sugar": 14,
+      "addedSugar": 6,
+      "sodium": 580,
+      "potassium": 240,
+      "calcium": 180,
+      "iron": 0.4,
+      "magnesium": 16,
+      "zinc": 1.0,
+      "vitA": 60,
+      "vitC": 16,
+      "vitD": 0.2,
+      "vitB12": 1.4,
+      "folate": 18
+    }
+  },
+  {
+    "id": 24,
+    "name": "Beef burger with bun",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 240,
+    "servingLabel": "1 burger",
+    "cost": 5.5,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "beef"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "fast_food"
+    ],
+    "nutrients": {
+      "calories": 540,
+      "protein": 28,
+      "carbs": 38,
+      "fat": 28,
+      "saturatedFat": 10,
+      "fiber": 2,
+      "sugar": 6,
+      "addedSugar": 4,
+      "sodium": 920,
+      "potassium": 380,
+      "calcium": 80,
+      "iron": 4.0,
+      "magnesium": 32,
+      "zinc": 4.5,
+      "vitA": 40,
+      "vitC": 2,
+      "vitD": 0.4,
+      "vitB12": 2.4,
+      "folate": 60
+    }
+  },
+  {
+    "id": 25,
+    "name": "Sweet potato with black beans",
+    "category": "vegetable_starchy",
+    "cuisine": "american",
+    "servingG": 320,
+    "servingLabel": "1 medium + 1/2 cup",
+    "cost": 1.8,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 7,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 340,
+      "protein": 13,
+      "carbs": 70,
+      "fat": 1.5,
+      "saturatedFat": 0.2,
+      "fiber": 14,
+      "sugar": 14,
+      "addedSugar": 0,
+      "sodium": 240,
+      "potassium": 1040,
+      "calcium": 100,
+      "iron": 3.6,
+      "magnesium": 90,
+      "zinc": 1.6,
+      "vitA": 1800,
+      "vitC": 36,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 180
+    }
+  },
+  {
+    "id": 26,
+    "name": "Chocolate chip cookie",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 50,
+    "servingLabel": "1 large",
+    "cost": 0.95,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten",
+      "dairy",
+      "egg",
+      "soy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "avoid"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 240,
+      "protein": 3,
+      "carbs": 34,
+      "fat": 11,
+      "saturatedFat": 5,
+      "fiber": 1,
+      "sugar": 22,
+      "addedSugar": 20,
+      "sodium": 180,
+      "potassium": 60,
+      "calcium": 20,
+      "iron": 1.2,
+      "magnesium": 12,
+      "zinc": 0.4,
+      "vitA": 60,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 20
+    }
+  },
+  {
+    "id": 27,
+    "name": "Microwaved jacket potato with butter",
+    "category": "vegetable_starchy",
+    "cuisine": "british",
+    "servingG": 280,
+    "servingLabel": "1 potato",
+    "cost": 0.95,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 8,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_potassium_ckd",
+        "severity": "avoid"
+      }
+    ],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 280,
+      "protein": 7,
+      "carbs": 56,
+      "fat": 5,
+      "saturatedFat": 3,
+      "fiber": 6,
+      "sugar": 4,
+      "addedSugar": 0,
+      "sodium": 60,
+      "potassium": 1100,
+      "calcium": 40,
+      "iron": 2.0,
+      "magnesium": 60,
+      "zinc": 1.0,
+      "vitA": 80,
+      "vitC": 28,
+      "vitD": 0.1,
+      "vitB12": 0,
+      "folate": 40
+    }
+  },
+  {
+    "id": 28,
+    "name": "Plain whole-milk yogurt",
+    "category": "dairy",
+    "cuisine": null,
+    "servingG": 245,
+    "servingLabel": "1 cup",
+    "cost": 1.5,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 150,
+      "protein": 9,
+      "carbs": 11,
+      "fat": 8,
+      "saturatedFat": 5,
+      "fiber": 0,
+      "sugar": 11,
+      "addedSugar": 0,
+      "sodium": 110,
+      "potassium": 380,
+      "calcium": 280,
+      "iron": 0.1,
+      "magnesium": 26,
+      "zinc": 1.4,
+      "vitA": 90,
+      "vitC": 1,
+      "vitD": 0.1,
+      "vitB12": 1.0,
+      "folate": 18
+    }
+  },
+  {
+    "id": 29,
+    "name": "Chickpea salad sandwich",
+    "category": "prepared_meal",
+    "cuisine": "mediterranean",
+    "servingG": 240,
+    "servingLabel": "1 sandwich",
+    "cost": 4.2,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 420,
+      "protein": 16,
+      "carbs": 60,
+      "fat": 14,
+      "saturatedFat": 2,
+      "fiber": 12,
+      "sugar": 6,
+      "addedSugar": 1,
+      "sodium": 620,
+      "potassium": 480,
+      "calcium": 100,
+      "iron": 3.6,
+      "magnesium": 70,
+      "zinc": 2.2,
+      "vitA": 220,
+      "vitC": 6,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 200
+    }
+  },
+  {
+    "id": 30,
+    "name": "Edamame, shelled",
+    "category": "legume",
+    "cuisine": "asian",
+    "servingG": 160,
+    "servingLabel": "1 cup",
+    "cost": 2.0,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "snack",
+      "lunch"
+    ],
+    "allergens": [
+      "soy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 190,
+      "protein": 17,
+      "carbs": 16,
+      "fat": 8,
+      "saturatedFat": 1,
+      "fiber": 8,
+      "sugar": 3,
+      "addedSugar": 0,
+      "sodium": 240,
+      "potassium": 680,
+      "calcium": 100,
+      "iron": 3.5,
+      "magnesium": 100,
+      "zinc": 2.1,
+      "vitA": 30,
+      "vitC": 10,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 480
+    }
+  },
+  {
+    "id": 31,
+    "name": "Whole-grain bagel with cream cheese",
+    "category": "grain_whole",
+    "cuisine": "american",
+    "servingG": 130,
+    "servingLabel": "1 bagel",
+    "cost": 2.2,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten",
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 360,
+      "protein": 11,
+      "carbs": 50,
+      "fat": 12,
+      "saturatedFat": 6,
+      "fiber": 5,
+      "sugar": 6,
+      "addedSugar": 1,
+      "sodium": 480,
+      "potassium": 180,
+      "calcium": 80,
+      "iron": 2.4,
+      "magnesium": 36,
+      "zinc": 1.2,
+      "vitA": 380,
+      "vitC": 0,
+      "vitD": 0.2,
+      "vitB12": 0.2,
+      "folate": 80
+    }
+  },
+  {
+    "id": 32,
+    "name": "Roasted chicken breast (plain)",
+    "category": "protein_animal",
+    "cuisine": null,
+    "servingG": 140,
+    "servingLabel": "4 oz",
+    "cost": 3.4,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 42,
+      "carbs": 0,
+      "fat": 5,
+      "saturatedFat": 1.5,
+      "fiber": 0,
+      "sugar": 0,
+      "addedSugar": 0,
+      "sodium": 100,
+      "potassium": 340,
+      "calcium": 16,
+      "iron": 1.0,
+      "magnesium": 36,
+      "zinc": 1.3,
+      "vitA": 30,
+      "vitC": 0,
+      "vitD": 0.1,
+      "vitB12": 0.4,
+      "folate": 14
+    }
+  },
+  {
+    "id": 33,
+    "name": "Tomato basil soup (low sodium)",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 360,
+    "servingLabel": "1 bowl",
+    "cost": 2.4,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 180,
+      "protein": 4,
+      "carbs": 28,
+      "fat": 6,
+      "saturatedFat": 1,
+      "fiber": 4,
+      "sugar": 14,
+      "addedSugar": 4,
+      "sodium": 320,
+      "potassium": 540,
+      "calcium": 60,
+      "iron": 1.6,
+      "magnesium": 36,
+      "zinc": 0.6,
+      "vitA": 720,
+      "vitC": 24,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 30
+    }
+  },
+  {
+    "id": 34,
+    "name": "Shrimp & vegetable stir-fry",
+    "category": "prepared_meal",
+    "cuisine": "asian",
+    "servingG": 320,
+    "servingLabel": "1 plate",
+    "cost": 7.2,
+    "costConfidence": "medium",
+    "prep": "stove",
+    "prepTimeMin": 12,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "shellfish",
+      "soy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "kosher",
+        "reason": "shellfish"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "shellfish"
+      },
+      {
+        "religion": "jain",
+        "reason": "shellfish"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 360,
+      "protein": 28,
+      "carbs": 38,
+      "fat": 10,
+      "saturatedFat": 2,
+      "fiber": 6,
+      "sugar": 8,
+      "addedSugar": 2,
+      "sodium": 760,
+      "potassium": 720,
+      "calcium": 120,
+      "iron": 3.0,
+      "magnesium": 80,
+      "zinc": 2.0,
+      "vitA": 480,
+      "vitC": 32,
+      "vitD": 0.4,
+      "vitB12": 1.4,
+      "folate": 120
+    }
+  },
+  {
+    "id": 35,
+    "name": "Almond milk with cereal",
+    "category": "dairy_alt",
+    "cuisine": "american",
+    "servingG": 280,
+    "servingLabel": "1.5 cups + cereal",
+    "cost": 2.1,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "tree_nut",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 5,
+      "carbs": 42,
+      "fat": 4,
+      "saturatedFat": 0.5,
+      "fiber": 4,
+      "sugar": 12,
+      "addedSugar": 8,
+      "sodium": 240,
+      "potassium": 200,
+      "calcium": 360,
+      "iron": 7.0,
+      "magnesium": 30,
+      "zinc": 2.0,
+      "vitA": 380,
+      "vitC": 12,
+      "vitD": 2.5,
+      "vitB12": 1.5,
+      "folate": 100
+    }
+  },
+  {
+    "id": 36,
+    "name": "Microwave brown rice",
+    "category": "grain_whole",
+    "cuisine": null,
+    "servingG": 200,
+    "servingLabel": "1 cup cooked",
+    "cost": 1.1,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 5,
+      "carbs": 46,
+      "fat": 2,
+      "saturatedFat": 0.4,
+      "fiber": 4,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 5,
+      "potassium": 160,
+      "calcium": 20,
+      "iron": 1.0,
+      "magnesium": 80,
+      "zinc": 1.2,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 8
+    }
+  },
+  {
+    "id": 37,
+    "name": "Spinach & feta wrap",
+    "category": "prepared_meal",
+    "cuisine": "mediterranean",
+    "servingG": 240,
+    "servingLabel": "1 wrap",
+    "cost": 5.2,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "fast_food"
+    ],
+    "nutrients": {
+      "calories": 380,
+      "protein": 16,
+      "carbs": 42,
+      "fat": 16,
+      "saturatedFat": 7,
+      "fiber": 6,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 720,
+      "potassium": 540,
+      "calcium": 280,
+      "iron": 4.2,
+      "magnesium": 60,
+      "zinc": 1.6,
+      "vitA": 1400,
+      "vitC": 18,
+      "vitD": 0.4,
+      "vitB12": 0.6,
+      "folate": 180
+    }
+  },
+  {
+    "id": 38,
+    "name": "Tofu scramble (plain)",
+    "category": "protein_plant",
+    "cuisine": null,
+    "servingG": 200,
+    "servingLabel": "1 cup",
+    "cost": 2.1,
+    "costConfidence": "medium",
+    "prep": "stove",
+    "prepTimeMin": 8,
+    "mealTypes": [
+      "breakfast",
+      "lunch"
+    ],
+    "allergens": [
+      "soy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 22,
+      "carbs": 8,
+      "fat": 12,
+      "saturatedFat": 2,
+      "fiber": 3,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 280,
+      "potassium": 380,
+      "calcium": 380,
+      "iron": 4.5,
+      "magnesium": 80,
+      "zinc": 2.4,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 1.6,
+      "folate": 28
+    }
+  },
+  {
+    "id": 39,
+    "name": "Mixed berry smoothie",
+    "category": "beverage",
+    "cuisine": null,
+    "servingG": 360,
+    "servingLabel": "12 oz",
+    "cost": 3.8,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "fast_food"
+    ],
+    "nutrients": {
+      "calories": 240,
+      "protein": 8,
+      "carbs": 48,
+      "fat": 3,
+      "saturatedFat": 1.5,
+      "fiber": 6,
+      "sugar": 36,
+      "addedSugar": 12,
+      "sodium": 80,
+      "potassium": 480,
+      "calcium": 220,
+      "iron": 0.8,
+      "magnesium": 40,
+      "zinc": 1.0,
+      "vitA": 220,
+      "vitC": 32,
+      "vitD": 1.0,
+      "vitB12": 0.6,
+      "folate": 40
+    }
+  },
+  {
+    "id": 40,
+    "name": "Plain canned tuna",
+    "category": "protein_animal",
+    "cuisine": null,
+    "servingG": 85,
+    "servingLabel": "1 small can",
+    "cost": 1.3,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "fish"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "fish"
+      },
+      {
+        "religion": "jain",
+        "reason": "fish"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 100,
+      "protein": 22,
+      "carbs": 0,
+      "fat": 1,
+      "saturatedFat": 0.3,
+      "fiber": 0,
+      "sugar": 0,
+      "addedSugar": 0,
+      "sodium": 280,
+      "potassium": 200,
+      "calcium": 12,
+      "iron": 1.4,
+      "magnesium": 24,
+      "zinc": 0.8,
+      "vitA": 40,
+      "vitC": 0,
+      "vitD": 1.5,
+      "vitB12": 2.5,
+      "folate": 4
+    }
+  },
+  {
+    "id": 41,
+    "name": "Vegetable & barley soup",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 360,
+    "servingLabel": "1 bowl",
+    "cost": 2.2,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 8,
+      "carbs": 42,
+      "fat": 3,
+      "saturatedFat": 0.5,
+      "fiber": 8,
+      "sugar": 8,
+      "addedSugar": 0,
+      "sodium": 540,
+      "potassium": 540,
+      "calcium": 60,
+      "iron": 2.0,
+      "magnesium": 50,
+      "zinc": 1.2,
+      "vitA": 1100,
+      "vitC": 16,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 80
+    }
+  },
+  {
+    "id": 42,
+    "name": "Mango with sticky rice",
+    "category": "prepared_meal",
+    "cuisine": "asian",
+    "servingG": 260,
+    "servingLabel": "1 plate",
+    "cost": 4.4,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack",
+      "lunch"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "avoid"
+      }
+    ],
+    "availability": [
+      "grocery"
+    ],
+    "nutrients": {
+      "calories": 380,
+      "protein": 4,
+      "carbs": 88,
+      "fat": 2,
+      "saturatedFat": 1,
+      "fiber": 4,
+      "sugar": 36,
+      "addedSugar": 18,
+      "sodium": 60,
+      "potassium": 360,
+      "calcium": 30,
+      "iron": 0.6,
+      "magnesium": 30,
+      "zinc": 0.5,
+      "vitA": 600,
+      "vitC": 36,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 60
+    }
+  }
+]

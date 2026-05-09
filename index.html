@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AccessPlate — Constraint-aware nutrition decision support</title>
+  <link rel="stylesheet" href="styles/theme.css" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/phone-frame.css" />
+  <link rel="stylesheet" href="styles/screens.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">AP</div>
+      <div>
+        <h1>AccessPlate</h1>
+        <p class="tagline">Constraint-aware dietary decision support · offline · free</p>
+      </div>
+    </div>
+
+    <div class="device-controls" role="group" aria-label="Device preview">
+      <button type="button" class="device-btn is-active" data-device="ios">iOS</button>
+      <button type="button" class="device-btn" data-device="android">Android</button>
+      <button type="button" class="device-btn outline" id="reset-profile-btn" title="Clear saved profile and re-onboard">Reset</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="phone-stage">
+      <div class="phone-frame" id="phone-frame" data-device="ios" aria-label="App preview">
+        <div class="phone-notch" aria-hidden="true"></div>
+        <div class="phone-screen" id="phone-screen">
+          <div class="status-bar" aria-hidden="true">
+            <span class="time" id="status-time">9:41</span>
+            <span class="status-icons">●●●●● 5G ▮</span>
+          </div>
+          <div class="screen-host" id="screen-host" role="region" aria-live="polite"></div>
+        </div>
+        <div class="phone-home-indicator" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <aside class="explainer-panel" aria-label="Engine internals">
+      <h2>Engine internals</h2>
+      <p class="hint">Live trace of the four-level pipeline as you interact with the phone preview.</p>
+      <ol class="pipeline-list" id="pipeline-trace">
+        <li><strong>L1 Safety</strong> <span data-trace="l1">—</span></li>
+        <li><strong>L2 Feasibility</strong> <span data-trace="l2">—</span></li>
+        <li><strong>L3 Preference</strong> <span data-trace="l3">—</span></li>
+        <li><strong>L4 Score</strong> <span data-trace="l4">—</span></li>
+        <li><strong>Latency</strong> <span data-trace="ms">—</span></li>
+      </ol>
+      <div class="legend">
+        <h3>NIH theme</h3>
+        <div class="swatches">
+          <span class="sw" style="background:#20558A">NIH Blue</span>
+          <span class="sw" style="background:#002F6C">Navy</span>
+          <span class="sw" style="background:#5694C4">Sky</span>
+          <span class="sw" style="background:#BAD3E9;color:#002F6C">Mist</span>
+          <span class="sw" style="background:#F8C72A;color:#002F6C">Accent</span>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <span>v0.1 demo · all data stays in your browser · no network calls</span>
+    <span><a href="README.md">README</a> · <a href="technical_design_document.md">Tech spec</a></span>
+  </footer>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

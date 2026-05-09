@@ -1,0 +1,84 @@
+{
+  "demographicKeys": [
+    "male_19_50",
+    "male_51_70",
+    "female_19_50",
+    "female_51_70",
+    "pregnant_19_50",
+    "lactating_19_50"
+  ],
+  "rda": {
+    "male_19_50": {
+      "iron_mg": 8,
+      "calcium_mg": 1000,
+      "potassium_mg": 3400,
+      "magnesium_mg": 400,
+      "zinc_mg": 11,
+      "vit_a_mcg_rae": 900,
+      "vit_c_mg": 90,
+      "vit_d_mcg": 15,
+      "vit_b12_mcg": 2.4,
+      "folate_mcg_dfe": 400
+    },
+    "male_51_70": {
+      "iron_mg": 8,
+      "calcium_mg": 1000,
+      "potassium_mg": 3400,
+      "magnesium_mg": 420,
+      "zinc_mg": 11,
+      "vit_a_mcg_rae": 900,
+      "vit_c_mg": 90,
+      "vit_d_mcg": 15,
+      "vit_b12_mcg": 2.4,
+      "folate_mcg_dfe": 400
+    },
+    "female_19_50": {
+      "iron_mg": 18,
+      "calcium_mg": 1000,
+      "potassium_mg": 2600,
+      "magnesium_mg": 310,
+      "zinc_mg": 8,
+      "vit_a_mcg_rae": 700,
+      "vit_c_mg": 75,
+      "vit_d_mcg": 15,
+      "vit_b12_mcg": 2.4,
+      "folate_mcg_dfe": 400
+    },
+    "female_51_70": {
+      "iron_mg": 8,
+      "calcium_mg": 1200,
+      "potassium_mg": 2600,
+      "magnesium_mg": 320,
+      "zinc_mg": 8,
+      "vit_a_mcg_rae": 700,
+      "vit_c_mg": 75,
+      "vit_d_mcg": 15,
+      "vit_b12_mcg": 2.4,
+      "folate_mcg_dfe": 400
+    },
+    "pregnant_19_50": {
+      "iron_mg": 27,
+      "calcium_mg": 1000,
+      "potassium_mg": 2900,
+      "magnesium_mg": 350,
+      "zinc_mg": 11,
+      "vit_a_mcg_rae": 770,
+      "vit_c_mg": 85,
+      "vit_d_mcg": 15,
+      "vit_b12_mcg": 2.6,
+      "folate_mcg_dfe": 600
+    },
+    "lactating_19_50": {
+      "iron_mg": 9,
+      "calcium_mg": 1000,
+      "potassium_mg": 2800,
+      "magnesium_mg": 310,
+      "zinc_mg": 12,
+      "vit_a_mcg_rae": 1300,
+      "vit_c_mg": 120,
+      "vit_d_mcg": 15,
+      "vit_b12_mcg": 2.8,
+      "folate_mcg_dfe": 500
+    }
+  }
+}

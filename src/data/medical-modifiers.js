@@ -1,0 +1,44 @@
+// Per-condition adjustments to penalty thresholds and weights.
+// Mirrors the JSON-backed table described in §13.4 of the spec.
+
+export const MEDICAL_MODIFIERS = {
+  low_sodium_limit: {
+    thresholds: { sodium_mg: { multiplier: 0.6 } },
+    weights:    { sodium_mg: { multiplier: 1.5 } },
+  },
+  low_potassium_ckd: {
+    thresholds: { potassium_mg: { absolute: 600 } },
+    weights:    { potassium_mg: { absolute: 0.4 } },
+  },
+  diabetic_limit: {
+    thresholds: { added_sugar_g: { multiplier: 0.5 } },
+    weights:    { added_sugar_g: { multiplier: 2.0 } },
+  },
+  hypertension: {
+    thresholds: { sodium_mg: { multiplier: 0.7 } },
+    weights:    { sodium_mg: { multiplier: 1.3 } },
+  },
+};
+
+// Priority elevations for declared deficiencies.
+export const MICRO_PRIORITY_ELEVATIONS = {
+  anemia:        { iron_mg: 2.0 },
+  pregnancy:     { folate_mcg_dfe: 2.0, iron_mg: 1.5, calcium_mg: 1.5 },
+  bone_density:  { calcium_mg: 1.5, vit_d_mcg: 1.5 },
+  vegetarian:    { iron_mg: 1.5, vit_b12_mcg: 2.0, zinc_mg: 1.5 },
+  vegan:         { vit_b12_mcg: 2.5, iron_mg: 1.5, calcium_mg: 1.5,
+                   vit_d_mcg: 1.5, zinc_mg: 1.5 },
+};
+
+// Default base penalty thresholds and weights.
+export const BASE_PENALTY_THRESHOLDS = {
+  sodium_mg: 750,
+  added_sugar_g: 12,
+  saturated_fat_g: 7,
+};
+
+export const BASE_PENALTY_WEIGHTS = {
+  sodium_mg: 0.4,
+  added_sugar_g: 0.3,
+  saturated_fat_g: 0.3,
+};
