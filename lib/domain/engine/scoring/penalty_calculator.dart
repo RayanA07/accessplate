@@ -3,10 +3,7 @@ import 'dart:math' as math;
 import '../../entities/nutrients.dart';
 
 class PenaltyCalculator {
-  const PenaltyCalculator({
-    required this.thresholds,
-    required this.weights,
-  });
+  const PenaltyCalculator({required this.thresholds, required this.weights});
 
   final Map<String, double> thresholds;
   final Map<String, double> weights;
@@ -37,9 +34,14 @@ class PenaltyCalculator {
       return 0;
     }
 
-    final numerator = weightedTerms.fold<double>(0, (sum, value) => sum + value);
-    final denominator =
-        termWeights.fold<double>(0, (sum, value) => sum + value);
+    final numerator = weightedTerms.fold<double>(
+      0,
+      (sum, value) => sum + value,
+    );
+    final denominator = termWeights.fold<double>(
+      0,
+      (sum, value) => sum + value,
+    );
     return (numerator / denominator).clamp(0, 1).toDouble();
   }
 }

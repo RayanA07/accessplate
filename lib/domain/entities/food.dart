@@ -1,5 +1,6 @@
 import '../value_objects/allergen.dart';
 import '../value_objects/availability_context.dart';
+import '../value_objects/dietary_style.dart';
 import '../value_objects/meal_type.dart';
 import '../value_objects/medical_restriction.dart';
 import '../value_objects/religion.dart';
@@ -20,10 +21,7 @@ class MedicalRule {
 }
 
 class ReligionRule {
-  const ReligionRule({
-    required this.religion,
-    this.reason,
-  });
+  const ReligionRule({required this.religion, this.reason});
 
   final Religion religion;
   final String? reason;
@@ -69,13 +67,82 @@ class Food {
   final String source;
 
   bool get readyToEat => prepMethod == 'none';
+
+  bool supportsDietaryStyle(DietaryStyle dietaryStyle) {
+    switch (dietaryStyle) {
+      case DietaryStyle.unrestricted:
+        return true;
+      case DietaryStyle.vegetarian:
+        return isVegetarian;
+      case DietaryStyle.vegan:
+        return isVegan;
+    }
+  }
+
+  bool get isVegetarian {
+    if (category == 'protein_animal') {
+      return false;
+    }
+
+    if (allergens.contains(Allergen.fish) ||
+        allergens.contains(Allergen.shellfish)) {
+      return false;
+    }
+
+    return !_matchesAny(_animalTokens);
+  }
+
+  bool get isVegan {
+    if (!isVegetarian) {
+      return false;
+    }
+
+    if (allergens.contains(Allergen.dairy) ||
+        allergens.contains(Allergen.egg)) {
+      return false;
+    }
+
+    return !_matchesAny(_veganOnlyTokens);
+  }
+
+  bool _matchesAny(Set<String> tokens) {
+    return ingredients.any(tokens.contains);
+  }
+
+  static const Set<String> _animalTokens = {
+    'anchovy',
+    'beef',
+    'burger',
+    'carnitas',
+    'chicken',
+    'fish',
+    'ham',
+    'meat',
+    'pork',
+    'salmon',
+    'sausage',
+    'shellfish',
+    'shrimp',
+    'steak',
+    'tuna',
+    'turkey',
+  };
+
+  static const Set<String> _veganOnlyTokens = {
+    'butter',
+    'caesar',
+    'cheese',
+    'cream',
+    'egg',
+    'feta',
+    'honey',
+    'milk',
+    'yogurt',
+  };
 }
 
 class FoodRecord {
-  const FoodRecord({
-    required this.food,
-    required this.nutrients,
-  });
+  const FoodRecord({required this.food, required this.nutrients});
 
   final Food food;
   final Nutrients nutrients;

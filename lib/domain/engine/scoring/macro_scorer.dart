@@ -18,10 +18,7 @@ class MacroWeights {
 }
 
 class MacroScorer {
-  const MacroScorer({
-    required this.targets,
-    required this.weights,
-  });
+  const MacroScorer({required this.targets, required this.weights});
 
   final NutritionalTargets targets;
   final MacroWeights weights;

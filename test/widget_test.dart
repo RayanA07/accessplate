@@ -7,11 +7,7 @@ void main() {
   testWidgets('section card renders child content', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Scaffold(
-          body: SectionCard(
-            child: Text('AccessPlate'),
-          ),
-        ),
+        home: Scaffold(body: SectionCard(child: Text('AccessPlate'))),
       ),
     );
 

@@ -40,10 +40,7 @@ class ScoreConfig {
 }
 
 class PenaltyConfig {
-  const PenaltyConfig({
-    required this.thresholds,
-    required this.weights,
-  });
+  const PenaltyConfig({required this.thresholds, required this.weights});
 
   final Map<String, double> thresholds;
   final Map<String, double> weights;
@@ -69,7 +66,8 @@ class PenaltyConfigBuilder {
       }
       _applyModifier(
         target: thresholds,
-        modifierGroup: modifier['thresholds'] as Map<String, dynamic>? ?? const {},
+        modifierGroup:
+            modifier['thresholds'] as Map<String, dynamic>? ?? const {},
       );
       _applyModifier(
         target: weights,
@@ -77,10 +75,7 @@ class PenaltyConfigBuilder {
       );
     }
 
-    return PenaltyConfig(
-      thresholds: thresholds,
-      weights: weights,
-    );
+    return PenaltyConfig(thresholds: thresholds, weights: weights);
   }
 
   void _applyModifier({
@@ -108,16 +103,20 @@ class ScoreConfigProvider {
     required UserConstraints user,
     required CompositeWeights weights,
   }) {
-    final rda = tables.rdaTable[user.demographics.demographicKey] ??
+    final rda =
+        tables.rdaTable[user.demographics.demographicKey] ??
         tables.rdaTable['female_19_50'] ??
         const <String, double>{};
 
-    final priorities = <String, double>{
-      for (final key in rda.keys) key: 1,
-    };
+    final priorities = <String, double>{for (final key in rda.keys) key: 1};
 
-    for (final concern in user.demographics.concerns) {
-      final modifier = tables.microPriorityElevations[concern.code];
+    final priorityCodes = <String>[
+      ...user.demographics.concerns.map((value) => value.code),
+      ?user.preference.dietaryStyle.microPriorityCode,
+    ];
+
+    for (final code in priorityCodes) {
+      final modifier = tables.microPriorityElevations[code];
       if (modifier == null) {
         continue;
       }

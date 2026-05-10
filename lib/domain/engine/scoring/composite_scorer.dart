@@ -88,10 +88,7 @@ class CompositeScorer {
   final PreferenceScorer preferenceScorer;
   final CompositeWeights weights;
 
-  ScoredFood score({
-    required FoodRecord record,
-    required double budgetUsd,
-  }) {
+  ScoredFood score({required FoodRecord record, required double budgetUsd}) {
     final food = record.food;
     final macro = macroScorer.score(record.nutrients);
     final micro = microScorer.score(record.nutrients);
@@ -101,7 +98,8 @@ class CompositeScorer {
         : math.min(1.0, food.costEstimate / budgetUsd).toDouble();
     final preference = preferenceScorer.score(food);
 
-    final composite = weights.macro * macro +
+    final composite =
+        weights.macro * macro +
         weights.micro * micro -
         weights.penalty * penalty -
         weights.cost * cost +

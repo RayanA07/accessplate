@@ -17,10 +17,7 @@ void main() {
         name: 'Peanut butter sandwich',
         allergens: {Allergen.peanut},
       ),
-      _food(
-        id: 2,
-        name: 'Sunflower butter sandwich',
-      ),
+      _food(id: 2, name: 'Sunflower butter sandwich'),
     ];
 
     final result = filter.apply(

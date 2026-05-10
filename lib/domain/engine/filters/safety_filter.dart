@@ -5,20 +5,20 @@ import '../../value_objects/religion.dart';
 class SafetyFilter {
   const SafetyFilter();
 
-  List<FoodRecord> apply(
-    List<FoodRecord> foods,
-    SafetyConstraints safety,
-  ) {
+  List<FoodRecord> apply(List<FoodRecord> foods, SafetyConstraints safety) {
     return foods.where((record) {
       final food = record.food;
-      final allergenConflict =
-          food.allergens.any((allergen) => safety.allergens.contains(allergen));
+      final allergenConflict = food.allergens.any(
+        (allergen) => safety.allergens.contains(allergen),
+      );
       if (allergenConflict) {
         return false;
       }
 
       if (safety.religion != Religion.none &&
-          food.religionExcluded.any((rule) => rule.religion == safety.religion)) {
+          food.religionExcluded.any(
+            (rule) => rule.religion == safety.religion,
+          )) {
         return false;
       }
 

@@ -6,10 +6,7 @@ import '../value_objects/religion.dart';
 import 'score_config_provider.dart';
 
 class Explainer {
-  const Explainer({
-    required this.config,
-    required this.user,
-  });
+  const Explainer({required this.config, required this.user});
 
   final ScoreConfig config;
   final UserConstraints user;
@@ -79,7 +76,8 @@ class Explainer {
       );
     }
 
-    if ((config.microPriorities['iron_mg'] ?? 1) > 1.2 && nutrients.ironMg >= 3) {
+    if ((config.microPriorities['iron_mg'] ?? 1) > 1.2 &&
+        nutrients.ironMg >= 3) {
       positives.add(
         ScoreFactor(
           label: 'Helpful iron source',

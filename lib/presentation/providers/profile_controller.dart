@@ -13,8 +13,8 @@ import 'app_bootstrap.dart';
 
 final profileControllerProvider =
     AsyncNotifierProvider<ProfileController, UserProfile>(
-  ProfileController.new,
-);
+      ProfileController.new,
+    );
 
 class ProfileController extends AsyncNotifier<UserProfile> {
   @override
@@ -25,10 +25,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
 
   Future<void> setStage(OnboardingStage stage) async {
     await _persist(
-      current.copyWith(
-        onboardingStage: stage,
-        onboardingComplete: false,
-      ),
+      current.copyWith(onboardingStage: stage, onboardingComplete: false),
     );
   }
 
@@ -41,17 +38,20 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     );
   }
 
-  Future<void> reopenOnboarding({OnboardingStage stage = OnboardingStage.safety}) {
+  Future<void> reopenOnboarding({
+    OnboardingStage stage = OnboardingStage.allergens,
+  }) {
     return _persist(
-      current.copyWith(
-        onboardingComplete: false,
-        onboardingStage: stage,
-      ),
+      current.copyWith(onboardingComplete: false, onboardingStage: stage),
     );
   }
 
   Future<void> updateSafety(SafetyConstraints safety) {
-    return _persist(current.copyWith(constraints: current.constraints.copyWith(safety: safety)));
+    return _persist(
+      current.copyWith(
+        constraints: current.constraints.copyWith(safety: safety),
+      ),
+    );
   }
 
   Future<void> updateFeasibility(FeasibilityConstraints feasibility) {
@@ -108,7 +108,9 @@ class ProfileController extends AsyncNotifier<UserProfile> {
   }
 
   Future<void> updateMealType(MealType mealType) {
-    final preference = current.constraints.preference.copyWith(mealType: mealType);
+    final preference = current.constraints.preference.copyWith(
+      mealType: mealType,
+    );
     return updatePreference(preference);
   }
 

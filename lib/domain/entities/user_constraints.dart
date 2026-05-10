@@ -1,5 +1,6 @@
 import '../value_objects/allergen.dart';
 import '../value_objects/availability_context.dart';
+import '../value_objects/dietary_style.dart';
 import '../value_objects/meal_type.dart';
 import '../value_objects/medical_restriction.dart';
 import '../value_objects/prep_environment.dart';
@@ -93,14 +94,22 @@ class FeasibilityConstraints {
   }
 
   factory FeasibilityConstraints.fromJson(Map<String, dynamic> json) {
+    final availabilityValues =
+        ((json['availability'] as List<dynamic>? ?? const []))
+            .map((value) => AvailabilityContext.fromCode(value as String))
+            .toSet();
+
     return FeasibilityConstraints(
       maxCostPerMeal: (json['maxCostPerMeal'] as num?)?.toDouble() ?? 8,
       environment: PrepEnvironment.fromCode(
         json['environment'] as String? ?? PrepEnvironment.microwave.code,
       ),
-      availability: ((json['availability'] as List<dynamic>? ?? const []))
-          .map((value) => AvailabilityContext.fromCode(value as String))
-          .toSet(),
+      availability: availabilityValues.isEmpty
+          ? const {
+              AvailabilityContext.grocery,
+              AvailabilityContext.convenience,
+            }
+          : availabilityValues,
     );
   }
 }
@@ -109,18 +118,21 @@ class PreferenceConstraints {
   const PreferenceConstraints({
     this.cuisinePreference,
     this.dislikedIngredients = const {},
+    this.dietaryStyle = DietaryStyle.unrestricted,
     this.mealType = MealType.lunch,
     this.applyVariety = true,
   });
 
   final String? cuisinePreference;
   final Set<String> dislikedIngredients;
+  final DietaryStyle dietaryStyle;
   final MealType mealType;
   final bool applyVariety;
 
   PreferenceConstraints copyWith({
     String? cuisinePreference,
     Set<String>? dislikedIngredients,
+    DietaryStyle? dietaryStyle,
     MealType? mealType,
     bool? applyVariety,
     bool clearCuisinePreference = false,
@@ -130,6 +142,7 @@ class PreferenceConstraints {
           ? null
           : cuisinePreference ?? this.cuisinePreference,
       dislikedIngredients: dislikedIngredients ?? this.dislikedIngredients,
+      dietaryStyle: dietaryStyle ?? this.dietaryStyle,
       mealType: mealType ?? this.mealType,
       applyVariety: applyVariety ?? this.applyVariety,
     );
@@ -139,6 +152,7 @@ class PreferenceConstraints {
     return {
       'cuisinePreference': cuisinePreference,
       'dislikedIngredients': dislikedIngredients.toList(),
+      'dietaryStyle': dietaryStyle.code,
       'mealType': mealType.code,
       'applyVariety': applyVariety,
     };
@@ -151,6 +165,9 @@ class PreferenceConstraints {
           ((json['dislikedIngredients'] as List<dynamic>? ?? const []))
               .map((value) => (value as String).toLowerCase())
               .toSet(),
+      dietaryStyle: DietaryStyle.fromCode(
+        json['dietaryStyle'] as String? ?? DietaryStyle.unrestricted.code,
+      ),
       mealType: MealType.fromCode(json['mealType'] as String? ?? 'lunch'),
       applyVariety: json['applyVariety'] as bool? ?? true,
     );
@@ -234,10 +251,7 @@ class UserConstraints {
       feasibility: const FeasibilityConstraints(),
       preference: const PreferenceConstraints(),
       targets: const NutritionalTargets(),
-      demographics: const Demographics(
-        sex: Sex.female,
-        ageYears: 30,
-      ),
+      demographics: const Demographics(sex: Sex.female, ageYears: 30),
     );
   }
 
@@ -276,6 +290,27 @@ class UserConstraints {
   }
 
   factory UserConstraints.fromJson(Map<String, dynamic> json) {
+    final demographics = Demographics.fromJson(
+      Map<String, dynamic>.from(json['demographics'] as Map? ?? const {}),
+    );
+    final preference = PreferenceConstraints.fromJson(
+      Map<String, dynamic>.from(json['preference'] as Map? ?? const {}),
+    );
+    final migratedDietaryStyle =
+        preference.dietaryStyle != DietaryStyle.unrestricted
+        ? preference.dietaryStyle
+        : demographics.concerns.contains(HealthConcern.vegan)
+        ? DietaryStyle.vegan
+        : demographics.concerns.contains(HealthConcern.vegetarian)
+        ? DietaryStyle.vegetarian
+        : DietaryStyle.unrestricted;
+    final normalizedConcerns = demographics.concerns
+        .where(
+          (value) =>
+              value != HealthConcern.vegetarian && value != HealthConcern.vegan,
+        )
+        .toSet();
+
     return UserConstraints(
       safety: SafetyConstraints.fromJson(
         Map<String, dynamic>.from(json['safety'] as Map? ?? const {}),
@@ -283,23 +318,17 @@ class UserConstraints {
       feasibility: FeasibilityConstraints.fromJson(
         Map<String, dynamic>.from(json['feasibility'] as Map? ?? const {}),
       ),
-      preference: PreferenceConstraints.fromJson(
-        Map<String, dynamic>.from(json['preference'] as Map? ?? const {}),
-      ),
+      preference: preference.copyWith(dietaryStyle: migratedDietaryStyle),
       targets: NutritionalTargets.fromJson(
         Map<String, dynamic>.from(json['targets'] as Map? ?? const {}),
       ),
-      demographics: Demographics.fromJson(
-        Map<String, dynamic>.from(json['demographics'] as Map? ?? const {}),
-      ),
+      demographics: demographics.copyWith(concerns: normalizedConcerns),
       todayIntake: (json['todayIntake'] as Map<String, dynamic>? ?? const {})
           .map((key, value) => MapEntry(key, (value as num).toDouble())),
-      recentlyActed: (json['recentlyActed'] as Map<String, dynamic>? ?? const {})
-          .map(
-            (key, value) => MapEntry(
-              int.parse(key),
-              DateTime.parse(value as String),
-            ),
+      recentlyActed:
+          (json['recentlyActed'] as Map<String, dynamic>? ?? const {}).map(
+            (key, value) =>
+                MapEntry(int.parse(key), DateTime.parse(value as String)),
           ),
     );
   }

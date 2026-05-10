@@ -1,5 +1,6 @@
 import '../../entities/food.dart';
 import '../../entities/user_constraints.dart';
+import '../../value_objects/dietary_style.dart';
 import '../../value_objects/meal_type.dart';
 
 class PreferenceFilter {
@@ -10,6 +11,12 @@ class PreferenceFilter {
     PreferenceConstraints preference,
   ) {
     Iterable<FoodRecord> filtered = foods;
+
+    if (preference.dietaryStyle != DietaryStyle.unrestricted) {
+      filtered = filtered.where(
+        (record) => record.food.supportsDietaryStyle(preference.dietaryStyle),
+      );
+    }
 
     if (preference.dislikedIngredients.isNotEmpty) {
       filtered = filtered.where((record) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/theme/app_palette.dart';
+import 'core/theme/app_theme.dart';
 import 'domain/entities/user_profile.dart';
 import 'presentation/providers/profile_controller.dart';
 import 'presentation/screens/onboarding/onboarding_flow_screen.dart';
@@ -13,8 +15,8 @@ class AccessPlateApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileControllerProvider);
-    final themePreference = profileAsync.valueOrNull?.themePreference ??
-        AppThemePreference.system;
+    final themePreference =
+        profileAsync.valueOrNull?.themePreference ?? AppThemePreference.system;
 
     return MaterialApp(
       title: 'AccessPlate',
@@ -24,74 +26,14 @@ class AccessPlateApp extends ConsumerWidget {
         AppThemePreference.dark => ThemeMode.dark,
         AppThemePreference.system => ThemeMode.system,
       },
-      theme: _buildTheme(Brightness.light),
-      darkTheme: _buildTheme(Brightness.dark),
+      theme: AccessPlateTheme.light(),
+      darkTheme: AccessPlateTheme.dark(),
       home: profileAsync.when(
         data: (profile) => profile.onboardingComplete
             ? const RecommendationsScreen()
             : const OnboardingFlowScreen(),
         loading: () => const _BootstrapScreen(),
         error: (error, stackTrace) => _ErrorScreen(error: error),
-      ),
-    );
-  }
-
-  ThemeData _buildTheme(Brightness brightness) {
-    final isDark = brightness == Brightness.dark;
-    const navy = Color(0xFF17324D);
-    const sky = Color(0xFF5E94B8);
-    const gold = Color(0xFFF2C14E);
-    final scheme = ColorScheme.fromSeed(
-      seedColor: sky,
-      brightness: brightness,
-      primary: isDark ? const Color(0xFF9CC7E4) : navy,
-      secondary: gold,
-      surface: isDark ? const Color(0xFF102032) : const Color(0xFFF7FAFC),
-    );
-
-    return ThemeData(
-      colorScheme: scheme,
-      useMaterial3: true,
-      scaffoldBackgroundColor:
-          isDark ? const Color(0xFF08121D) : const Color(0xFFF0F6FA),
-      textTheme: ThemeData(brightness: brightness).textTheme.apply(
-            bodyColor: scheme.onSurface,
-            displayColor: scheme.onSurface,
-            fontFamily: 'Georgia',
-          ),
-      chipTheme: ChipThemeData(
-        backgroundColor: scheme.surface,
-        selectedColor: scheme.primary.withValues(alpha: 0.15),
-        side: BorderSide(color: scheme.outlineVariant),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      ),
-      appBarTheme: AppBarTheme(
-        centerTitle: false,
-        backgroundColor: Colors.transparent,
-        foregroundColor: scheme.onSurface,
-        elevation: 0,
-      ),
-      sliderTheme: SliderThemeData(
-        activeTrackColor: scheme.primary,
-        thumbColor: scheme.secondary,
-        inactiveTrackColor: scheme.primary.withValues(alpha: 0.2),
-      ),
-      cardTheme: CardThemeData(
-        color: isDark ? const Color(0xFF10273C) : Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: isDark ? const Color(0xFF132A3D) : Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide(color: scheme.outlineVariant),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide(color: scheme.outlineVariant),
-        ),
       ),
     );
   }
@@ -102,41 +44,44 @@ class _BootstrapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF17324D), Color(0xFF5E94B8), Color(0xFFEAF2F7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? NihPalette.darkBackground
+              : NihPalette.lightBackground,
         ),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
-            child: const SectionCard(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'AccessPlate',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: SectionCard(
+                tintColor: NihPalette.secondaryLight,
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AccessPlate',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          color: NihPalette.primaryDarkest,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'Preparing the offline food database and your profile...',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    SizedBox(height: 20),
-                    LinearProgressIndicator(),
-                  ],
+                      SizedBox(height: 12),
+                      Text(
+                        'Preparing your profile and cached foods...',
+                        style: TextStyle(color: NihPalette.grayDark),
+                      ),
+                      SizedBox(height: 20),
+                      LinearProgressIndicator(minHeight: 8),
+                    ],
+                  ),
                 ),
               ),
             ),

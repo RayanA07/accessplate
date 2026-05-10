@@ -2,6 +2,7 @@ import '../entities/recommendation.dart';
 import '../entities/user_constraints.dart';
 import '../repositories/food_repository.dart';
 import '../value_objects/availability_context.dart';
+import '../value_objects/dietary_style.dart';
 import '../value_objects/meal_type.dart';
 import '../value_objects/prep_environment.dart';
 import 'explainer.dart';
@@ -64,26 +65,34 @@ class DecisionEngine {
 
     var preferenceRelaxed = false;
     var preferred = preferenceFilter.apply(feasible, user.preference);
-    if (preferred.length < 5) {
-      preferenceRelaxed = true;
-      if (user.preference.mealType != MealType.any) {
-        preferred = preferenceFilter.apply(
-          feasible,
-          user.preference.copyWith(
-            mealType: MealType.any,
-            applyVariety: false,
-          ),
-        );
-      }
-      if (preferred.length < 5) {
-        preferred = feasible;
+    if (preferred.length < 5 && user.preference.mealType != MealType.any) {
+      final relaxedPreference = preferenceFilter.apply(
+        feasible,
+        user.preference.copyWith(mealType: MealType.any, applyVariety: false),
+      );
+      if (relaxedPreference.length > preferred.length) {
+        preferred = relaxedPreference;
+        preferenceRelaxed = true;
       }
     }
 
-    final config = scoreConfigProvider.buildFor(
-      user: user,
-      weights: weights,
-    );
+    if (preferred.isEmpty) {
+      stopwatch.stop();
+      return RecommendationResult(
+        recommendations: const [],
+        preferenceRelaxed: preferenceRelaxed,
+        candidatePoolSize: 0,
+        elapsedMs: stopwatch.elapsedMilliseconds,
+        diagnostic: InsufficientCandidatesAnalysis(
+          currentCount: 0,
+          minimumDesired: 5,
+          mostRestrictive: BlockingConstraint.preference,
+          suggestion: _preferenceSuggestion(user),
+        ),
+      );
+    }
+
+    final config = scoreConfigProvider.buildFor(user: user, weights: weights);
 
     final scorer = CompositeScorer(
       macroScorer: MacroScorer(
@@ -101,22 +110,21 @@ class DecisionEngine {
       ),
       preferenceScorer: PreferenceScorer(
         preference: user.preference,
-        varietyDampener: VarietyDampener(
-          recentlyActed: user.recentlyActed,
-        ),
+        varietyDampener: VarietyDampener(recentlyActed: user.recentlyActed),
       ),
       weights: config.compositeWeights,
     );
 
-    final ranked = preferred
-        .map(
-          (record) => scorer.score(
-            record: record,
-            budgetUsd: user.feasibility.maxCostPerMeal,
-          ),
-        )
-        .toList()
-      ..sort(_compareScoredFoods);
+    final ranked =
+        preferred
+            .map(
+              (record) => scorer.score(
+                record: record,
+                budgetUsd: user.feasibility.maxCostPerMeal,
+              ),
+            )
+            .toList()
+          ..sort(_compareScoredFoods);
 
     final scaled = _applyDisplayScaling(ranked);
     final explainer = Explainer(config: config, user: user);
@@ -124,6 +132,7 @@ class DecisionEngine {
         .take(limit)
         .map((item) => item.copyWith(explanation: explainer.explain(item)))
         .toList();
+    await repo.touchFoods(explained.map((item) => item.food.id));
 
     stopwatch.stop();
     return RecommendationResult(
@@ -210,6 +219,18 @@ class DecisionEngine {
       case BlockingConstraint.safety:
         return 'Review your safety settings. They currently exclude the full dataset.';
     }
+  }
+
+  String _preferenceSuggestion(UserConstraints user) {
+    if (user.preference.dietaryStyle != DietaryStyle.unrestricted) {
+      return 'No foods matched your ${user.preference.dietaryStyle.label.toLowerCase()} filter with the rest of your current profile. Try widening budget, prep, or shopping contexts.';
+    }
+
+    if (user.preference.dislikedIngredients.isNotEmpty) {
+      return 'Your current meal or ingredient preferences exclude every remaining option. Try removing one dislike or switching meal timing to Any time.';
+    }
+
+    return 'Your current meal timing filters out every remaining option. Switching to Any time usually unlocks more foods.';
   }
 
   int _compareScoredFoods(ScoredFood a, ScoredFood b) {

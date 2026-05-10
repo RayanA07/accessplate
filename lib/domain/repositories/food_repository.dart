@@ -24,4 +24,6 @@ abstract class FoodRepository {
     required PrepEnvironment environment,
     required Set<AvailabilityContext> availability,
   });
+
+  Future<void> touchFoods(Iterable<int> ids);
 }

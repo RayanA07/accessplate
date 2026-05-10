@@ -43,61 +43,80 @@ class Nutrients {
 
   factory Nutrients.fromJson(Map<String, dynamic> json) {
     return Nutrients(
-      caloriesKcal: (json['calories'] as num?)?.toDouble() ??
+      caloriesKcal:
+          (json['calories'] as num?)?.toDouble() ??
           (json['calories_kcal'] as num?)?.toDouble() ??
           0,
-      proteinG: (json['protein'] as num?)?.toDouble() ??
+      proteinG:
+          (json['protein'] as num?)?.toDouble() ??
           (json['protein_g'] as num?)?.toDouble() ??
           0,
-      carbsG: (json['carbs'] as num?)?.toDouble() ??
+      carbsG:
+          (json['carbs'] as num?)?.toDouble() ??
           (json['carbs_g'] as num?)?.toDouble() ??
           0,
-      fatG: (json['fat'] as num?)?.toDouble() ??
+      fatG:
+          (json['fat'] as num?)?.toDouble() ??
           (json['fat_g'] as num?)?.toDouble() ??
           0,
-      saturatedFatG: (json['saturatedFat'] as num?)?.toDouble() ??
+      saturatedFatG:
+          (json['saturatedFat'] as num?)?.toDouble() ??
           (json['saturated_fat_g'] as num?)?.toDouble() ??
           0,
-      fiberG: (json['fiber'] as num?)?.toDouble() ??
+      fiberG:
+          (json['fiber'] as num?)?.toDouble() ??
           (json['fiber_g'] as num?)?.toDouble() ??
           0,
-      sugarG: (json['sugar'] as num?)?.toDouble() ??
+      sugarG:
+          (json['sugar'] as num?)?.toDouble() ??
           (json['sugar_g'] as num?)?.toDouble() ??
           0,
-      addedSugarG: (json['addedSugar'] as num?)?.toDouble() ??
+      addedSugarG:
+          (json['addedSugar'] as num?)?.toDouble() ??
           (json['added_sugar_g'] as num?)?.toDouble() ??
           0,
-      sodiumMg: (json['sodium'] as num?)?.toDouble() ??
+      sodiumMg:
+          (json['sodium'] as num?)?.toDouble() ??
           (json['sodium_mg'] as num?)?.toDouble() ??
           0,
-      potassiumMg: (json['potassium'] as num?)?.toDouble() ??
+      potassiumMg:
+          (json['potassium'] as num?)?.toDouble() ??
           (json['potassium_mg'] as num?)?.toDouble() ??
           0,
-      calciumMg: (json['calcium'] as num?)?.toDouble() ??
+      calciumMg:
+          (json['calcium'] as num?)?.toDouble() ??
           (json['calcium_mg'] as num?)?.toDouble() ??
           0,
-      ironMg: (json['iron'] as num?)?.toDouble() ??
+      ironMg:
+          (json['iron'] as num?)?.toDouble() ??
           (json['iron_mg'] as num?)?.toDouble() ??
           0,
-      magnesiumMg: (json['magnesium'] as num?)?.toDouble() ??
+      magnesiumMg:
+          (json['magnesium'] as num?)?.toDouble() ??
           (json['magnesium_mg'] as num?)?.toDouble() ??
           0,
-      zincMg: (json['zinc'] as num?)?.toDouble() ??
+      zincMg:
+          (json['zinc'] as num?)?.toDouble() ??
           (json['zinc_mg'] as num?)?.toDouble() ??
           0,
-      vitAMcgRae: (json['vitA'] as num?)?.toDouble() ??
+      vitAMcgRae:
+          (json['vitA'] as num?)?.toDouble() ??
           (json['vit_a_mcg_rae'] as num?)?.toDouble() ??
           0,
-      vitCMg: (json['vitC'] as num?)?.toDouble() ??
+      vitCMg:
+          (json['vitC'] as num?)?.toDouble() ??
           (json['vit_c_mg'] as num?)?.toDouble() ??
           0,
-      vitDMcg: (json['vitD'] as num?)?.toDouble() ??
+      vitDMcg:
+          (json['vitD'] as num?)?.toDouble() ??
           (json['vit_d_mcg'] as num?)?.toDouble() ??
           0,
-      vitB12Mcg: (json['vitB12'] as num?)?.toDouble() ??
+      vitB12Mcg:
+          (json['vitB12'] as num?)?.toDouble() ??
           (json['vit_b12_mcg'] as num?)?.toDouble() ??
           0,
-      folateMcgDfe: (json['folate'] as num?)?.toDouble() ??
+      folateMcgDfe:
+          (json['folate'] as num?)?.toDouble() ??
           (json['folate_mcg_dfe'] as num?)?.toDouble() ??
           0,
     );

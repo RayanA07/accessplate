@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/recommendation.dart';
 import '../../widgets/section_card.dart';
 
@@ -24,21 +25,23 @@ class ExplainDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Why this food')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
         children: [
           SectionCard(
+            tintColor: NihPalette.primaryAltLight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   recommendation.food.name,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${recommendation.displayScore.round()}/100  •  \$${recommendation.food.costEstimate.toStringAsFixed(2)}',
+                  '${recommendation.displayScore.round()}/100 • \$${recommendation.food.costEstimate.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
             ),
@@ -49,7 +52,7 @@ class ExplainDetailScreen extends StatelessWidget {
               child: _ExplanationSection(
                 title: 'Satisfied constraints',
                 children: explanation.satisfied
-                    .map((item) => Text('• ${item.description}'))
+                    .map((item) => _BulletText(item.description))
                     .toList(),
               ),
             ),
@@ -59,8 +62,10 @@ class ExplainDetailScreen extends StatelessWidget {
                 title: 'Top reasons',
                 children: explanation.positives
                     .map(
-                      (item) => Text(
-                        '• ${item.label}${item.detail == null ? '' : ' — ${item.detail}'}',
+                      (item) => _BulletText(
+                        item.detail == null
+                            ? item.label
+                            : '${item.label} • ${item.detail}',
                       ),
                     )
                     .toList(),
@@ -71,14 +76,20 @@ class ExplainDetailScreen extends StatelessWidget {
               child: _ExplanationSection(
                 title: 'Tradeoffs',
                 children: explanation.tradeoffs.isEmpty
-                    ? const [Text('• No major tradeoffs surfaced for this profile.')]
+                    ? const [
+                        _BulletText(
+                          'No major tradeoffs surfaced for this profile.',
+                        ),
+                      ]
                     : explanation.tradeoffs
-                        .map(
-                          (item) => Text(
-                            '• ${item.label}${item.detail == null ? '' : ' — ${item.detail}'}',
-                          ),
-                        )
-                        .toList(),
+                          .map(
+                            (item) => _BulletText(
+                              item.detail == null
+                                  ? item.label
+                                  : '${item.label} • ${item.detail}',
+                            ),
+                          )
+                          .toList(),
               ),
             ),
           ],
@@ -87,11 +98,21 @@ class ExplainDetailScreen extends StatelessWidget {
             child: _ExplanationSection(
               title: 'Nutrition snapshot',
               children: [
-                Text('Protein: ${recommendation.nutrients.proteinG.toStringAsFixed(0)}g'),
-                Text('Fiber: ${recommendation.nutrients.fiberG.toStringAsFixed(0)}g'),
-                Text('Sodium: ${recommendation.nutrients.sodiumMg.toStringAsFixed(0)}mg'),
-                Text('Iron: ${recommendation.nutrients.ironMg.toStringAsFixed(1)}mg'),
-                Text('Calories: ${recommendation.nutrients.caloriesKcal.toStringAsFixed(0)} kcal'),
+                _BulletText(
+                  'Protein: ${recommendation.nutrients.proteinG.toStringAsFixed(0)}g',
+                ),
+                _BulletText(
+                  'Fiber: ${recommendation.nutrients.fiberG.toStringAsFixed(0)}g',
+                ),
+                _BulletText(
+                  'Sodium: ${recommendation.nutrients.sodiumMg.toStringAsFixed(0)}mg',
+                ),
+                _BulletText(
+                  'Iron: ${recommendation.nutrients.ironMg.toStringAsFixed(1)}mg',
+                ),
+                _BulletText(
+                  'Calories: ${recommendation.nutrients.caloriesKcal.toStringAsFixed(0)} kcal',
+                ),
               ],
             ),
           ),
@@ -102,8 +123,8 @@ class ExplainDetailScreen extends StatelessWidget {
                 title: 'Comparable alternatives',
                 children: comparables
                     .map(
-                      (item) => Text(
-                        '• ${item.food.name} (${item.displayScore.round()}/100, \$${item.food.costEstimate.toStringAsFixed(2)})',
+                      (item) => _BulletText(
+                        '${item.food.name} (${item.displayScore.round()}/100, \$${item.food.costEstimate.toStringAsFixed(2)})',
                       ),
                     )
                     .toList(),
@@ -117,10 +138,7 @@ class ExplainDetailScreen extends StatelessWidget {
 }
 
 class _ExplanationSection extends StatelessWidget {
-  const _ExplanationSection({
-    required this.title,
-    required this.children,
-  });
+  const _ExplanationSection({required this.title, required this.children});
 
   final String title;
   final List<Widget> children;
@@ -132,13 +150,37 @@ class _ExplanationSection extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 12),
         ...children,
       ],
+    );
+  }
+}
+
+class _BulletText extends StatelessWidget {
+  const _BulletText(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 6),
+            child: Icon(Icons.circle, size: 6, color: NihPalette.primary),
+          ),
+          const SizedBox(width: 10),
+          Expanded(child: Text(text)),
+        ],
+      ),
     );
   }
 }

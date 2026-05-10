@@ -50,7 +50,10 @@ class MicroScorer {
       return 0;
     }
 
-    final numerator = contributions.fold<double>(0, (sum, value) => sum + value);
+    final numerator = contributions.fold<double>(
+      0,
+      (sum, value) => sum + value,
+    );
     final denominator = weights.fold<double>(0, (sum, value) => sum + value);
     return (numerator / denominator).clamp(0, 1).toDouble();
   }

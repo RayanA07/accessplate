@@ -4,10 +4,7 @@ import '../value_objects/meal_type.dart';
 import 'scoring/variety_dampener.dart';
 
 class PreferenceScorer {
-  PreferenceScorer({
-    required this.preference,
-    required this.varietyDampener,
-  });
+  PreferenceScorer({required this.preference, required this.varietyDampener});
 
   final PreferenceConstraints preference;
   final VarietyDampener varietyDampener;

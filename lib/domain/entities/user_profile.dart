@@ -3,16 +3,57 @@ import 'user_constraints.dart';
 
 enum OnboardingStage {
   splash,
-  safety,
-  feasibility,
-  preference,
+  allergens,
+  religion,
+  medical,
+  budget,
+  environment,
+  availability,
+  dietaryStyle,
+  mealTiming,
+  cuisine,
+  dislikes,
+  profile,
   targets;
 
   static OnboardingStage fromName(String? name) {
-    return values.firstWhere(
-      (value) => value.name == name,
-      orElse: () => OnboardingStage.splash,
-    );
+    switch (name) {
+      case 'splash':
+        return OnboardingStage.splash;
+      case 'allergens':
+        return OnboardingStage.allergens;
+      case 'religion':
+        return OnboardingStage.religion;
+      case 'medical':
+        return OnboardingStage.medical;
+      case 'budget':
+        return OnboardingStage.budget;
+      case 'environment':
+        return OnboardingStage.environment;
+      case 'availability':
+        return OnboardingStage.availability;
+      case 'dietaryStyle':
+        return OnboardingStage.dietaryStyle;
+      case 'mealTiming':
+        return OnboardingStage.mealTiming;
+      case 'cuisine':
+        return OnboardingStage.cuisine;
+      case 'dislikes':
+        return OnboardingStage.dislikes;
+      case 'profile':
+        return OnboardingStage.profile;
+      case 'targets':
+        return OnboardingStage.targets;
+      // Legacy stage names from the earlier bundled-screen flow.
+      case 'safety':
+        return OnboardingStage.allergens;
+      case 'feasibility':
+        return OnboardingStage.budget;
+      case 'preference':
+        return OnboardingStage.dietaryStyle;
+      default:
+        return OnboardingStage.splash;
+    }
   }
 }
 
@@ -72,9 +113,7 @@ class UserProfile {
         Map<String, dynamic>.from(json['constraints'] as Map? ?? const {}),
       ),
       scoringWeights: CompositeWeights.fromJson(
-        Map<String, dynamic>.from(
-          json['scoringWeights'] as Map? ?? const {},
-        ),
+        Map<String, dynamic>.from(json['scoringWeights'] as Map? ?? const {}),
       ),
       onboardingComplete: json['onboardingComplete'] as bool? ?? false,
       onboardingStage: OnboardingStage.fromName(

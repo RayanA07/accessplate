@@ -1,8 +1,6 @@
 class VarietyDampener {
-  VarietyDampener({
-    required this.recentlyActed,
-    DateTime? now,
-  }) : now = now ?? DateTime.now();
+  VarietyDampener({required this.recentlyActed, DateTime? now})
+    : now = now ?? DateTime.now();
 
   final Map<int, DateTime> recentlyActed;
   final DateTime now;

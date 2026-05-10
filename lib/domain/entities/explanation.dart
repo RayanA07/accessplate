@@ -9,11 +9,7 @@ class SatisfiedConstraint {
 }
 
 class ScoreFactor {
-  const ScoreFactor({
-    required this.label,
-    required this.weight,
-    this.detail,
-  });
+  const ScoreFactor({required this.label, required this.weight, this.detail});
 
   final String label;
   final double weight;

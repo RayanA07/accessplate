@@ -14,10 +14,12 @@ class SeedLoader {
   }
 
   Future<ReferenceTables> loadReferenceTables() async {
-    final medicalRaw =
-        await rootBundle.loadString('assets/reference/medical_modifiers.json');
-    final rdaRaw =
-        await rootBundle.loadString('assets/reference/micronutrient_rda.json');
+    final medicalRaw = await rootBundle.loadString(
+      'assets/reference/medical_modifiers.json',
+    );
+    final rdaRaw = await rootBundle.loadString(
+      'assets/reference/micronutrient_rda.json',
+    );
 
     final medical = Map<String, dynamic>.from(
       jsonDecode(medicalRaw) as Map<String, dynamic>,
@@ -37,7 +39,8 @@ class SeedLoader {
 
     final priorityElevations = <String, Map<String, double>>{};
     for (final entry
-        in (medical['microPriorityElevations'] as Map<String, dynamic>).entries) {
+        in (medical['microPriorityElevations'] as Map<String, dynamic>)
+            .entries) {
       priorityElevations[entry.key] = Map<String, double>.from(
         (entry.value as Map<String, dynamic>).map(
           (key, value) => MapEntry(key, (value as num).toDouble()),
@@ -47,8 +50,9 @@ class SeedLoader {
 
     return ReferenceTables(
       rdaTable: rdaTable,
-      medicalModifiers:
-          Map<String, dynamic>.from(medical['medicalModifiers'] as Map),
+      medicalModifiers: Map<String, dynamic>.from(
+        medical['medicalModifiers'] as Map,
+      ),
       microPriorityElevations: priorityElevations,
       basePenaltyThresholds: Map<String, double>.from(
         (medical['basePenaltyThresholds'] as Map<String, dynamic>).map(
