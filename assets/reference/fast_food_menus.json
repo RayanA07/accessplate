@@ -1,0 +1,3947 @@
+[
+  {
+    "id": 1001,
+    "name": "McDonald's Egg McMuffin",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 137,
+    "servingLabel": "1 sandwich",
+    "cost": 4.29,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "pork"
+      },
+      {
+        "religion": "kosher",
+        "reason": "pork"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "egg",
+      "muffin",
+      "pork"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 310,
+      "protein": 17,
+      "carbs": 30,
+      "fat": 13,
+      "saturatedFat": 6,
+      "fiber": 2,
+      "sugar": 3,
+      "addedSugar": 1,
+      "sodium": 760,
+      "potassium": 220,
+      "calcium": 180,
+      "iron": 2.4,
+      "magnesium": 28,
+      "zinc": 1.8,
+      "vitA": 120,
+      "vitC": 0,
+      "vitD": 1.4,
+      "vitB12": 0.9,
+      "folate": 70
+    }
+  },
+  {
+    "id": 1002,
+    "name": "McDonald's Fruit & Maple Oatmeal",
+    "category": "grain_whole",
+    "cuisine": "american",
+    "servingG": 300,
+    "servingLabel": "1 cup",
+    "cost": 3.19,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "apple",
+      "oats",
+      "raisins"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 320,
+      "protein": 6,
+      "carbs": 64,
+      "fat": 4,
+      "saturatedFat": 1,
+      "fiber": 5,
+      "sugar": 18,
+      "addedSugar": 12,
+      "sodium": 150,
+      "potassium": 260,
+      "calcium": 35,
+      "iron": 2.4,
+      "magnesium": 60,
+      "zinc": 1.7,
+      "vitA": 10,
+      "vitC": 2,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 35
+    }
+  },
+  {
+    "id": 1003,
+    "name": "McDonald's Big Mac",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 220,
+    "servingLabel": "1 burger",
+    "cost": 6.19,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten",
+      "soy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "beef"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beef",
+      "bun",
+      "cheese",
+      "lettuce",
+      "onion",
+      "pickle",
+      "sauce"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 590,
+      "protein": 26,
+      "carbs": 46,
+      "fat": 34,
+      "saturatedFat": 11,
+      "fiber": 3,
+      "sugar": 9,
+      "addedSugar": 7,
+      "sodium": 1060,
+      "potassium": 390,
+      "calcium": 240,
+      "iron": 3.1,
+      "magnesium": 44,
+      "zinc": 3.4,
+      "vitA": 140,
+      "vitC": 4,
+      "vitD": 0.2,
+      "vitB12": 2.2,
+      "folate": 95
+    }
+  },
+  {
+    "id": 1004,
+    "name": "McDonald's Quarter Pounder with Cheese",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 250,
+    "servingLabel": "1 burger",
+    "cost": 6.39,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten",
+      "soy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "beef"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beef",
+      "bun",
+      "cheese",
+      "ketchup",
+      "mustard",
+      "onion",
+      "pickle"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 540,
+      "protein": 29,
+      "carbs": 41,
+      "fat": 29,
+      "saturatedFat": 12,
+      "fiber": 2,
+      "sugar": 10,
+      "addedSugar": 8,
+      "sodium": 1140,
+      "potassium": 400,
+      "calcium": 220,
+      "iron": 4.0,
+      "magnesium": 42,
+      "zinc": 4.3,
+      "vitA": 120,
+      "vitC": 6,
+      "vitD": 0.3,
+      "vitB12": 2.4,
+      "folate": 80
+    }
+  },
+  {
+    "id": 1005,
+    "name": "McDonald's McCrispy",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 210,
+    "servingLabel": "1 sandwich",
+    "cost": 5.89,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bun",
+      "chicken",
+      "mayonnaise",
+      "pickle"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 470,
+      "protein": 27,
+      "carbs": 45,
+      "fat": 20,
+      "saturatedFat": 4,
+      "fiber": 2,
+      "sugar": 6,
+      "addedSugar": 4,
+      "sodium": 1040,
+      "potassium": 330,
+      "calcium": 70,
+      "iron": 1.8,
+      "magnesium": 34,
+      "zinc": 1.0,
+      "vitA": 30,
+      "vitC": 2,
+      "vitD": 0.1,
+      "vitB12": 0.3,
+      "folate": 30
+    }
+  },
+  {
+    "id": 1006,
+    "name": "McDonald's World Famous Fries",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 117,
+    "servingLabel": "1 medium order",
+    "cost": 2.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner",
+      "snack"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "oil",
+      "potato",
+      "salt"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 340,
+      "protein": 4,
+      "carbs": 44,
+      "fat": 16,
+      "saturatedFat": 2,
+      "fiber": 4,
+      "sugar": 0,
+      "addedSugar": 0,
+      "sodium": 260,
+      "potassium": 550,
+      "calcium": 20,
+      "iron": 1.1,
+      "magnesium": 42,
+      "zinc": 0.5,
+      "vitA": 0,
+      "vitC": 12,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 40
+    }
+  },
+  {
+    "id": 1007,
+    "name": "Starbucks Protein Latte",
+    "category": "beverage",
+    "cuisine": "american",
+    "servingG": 473,
+    "servingLabel": "16 oz",
+    "cost": 6.25,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "coffee",
+      "milk",
+      "protein"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 210,
+      "protein": 20,
+      "carbs": 19,
+      "fat": 6,
+      "saturatedFat": 3,
+      "fiber": 0,
+      "sugar": 17,
+      "addedSugar": 10,
+      "sodium": 180,
+      "potassium": 420,
+      "calcium": 320,
+      "iron": 0.2,
+      "magnesium": 36,
+      "zinc": 1.1,
+      "vitA": 150,
+      "vitC": 0,
+      "vitD": 2.6,
+      "vitB12": 1.2,
+      "folate": 15
+    }
+  },
+  {
+    "id": 1008,
+    "name": "Starbucks Bacon, Gouda & Egg Sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 160,
+    "servingLabel": "1 sandwich",
+    "cost": 5.45,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "pork"
+      },
+      {
+        "religion": "kosher",
+        "reason": "pork"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bacon",
+      "bread",
+      "cheese",
+      "egg"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 360,
+      "protein": 18,
+      "carbs": 34,
+      "fat": 18,
+      "saturatedFat": 8,
+      "fiber": 2,
+      "sugar": 7,
+      "addedSugar": 4,
+      "sodium": 730,
+      "potassium": 260,
+      "calcium": 200,
+      "iron": 2.1,
+      "magnesium": 30,
+      "zinc": 1.8,
+      "vitA": 100,
+      "vitC": 2,
+      "vitD": 1.0,
+      "vitB12": 0.9,
+      "folate": 55
+    }
+  },
+  {
+    "id": 1009,
+    "name": "Starbucks Impossible Breakfast Sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 190,
+    "servingLabel": "1 sandwich",
+    "cost": 5.95,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "soy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "egg"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "cheese",
+      "egg",
+      "impossible"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 420,
+      "protein": 22,
+      "carbs": 39,
+      "fat": 22,
+      "saturatedFat": 8,
+      "fiber": 3,
+      "sugar": 9,
+      "addedSugar": 5,
+      "sodium": 780,
+      "potassium": 280,
+      "calcium": 220,
+      "iron": 3.0,
+      "magnesium": 36,
+      "zinc": 2.1,
+      "vitA": 120,
+      "vitC": 2,
+      "vitD": 1.2,
+      "vitB12": 1.1,
+      "folate": 65
+    }
+  },
+  {
+    "id": 1010,
+    "name": "Starbucks Spinach, Feta & Egg White Wrap",
+    "category": "prepared_meal",
+    "cuisine": "mediterranean",
+    "servingG": 160,
+    "servingLabel": "1 wrap",
+    "cost": 4.95,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "lunch"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "egg"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "egg",
+      "feta",
+      "spinach",
+      "wrap"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 300,
+      "protein": 20,
+      "carbs": 34,
+      "fat": 8,
+      "saturatedFat": 3,
+      "fiber": 4,
+      "sugar": 5,
+      "addedSugar": 1,
+      "sodium": 840,
+      "potassium": 290,
+      "calcium": 180,
+      "iron": 2.6,
+      "magnesium": 34,
+      "zinc": 1.5,
+      "vitA": 160,
+      "vitC": 8,
+      "vitD": 0.7,
+      "vitB12": 0.7,
+      "folate": 75
+    }
+  },
+  {
+    "id": 1011,
+    "name": "Starbucks Rolled & Steel-Cut Oatmeal",
+    "category": "grain_whole",
+    "cuisine": "american",
+    "servingG": 300,
+    "servingLabel": "1 cup",
+    "cost": 4.25,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "apple",
+      "oats",
+      "raisins"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 320,
+      "protein": 6,
+      "carbs": 64,
+      "fat": 4,
+      "saturatedFat": 1,
+      "fiber": 5,
+      "sugar": 18,
+      "addedSugar": 12,
+      "sodium": 150,
+      "potassium": 260,
+      "calcium": 35,
+      "iron": 2.4,
+      "magnesium": 60,
+      "zinc": 1.7,
+      "vitA": 10,
+      "vitC": 2,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 35
+    }
+  },
+  {
+    "id": 1012,
+    "name": "Starbucks Cheese & Fruit Protein Box",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 220,
+    "servingLabel": "1 box",
+    "cost": 6.95,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "dairy",
+      "tree_nut"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "apple",
+      "cheese",
+      "grapes",
+      "nuts"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 470,
+      "protein": 20,
+      "carbs": 39,
+      "fat": 27,
+      "saturatedFat": 10,
+      "fiber": 4,
+      "sugar": 24,
+      "addedSugar": 0,
+      "sodium": 430,
+      "potassium": 460,
+      "calcium": 260,
+      "iron": 1.1,
+      "magnesium": 42,
+      "zinc": 2.1,
+      "vitA": 140,
+      "vitC": 18,
+      "vitD": 0.8,
+      "vitB12": 1.0,
+      "folate": 45
+    }
+  },
+  {
+    "id": 1013,
+    "name": "Chick-fil-A Egg White Grill",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 170,
+    "servingLabel": "1 sandwich",
+    "cost": 4.95,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "chicken",
+      "egg",
+      "muffin"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 300,
+      "protein": 27,
+      "carbs": 29,
+      "fat": 7,
+      "saturatedFat": 3,
+      "fiber": 1,
+      "sugar": 2,
+      "addedSugar": 1,
+      "sodium": 980,
+      "potassium": 310,
+      "calcium": 170,
+      "iron": 2.1,
+      "magnesium": 28,
+      "zinc": 1.2,
+      "vitA": 80,
+      "vitC": 2,
+      "vitD": 0.8,
+      "vitB12": 0.9,
+      "folate": 50
+    }
+  },
+  {
+    "id": 1014,
+    "name": "Chick-fil-A Chicken Biscuit",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 170,
+    "servingLabel": "1 biscuit sandwich",
+    "cost": 4.39,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten",
+      "egg"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "biscuit",
+      "chicken"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 460,
+      "protein": 19,
+      "carbs": 45,
+      "fat": 23,
+      "saturatedFat": 8,
+      "fiber": 2,
+      "sugar": 6,
+      "addedSugar": 2,
+      "sodium": 1320,
+      "potassium": 240,
+      "calcium": 40,
+      "iron": 1.8,
+      "magnesium": 24,
+      "zinc": 0.9,
+      "vitA": 20,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0.2,
+      "folate": 25
+    }
+  },
+  {
+    "id": 1015,
+    "name": "Chick-fil-A Chicken Sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 210,
+    "servingLabel": "1 sandwich",
+    "cost": 5.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bun",
+      "chicken",
+      "mayonnaise",
+      "pickle"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 470,
+      "protein": 27,
+      "carbs": 45,
+      "fat": 20,
+      "saturatedFat": 4,
+      "fiber": 2,
+      "sugar": 6,
+      "addedSugar": 4,
+      "sodium": 1040,
+      "potassium": 330,
+      "calcium": 70,
+      "iron": 1.8,
+      "magnesium": 34,
+      "zinc": 1.0,
+      "vitA": 30,
+      "vitC": 2,
+      "vitD": 0.1,
+      "vitB12": 0.3,
+      "folate": 30
+    }
+  },
+  {
+    "id": 1016,
+    "name": "Chick-fil-A Grilled Nuggets",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 98,
+    "servingLabel": "8 pieces",
+    "cost": 5.75,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner",
+      "snack"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "chicken"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 130,
+      "protein": 25,
+      "carbs": 1,
+      "fat": 3,
+      "saturatedFat": 1,
+      "fiber": 0,
+      "sugar": 0,
+      "addedSugar": 0,
+      "sodium": 440,
+      "potassium": 300,
+      "calcium": 10,
+      "iron": 0.8,
+      "magnesium": 26,
+      "zinc": 0.8,
+      "vitA": 10,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0.3,
+      "folate": 8
+    }
+  },
+  {
+    "id": 1017,
+    "name": "Chick-fil-A Cobb Salad",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 320,
+    "servingLabel": "1 salad",
+    "cost": 9.29,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "egg"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "pork"
+      },
+      {
+        "religion": "kosher",
+        "reason": "pork"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bacon",
+      "cheese",
+      "chicken",
+      "egg",
+      "lettuce"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 630,
+      "protein": 42,
+      "carbs": 28,
+      "fat": 37,
+      "saturatedFat": 11,
+      "fiber": 5,
+      "sugar": 8,
+      "addedSugar": 3,
+      "sodium": 1260,
+      "potassium": 760,
+      "calcium": 240,
+      "iron": 2.9,
+      "magnesium": 62,
+      "zinc": 3.0,
+      "vitA": 540,
+      "vitC": 28,
+      "vitD": 0.4,
+      "vitB12": 1.0,
+      "folate": 120
+    }
+  },
+  {
+    "id": 1018,
+    "name": "Chick-fil-A Kale Crunch Side",
+    "category": "vegetable_starchy",
+    "cuisine": "american",
+    "servingG": 110,
+    "servingLabel": "1 side",
+    "cost": 3.45,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner",
+      "snack"
+    ],
+    "allergens": [
+      "tree_nut"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "almonds",
+      "cabbage",
+      "kale"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 170,
+      "protein": 4,
+      "carbs": 12,
+      "fat": 12,
+      "saturatedFat": 2,
+      "fiber": 4,
+      "sugar": 8,
+      "addedSugar": 3,
+      "sodium": 220,
+      "potassium": 320,
+      "calcium": 90,
+      "iron": 1.3,
+      "magnesium": 28,
+      "zinc": 0.7,
+      "vitA": 260,
+      "vitC": 28,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 60
+    }
+  },
+  {
+    "id": 1019,
+    "name": "Taco Bell Cantina Chicken Bowl",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 360,
+    "servingLabel": "1 bowl",
+    "cost": 8.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "cheese",
+      "chicken",
+      "lettuce",
+      "rice"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 500,
+      "protein": 30,
+      "carbs": 43,
+      "fat": 20,
+      "saturatedFat": 7,
+      "fiber": 8,
+      "sugar": 4,
+      "addedSugar": 0,
+      "sodium": 900,
+      "potassium": 760,
+      "calcium": 180,
+      "iron": 3.2,
+      "magnesium": 72,
+      "zinc": 2.8,
+      "vitA": 260,
+      "vitC": 14,
+      "vitD": 0.2,
+      "vitB12": 0.6,
+      "folate": 160
+    }
+  },
+  {
+    "id": 1020,
+    "name": "Taco Bell Power Menu Bowl",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 420,
+    "servingLabel": "1 bowl",
+    "cost": 8.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "cheese",
+      "chicken",
+      "guacamole",
+      "lettuce",
+      "rice"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 620,
+      "protein": 48,
+      "carbs": 48,
+      "fat": 22,
+      "saturatedFat": 7,
+      "fiber": 10,
+      "sugar": 5,
+      "addedSugar": 0,
+      "sodium": 1180,
+      "potassium": 920,
+      "calcium": 220,
+      "iron": 4.0,
+      "magnesium": 90,
+      "zinc": 3.4,
+      "vitA": 320,
+      "vitC": 18,
+      "vitD": 0.2,
+      "vitB12": 0.8,
+      "folate": 190
+    }
+  },
+  {
+    "id": 1021,
+    "name": "Taco Bell Spicy Potato Soft Taco",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 110,
+    "servingLabel": "1 taco",
+    "cost": 1.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner",
+      "snack"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "lettuce",
+      "potato",
+      "tortilla"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 240,
+      "protein": 5,
+      "carbs": 29,
+      "fat": 11,
+      "saturatedFat": 3.5,
+      "fiber": 3,
+      "sugar": 2,
+      "addedSugar": 0,
+      "sodium": 500,
+      "potassium": 320,
+      "calcium": 110,
+      "iron": 1.2,
+      "magnesium": 24,
+      "zinc": 0.8,
+      "vitA": 80,
+      "vitC": 4,
+      "vitD": 0.1,
+      "vitB12": 0.2,
+      "folate": 35
+    }
+  },
+  {
+    "id": 1022,
+    "name": "Taco Bell Black Bean Crunchwrap Supreme",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 260,
+    "servingLabel": "1 crunchwrap",
+    "cost": 5.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "cheese",
+      "lettuce",
+      "tomato",
+      "tortilla"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 520,
+      "protein": 13,
+      "carbs": 69,
+      "fat": 20,
+      "saturatedFat": 6,
+      "fiber": 8,
+      "sugar": 5,
+      "addedSugar": 1,
+      "sodium": 1130,
+      "potassium": 620,
+      "calcium": 220,
+      "iron": 3.0,
+      "magnesium": 62,
+      "zinc": 2.1,
+      "vitA": 120,
+      "vitC": 8,
+      "vitD": 0.1,
+      "vitB12": 0.6,
+      "folate": 120
+    }
+  },
+  {
+    "id": 1023,
+    "name": "Taco Bell Cheesy Bean and Rice Burrito",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 190,
+    "servingLabel": "1 burrito",
+    "cost": 1.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "cheese",
+      "rice",
+      "tortilla"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 430,
+      "protein": 11,
+      "carbs": 61,
+      "fat": 13,
+      "saturatedFat": 4.5,
+      "fiber": 7,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 1010,
+      "potassium": 520,
+      "calcium": 180,
+      "iron": 2.8,
+      "magnesium": 58,
+      "zinc": 1.7,
+      "vitA": 80,
+      "vitC": 4,
+      "vitD": 0.1,
+      "vitB12": 0.5,
+      "folate": 110
+    }
+  },
+  {
+    "id": 1024,
+    "name": "Taco Bell Chicken Quesadilla",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 180,
+    "servingLabel": "1 quesadilla",
+    "cost": 5.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "chicken",
+      "tortilla"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 520,
+      "protein": 27,
+      "carbs": 37,
+      "fat": 28,
+      "saturatedFat": 11,
+      "fiber": 3,
+      "sugar": 3,
+      "addedSugar": 1,
+      "sodium": 1280,
+      "potassium": 320,
+      "calcium": 350,
+      "iron": 2.2,
+      "magnesium": 34,
+      "zinc": 2.0,
+      "vitA": 120,
+      "vitC": 2,
+      "vitD": 0.2,
+      "vitB12": 0.7,
+      "folate": 60
+    }
+  },
+  {
+    "id": 1025,
+    "name": "Wendy's Grilled Chicken Ranch Wrap",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 200,
+    "servingLabel": "1 wrap",
+    "cost": 6.29,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "chicken",
+      "ranch",
+      "wrap"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 420,
+      "protein": 27,
+      "carbs": 33,
+      "fat": 19,
+      "saturatedFat": 6,
+      "fiber": 2,
+      "sugar": 3,
+      "addedSugar": 1,
+      "sodium": 1010,
+      "potassium": 330,
+      "calcium": 220,
+      "iron": 1.7,
+      "magnesium": 30,
+      "zinc": 1.6,
+      "vitA": 90,
+      "vitC": 4,
+      "vitD": 0.2,
+      "vitB12": 0.5,
+      "folate": 45
+    }
+  },
+  {
+    "id": 1026,
+    "name": "Wendy's Apple Pecan Salad",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 310,
+    "servingLabel": "1 salad",
+    "cost": 8.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "tree_nut",
+      "dairy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "apple",
+      "blue_cheese",
+      "chicken",
+      "lettuce",
+      "pecan"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 520,
+      "protein": 33,
+      "carbs": 35,
+      "fat": 27,
+      "saturatedFat": 8,
+      "fiber": 5,
+      "sugar": 19,
+      "addedSugar": 10,
+      "sodium": 980,
+      "potassium": 700,
+      "calcium": 180,
+      "iron": 2.3,
+      "magnesium": 52,
+      "zinc": 2.5,
+      "vitA": 420,
+      "vitC": 24,
+      "vitD": 0.2,
+      "vitB12": 0.6,
+      "folate": 95
+    }
+  },
+  {
+    "id": 1027,
+    "name": "Wendy's Chili",
+    "category": "legume",
+    "cuisine": "american",
+    "servingG": 240,
+    "servingLabel": "1 cup",
+    "cost": 3.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "beef"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "beef",
+      "tomato"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 260,
+      "protein": 17,
+      "carbs": 25,
+      "fat": 8,
+      "saturatedFat": 3,
+      "fiber": 7,
+      "sugar": 6,
+      "addedSugar": 0,
+      "sodium": 960,
+      "potassium": 620,
+      "calcium": 60,
+      "iron": 3.4,
+      "magnesium": 48,
+      "zinc": 2.2,
+      "vitA": 180,
+      "vitC": 10,
+      "vitD": 0,
+      "vitB12": 1.2,
+      "folate": 80
+    }
+  },
+  {
+    "id": 1028,
+    "name": "Wendy's Dave's Single",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 250,
+    "servingLabel": "1 burger",
+    "cost": 6.59,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten",
+      "soy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "beef"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beef",
+      "bun",
+      "cheese",
+      "ketchup",
+      "mustard",
+      "onion",
+      "pickle"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 540,
+      "protein": 29,
+      "carbs": 41,
+      "fat": 29,
+      "saturatedFat": 12,
+      "fiber": 2,
+      "sugar": 10,
+      "addedSugar": 8,
+      "sodium": 1140,
+      "potassium": 400,
+      "calcium": 220,
+      "iron": 4.0,
+      "magnesium": 42,
+      "zinc": 4.3,
+      "vitA": 120,
+      "vitC": 6,
+      "vitD": 0.3,
+      "vitB12": 2.4,
+      "folate": 80
+    }
+  },
+  {
+    "id": 1029,
+    "name": "Wendy's Spicy Chicken Sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 230,
+    "servingLabel": "1 sandwich",
+    "cost": 6.39,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bun",
+      "chicken",
+      "mayonnaise",
+      "pickle"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 520,
+      "protein": 28,
+      "carbs": 47,
+      "fat": 24,
+      "saturatedFat": 5,
+      "fiber": 2,
+      "sugar": 7,
+      "addedSugar": 4,
+      "sodium": 1180,
+      "potassium": 350,
+      "calcium": 80,
+      "iron": 1.9,
+      "magnesium": 34,
+      "zinc": 1.0,
+      "vitA": 30,
+      "vitC": 2,
+      "vitD": 0.1,
+      "vitB12": 0.3,
+      "folate": 35
+    }
+  },
+  {
+    "id": 1030,
+    "name": "Wendy's Plain Baked Potato",
+    "category": "vegetable_starchy",
+    "cuisine": "american",
+    "servingG": 300,
+    "servingLabel": "1 potato",
+    "cost": 2.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_potassium_ckd",
+        "severity": "avoid"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "potato"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 270,
+      "protein": 7,
+      "carbs": 61,
+      "fat": 0.4,
+      "saturatedFat": 0.1,
+      "fiber": 6,
+      "sugar": 3,
+      "addedSugar": 0,
+      "sodium": 40,
+      "potassium": 1540,
+      "calcium": 30,
+      "iron": 2.5,
+      "magnesium": 65,
+      "zinc": 0.9,
+      "vitA": 4,
+      "vitC": 18,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 55
+    }
+  },
+  {
+    "id": 1031,
+    "name": "Dunkin' Bacon, Egg & Cheese Wake-Up Wrap",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 124,
+    "servingLabel": "1 wrap",
+    "cost": 3.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "pork"
+      },
+      {
+        "religion": "kosher",
+        "reason": "pork"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bacon",
+      "cheese",
+      "egg",
+      "wrap"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 290,
+      "protein": 11,
+      "carbs": 24,
+      "fat": 17,
+      "saturatedFat": 7,
+      "fiber": 1,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 700,
+      "potassium": 170,
+      "calcium": 160,
+      "iron": 1.7,
+      "magnesium": 20,
+      "zinc": 1.1,
+      "vitA": 80,
+      "vitC": 0,
+      "vitD": 0.5,
+      "vitB12": 0.6,
+      "folate": 35
+    }
+  },
+  {
+    "id": 1032,
+    "name": "Dunkin' Turkey Sausage, Egg & Cheese",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 150,
+    "servingLabel": "1 sandwich",
+    "cost": 4.59,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "egg",
+      "muffin",
+      "turkey"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 340,
+      "protein": 19,
+      "carbs": 31,
+      "fat": 15,
+      "saturatedFat": 6,
+      "fiber": 2,
+      "sugar": 3,
+      "addedSugar": 1,
+      "sodium": 820,
+      "potassium": 240,
+      "calcium": 180,
+      "iron": 2.1,
+      "magnesium": 26,
+      "zinc": 1.7,
+      "vitA": 110,
+      "vitC": 0,
+      "vitD": 0.7,
+      "vitB12": 0.8,
+      "folate": 48
+    }
+  },
+  {
+    "id": 1033,
+    "name": "Dunkin' Sourdough Breakfast Sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 240,
+    "servingLabel": "1 sandwich",
+    "cost": 5.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "pork"
+      },
+      {
+        "religion": "kosher",
+        "reason": "pork"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "cheese",
+      "egg",
+      "sausage"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 650,
+      "protein": 26,
+      "carbs": 46,
+      "fat": 39,
+      "saturatedFat": 15,
+      "fiber": 2,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 1340,
+      "potassium": 310,
+      "calcium": 210,
+      "iron": 2.9,
+      "magnesium": 34,
+      "zinc": 2.0,
+      "vitA": 140,
+      "vitC": 0,
+      "vitD": 1.0,
+      "vitB12": 1.0,
+      "folate": 52
+    }
+  },
+  {
+    "id": 1034,
+    "name": "Dunkin' Egg White & Veggie Omelet Bites",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 70,
+    "servingLabel": "2 bites",
+    "cost": 4.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "egg",
+      "dairy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "egg"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "egg",
+      "pepper",
+      "vegetables"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 180,
+      "protein": 13,
+      "carbs": 6,
+      "fat": 11,
+      "saturatedFat": 5,
+      "fiber": 1,
+      "sugar": 3,
+      "addedSugar": 0,
+      "sodium": 380,
+      "potassium": 210,
+      "calcium": 150,
+      "iron": 1.1,
+      "magnesium": 18,
+      "zinc": 1.0,
+      "vitA": 120,
+      "vitC": 10,
+      "vitD": 0.6,
+      "vitB12": 0.8,
+      "folate": 25
+    }
+  },
+  {
+    "id": 1035,
+    "name": "Dunkin' Glazed Donut",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 52,
+    "servingLabel": "1 donut",
+    "cost": 1.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "flour",
+      "oil",
+      "sugar"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 260,
+      "protein": 3,
+      "carbs": 31,
+      "fat": 14,
+      "saturatedFat": 6,
+      "fiber": 1,
+      "sugar": 14,
+      "addedSugar": 12,
+      "sodium": 290,
+      "potassium": 70,
+      "calcium": 20,
+      "iron": 1.0,
+      "magnesium": 10,
+      "zinc": 0.4,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0.1,
+      "folate": 18
+    }
+  },
+  {
+    "id": 1036,
+    "name": "Dunkin' Iced Coffee",
+    "category": "beverage",
+    "cuisine": "american",
+    "servingG": 473,
+    "servingLabel": "16 oz",
+    "cost": 3.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "diabetic",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "coffee",
+      "milk",
+      "sugar"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 170,
+      "protein": 3,
+      "carbs": 28,
+      "fat": 5,
+      "saturatedFat": 3,
+      "fiber": 0,
+      "sugar": 27,
+      "addedSugar": 26,
+      "sodium": 115,
+      "potassium": 210,
+      "calcium": 150,
+      "iron": 0.1,
+      "magnesium": 18,
+      "zinc": 0.6,
+      "vitA": 80,
+      "vitC": 0,
+      "vitD": 1.4,
+      "vitB12": 0.4,
+      "folate": 8
+    }
+  },
+  {
+    "id": 1037,
+    "name": "Chipotle Chicken Burrito Bowl",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 400,
+    "servingLabel": "1 bowl",
+    "cost": 10.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "chicken",
+      "lettuce",
+      "rice",
+      "salsa"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 540,
+      "protein": 39,
+      "carbs": 50,
+      "fat": 18,
+      "saturatedFat": 5,
+      "fiber": 10,
+      "sugar": 4,
+      "addedSugar": 0,
+      "sodium": 1150,
+      "potassium": 980,
+      "calcium": 110,
+      "iron": 4.1,
+      "magnesium": 94,
+      "zinc": 3.1,
+      "vitA": 220,
+      "vitC": 18,
+      "vitD": 0.1,
+      "vitB12": 0.4,
+      "folate": 210
+    }
+  },
+  {
+    "id": 1038,
+    "name": "Chipotle Sofritas Burrito Bowl",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 400,
+    "servingLabel": "1 bowl",
+    "cost": 9.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "soy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "lettuce",
+      "rice",
+      "salsa",
+      "sofritas"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 500,
+      "protein": 18,
+      "carbs": 62,
+      "fat": 18,
+      "saturatedFat": 3,
+      "fiber": 13,
+      "sugar": 5,
+      "addedSugar": 0,
+      "sodium": 1160,
+      "potassium": 1040,
+      "calcium": 120,
+      "iron": 4.7,
+      "magnesium": 102,
+      "zinc": 2.8,
+      "vitA": 260,
+      "vitC": 20,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 240
+    }
+  },
+  {
+    "id": 1039,
+    "name": "Chipotle Salad",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 350,
+    "servingLabel": "1 salad",
+    "cost": 9.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "cheese",
+      "chicken",
+      "lettuce",
+      "salsa"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 420,
+      "protein": 28,
+      "carbs": 18,
+      "fat": 24,
+      "saturatedFat": 8,
+      "fiber": 8,
+      "sugar": 5,
+      "addedSugar": 0,
+      "sodium": 920,
+      "potassium": 760,
+      "calcium": 210,
+      "iron": 2.8,
+      "magnesium": 74,
+      "zinc": 2.5,
+      "vitA": 360,
+      "vitC": 22,
+      "vitD": 0.2,
+      "vitB12": 0.5,
+      "folate": 145
+    }
+  },
+  {
+    "id": 1040,
+    "name": "Chipotle High Protein Bowl",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 420,
+    "servingLabel": "1 bowl",
+    "cost": 12.29,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "cheese",
+      "chicken",
+      "guacamole",
+      "lettuce",
+      "rice"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 620,
+      "protein": 48,
+      "carbs": 48,
+      "fat": 22,
+      "saturatedFat": 7,
+      "fiber": 10,
+      "sugar": 5,
+      "addedSugar": 0,
+      "sodium": 1180,
+      "potassium": 920,
+      "calcium": 220,
+      "iron": 4.0,
+      "magnesium": 90,
+      "zinc": 3.4,
+      "vitA": 320,
+      "vitC": 18,
+      "vitD": 0.2,
+      "vitB12": 0.8,
+      "folate": 190
+    }
+  },
+  {
+    "id": 1041,
+    "name": "Chipotle Veggie Full Bowl",
+    "category": "prepared_meal",
+    "cuisine": "mexican",
+    "servingG": 410,
+    "servingLabel": "1 bowl",
+    "cost": 9.89,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      },
+      {
+        "code": "low_potassium_ckd",
+        "severity": "avoid"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beans",
+      "fajita",
+      "guacamole",
+      "lettuce",
+      "rice",
+      "salsa"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 620,
+      "protein": 17,
+      "carbs": 74,
+      "fat": 28,
+      "saturatedFat": 4,
+      "fiber": 16,
+      "sugar": 6,
+      "addedSugar": 0,
+      "sodium": 1040,
+      "potassium": 1260,
+      "calcium": 130,
+      "iron": 4.8,
+      "magnesium": 118,
+      "zinc": 2.6,
+      "vitA": 280,
+      "vitC": 26,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 260
+    }
+  },
+  {
+    "id": 1042,
+    "name": "Chipotle Chips & Guacamole",
+    "category": "snack",
+    "cuisine": "mexican",
+    "servingG": 150,
+    "servingLabel": "1 order",
+    "cost": 5.25,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack",
+      "lunch"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "chips",
+      "guacamole"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 540,
+      "protein": 8,
+      "carbs": 54,
+      "fat": 29,
+      "saturatedFat": 4,
+      "fiber": 8,
+      "sugar": 3,
+      "addedSugar": 0,
+      "sodium": 780,
+      "potassium": 740,
+      "calcium": 60,
+      "iron": 1.6,
+      "magnesium": 68,
+      "zinc": 1.1,
+      "vitA": 80,
+      "vitC": 10,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 70
+    }
+  },
+  {
+    "id": 1043,
+    "name": "Burger King Impossible Whopper",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 280,
+    "servingLabel": "1 burger",
+    "cost": 8.29,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "egg",
+      "soy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bun",
+      "impossible",
+      "lettuce",
+      "mayonnaise",
+      "onion",
+      "pickle",
+      "tomato"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 630,
+      "protein": 28,
+      "carbs": 49,
+      "fat": 34,
+      "saturatedFat": 11,
+      "fiber": 4,
+      "sugar": 12,
+      "addedSugar": 10,
+      "sodium": 1350,
+      "potassium": 480,
+      "calcium": 90,
+      "iron": 4.2,
+      "magnesium": 54,
+      "zinc": 3.7,
+      "vitA": 100,
+      "vitC": 8,
+      "vitD": 0.1,
+      "vitB12": 0.4,
+      "folate": 70
+    }
+  },
+  {
+    "id": 1044,
+    "name": "Burger King Whopper",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 250,
+    "servingLabel": "1 burger",
+    "cost": 7.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten",
+      "soy"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "beef"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "beef",
+      "bun",
+      "cheese",
+      "ketchup",
+      "mustard",
+      "onion",
+      "pickle"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 540,
+      "protein": 29,
+      "carbs": 41,
+      "fat": 29,
+      "saturatedFat": 12,
+      "fiber": 2,
+      "sugar": 10,
+      "addedSugar": 8,
+      "sodium": 1140,
+      "potassium": 400,
+      "calcium": 220,
+      "iron": 4.0,
+      "magnesium": 42,
+      "zinc": 4.3,
+      "vitA": 120,
+      "vitC": 6,
+      "vitD": 0.3,
+      "vitB12": 2.4,
+      "folate": 80
+    }
+  },
+  {
+    "id": 1045,
+    "name": "Burger King Original Chicken Sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 210,
+    "servingLabel": "1 sandwich",
+    "cost": 6.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bun",
+      "chicken",
+      "mayonnaise",
+      "pickle"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 470,
+      "protein": 27,
+      "carbs": 45,
+      "fat": 20,
+      "saturatedFat": 4,
+      "fiber": 2,
+      "sugar": 6,
+      "addedSugar": 4,
+      "sodium": 1040,
+      "potassium": 330,
+      "calcium": 70,
+      "iron": 1.8,
+      "magnesium": 34,
+      "zinc": 1.0,
+      "vitA": 30,
+      "vitC": 2,
+      "vitD": 0.1,
+      "vitB12": 0.3,
+      "folate": 30
+    }
+  },
+  {
+    "id": 1046,
+    "name": "Burger King Big Fish Sandwich",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 160,
+    "servingLabel": "1 sandwich",
+    "cost": 6.29,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "fish",
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "fish"
+      },
+      {
+        "religion": "jain",
+        "reason": "fish"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bun",
+      "cheese",
+      "fish",
+      "tartar"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 390,
+      "protein": 17,
+      "carbs": 39,
+      "fat": 18,
+      "saturatedFat": 4,
+      "fiber": 2,
+      "sugar": 5,
+      "addedSugar": 3,
+      "sodium": 650,
+      "potassium": 300,
+      "calcium": 130,
+      "iron": 1.5,
+      "magnesium": 28,
+      "zinc": 0.9,
+      "vitA": 60,
+      "vitC": 0,
+      "vitD": 0.6,
+      "vitB12": 1.9,
+      "folate": 35
+    }
+  },
+  {
+    "id": 1047,
+    "name": "Burger King Egg-Normous Burrito",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 245,
+    "servingLabel": "1 burrito",
+    "cost": 5.59,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast"
+    ],
+    "allergens": [
+      "egg",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "pork"
+      },
+      {
+        "religion": "kosher",
+        "reason": "pork"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "egg",
+      "hashbrown",
+      "sausage",
+      "tortilla"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 800,
+      "protein": 29,
+      "carbs": 56,
+      "fat": 50,
+      "saturatedFat": 16,
+      "fiber": 3,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 1810,
+      "potassium": 520,
+      "calcium": 260,
+      "iron": 3.1,
+      "magnesium": 46,
+      "zinc": 2.4,
+      "vitA": 180,
+      "vitC": 6,
+      "vitD": 1.2,
+      "vitB12": 1.3,
+      "folate": 70
+    }
+  },
+  {
+    "id": 1048,
+    "name": "Burger King French Fries",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 117,
+    "servingLabel": "1 medium order",
+    "cost": 2.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner",
+      "snack"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "oil",
+      "potato",
+      "salt"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 340,
+      "protein": 4,
+      "carbs": 44,
+      "fat": 16,
+      "saturatedFat": 2,
+      "fiber": 4,
+      "sugar": 0,
+      "addedSugar": 0,
+      "sodium": 260,
+      "potassium": 550,
+      "calcium": 20,
+      "iron": 1.1,
+      "magnesium": 42,
+      "zinc": 0.5,
+      "vitA": 0,
+      "vitC": 12,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 40
+    }
+  },
+  {
+    "id": 1049,
+    "name": "Subway Veggie Delite 6-Inch",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 180,
+    "servingLabel": "1 6-inch sub",
+    "cost": 5.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "cucumber",
+      "lettuce",
+      "onion",
+      "pepper",
+      "tomato"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 240,
+      "protein": 10,
+      "carbs": 44,
+      "fat": 3,
+      "saturatedFat": 0.5,
+      "fiber": 5,
+      "sugar": 6,
+      "addedSugar": 2,
+      "sodium": 360,
+      "potassium": 280,
+      "calcium": 80,
+      "iron": 2.2,
+      "magnesium": 36,
+      "zinc": 1.2,
+      "vitA": 120,
+      "vitC": 14,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 70
+    }
+  },
+  {
+    "id": 1050,
+    "name": "Subway Oven-Roasted Turkey 6-Inch",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 190,
+    "servingLabel": "1 6-inch sub",
+    "cost": 6.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "lettuce",
+      "onion",
+      "tomato",
+      "turkey"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 290,
+      "protein": 19,
+      "carbs": 40,
+      "fat": 4,
+      "saturatedFat": 1,
+      "fiber": 5,
+      "sugar": 7,
+      "addedSugar": 3,
+      "sodium": 760,
+      "potassium": 340,
+      "calcium": 90,
+      "iron": 2.3,
+      "magnesium": 38,
+      "zinc": 1.4,
+      "vitA": 130,
+      "vitC": 16,
+      "vitD": 0,
+      "vitB12": 0.6,
+      "folate": 85
+    }
+  },
+  {
+    "id": 1051,
+    "name": "Subway Steak & Cheese 6-Inch",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 210,
+    "servingLabel": "1 6-inch sub",
+    "cost": 7.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "cheese",
+      "onion",
+      "pepper",
+      "steak"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 360,
+      "protein": 24,
+      "carbs": 43,
+      "fat": 9,
+      "saturatedFat": 4,
+      "fiber": 3,
+      "sugar": 8,
+      "addedSugar": 3,
+      "sodium": 980,
+      "potassium": 420,
+      "calcium": 180,
+      "iron": 2.9,
+      "magnesium": 42,
+      "zinc": 2.5,
+      "vitA": 90,
+      "vitC": 10,
+      "vitD": 0.1,
+      "vitB12": 0.8,
+      "folate": 70
+    }
+  },
+  {
+    "id": 1052,
+    "name": "Subway Tuna 6-Inch",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 220,
+    "servingLabel": "1 6-inch sub",
+    "cost": 6.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "fish",
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "fish"
+      },
+      {
+        "religion": "jain",
+        "reason": "fish"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "lettuce",
+      "mayonnaise",
+      "tomato",
+      "tuna"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 500,
+      "protein": 20,
+      "carbs": 41,
+      "fat": 29,
+      "saturatedFat": 5,
+      "fiber": 3,
+      "sugar": 8,
+      "addedSugar": 2,
+      "sodium": 760,
+      "potassium": 340,
+      "calcium": 100,
+      "iron": 2.4,
+      "magnesium": 34,
+      "zinc": 1.4,
+      "vitA": 80,
+      "vitC": 6,
+      "vitD": 0.5,
+      "vitB12": 2.2,
+      "folate": 60
+    }
+  },
+  {
+    "id": 1053,
+    "name": "Subway Meatball Marinara 6-Inch",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 250,
+    "servingLabel": "1 6-inch sub",
+    "cost": 6.49,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten",
+      "egg"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "cheese",
+      "marinara",
+      "meatball"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 510,
+      "protein": 22,
+      "carbs": 54,
+      "fat": 20,
+      "saturatedFat": 8,
+      "fiber": 4,
+      "sugar": 12,
+      "addedSugar": 5,
+      "sodium": 1180,
+      "potassium": 500,
+      "calcium": 260,
+      "iron": 3.2,
+      "magnesium": 44,
+      "zinc": 2.0,
+      "vitA": 140,
+      "vitC": 8,
+      "vitD": 0.2,
+      "vitB12": 1.0,
+      "folate": 95
+    }
+  },
+  {
+    "id": 1054,
+    "name": "Subway Auntie Anne's Footlong Pretzel",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 150,
+    "servingLabel": "1 pretzel",
+    "cost": 3.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "flour",
+      "salt"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 330,
+      "protein": 9,
+      "carbs": 63,
+      "fat": 2,
+      "saturatedFat": 0.5,
+      "fiber": 2,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 820,
+      "potassium": 140,
+      "calcium": 20,
+      "iron": 2.5,
+      "magnesium": 28,
+      "zinc": 1.0,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 45
+    }
+  },
+  {
+    "id": 1055,
+    "name": "Domino's Pacific Veggie Pizza",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 250,
+    "servingLabel": "2 slices",
+    "cost": 7.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "root_vegetable"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "crust",
+      "mushroom",
+      "onion",
+      "pepper",
+      "spinach",
+      "tomato"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 500,
+      "protein": 22,
+      "carbs": 62,
+      "fat": 18,
+      "saturatedFat": 8,
+      "fiber": 5,
+      "sugar": 8,
+      "addedSugar": 2,
+      "sodium": 980,
+      "potassium": 420,
+      "calcium": 320,
+      "iron": 3.2,
+      "magnesium": 44,
+      "zinc": 2.8,
+      "vitA": 200,
+      "vitC": 16,
+      "vitD": 0.3,
+      "vitB12": 1.2,
+      "folate": 90
+    }
+  },
+  {
+    "id": 1056,
+    "name": "Domino's Ultimate Pepperoni Pizza",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 250,
+    "servingLabel": "2 slices",
+    "cost": 8.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "crust",
+      "pepperoni",
+      "tomato"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 640,
+      "protein": 28,
+      "carbs": 66,
+      "fat": 28,
+      "saturatedFat": 12,
+      "fiber": 4,
+      "sugar": 8,
+      "addedSugar": 2,
+      "sodium": 1340,
+      "potassium": 420,
+      "calcium": 340,
+      "iron": 3.5,
+      "magnesium": 42,
+      "zinc": 2.9,
+      "vitA": 180,
+      "vitC": 8,
+      "vitD": 0.3,
+      "vitB12": 1.4,
+      "folate": 85
+    }
+  },
+  {
+    "id": 1057,
+    "name": "Domino's Chicken Alfredo Pasta",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 320,
+    "servingLabel": "1 pasta bowl",
+    "cost": 8.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "chicken",
+      "cream",
+      "pasta"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 620,
+      "protein": 25,
+      "carbs": 72,
+      "fat": 24,
+      "saturatedFat": 11,
+      "fiber": 4,
+      "sugar": 7,
+      "addedSugar": 2,
+      "sodium": 1230,
+      "potassium": 420,
+      "calcium": 280,
+      "iron": 2.4,
+      "magnesium": 48,
+      "zinc": 1.8,
+      "vitA": 140,
+      "vitC": 4,
+      "vitD": 0.4,
+      "vitB12": 0.8,
+      "folate": 85
+    }
+  },
+  {
+    "id": 1058,
+    "name": "Domino's Pasta Primavera",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 320,
+    "servingLabel": "1 pasta bowl",
+    "cost": 8.79,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "cheese",
+      "pasta",
+      "pepper",
+      "spinach",
+      "tomato"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 520,
+      "protein": 16,
+      "carbs": 76,
+      "fat": 15,
+      "saturatedFat": 6,
+      "fiber": 5,
+      "sugar": 9,
+      "addedSugar": 2,
+      "sodium": 1040,
+      "potassium": 520,
+      "calcium": 240,
+      "iron": 2.7,
+      "magnesium": 58,
+      "zinc": 1.6,
+      "vitA": 220,
+      "vitC": 18,
+      "vitD": 0.2,
+      "vitB12": 0.5,
+      "folate": 95
+    }
+  },
+  {
+    "id": 1059,
+    "name": "Domino's Chicken Caesar Salad",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 240,
+    "servingLabel": "1 salad",
+    "cost": 7.29,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "dairy",
+      "egg",
+      "fish"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [
+      {
+        "code": "low_sodium",
+        "severity": "limit"
+      },
+      {
+        "code": "hypertension",
+        "severity": "limit"
+      }
+    ],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "caesar",
+      "chicken",
+      "lettuce",
+      "parmesan"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 430,
+      "protein": 31,
+      "carbs": 13,
+      "fat": 30,
+      "saturatedFat": 7,
+      "fiber": 4,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 940,
+      "potassium": 520,
+      "calcium": 220,
+      "iron": 2.1,
+      "magnesium": 42,
+      "zinc": 2.2,
+      "vitA": 240,
+      "vitC": 14,
+      "vitD": 0.2,
+      "vitB12": 0.7,
+      "folate": 70
+    }
+  },
+  {
+    "id": 1060,
+    "name": "Domino's Parmesan Bread Bites",
+    "category": "snack",
+    "cuisine": "italian",
+    "servingG": 100,
+    "servingLabel": "8 pieces",
+    "cost": 4.99,
+    "costConfidence": "low",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack",
+      "lunch"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "fast_food"
+    ],
+    "ingredients": [
+      "bread",
+      "cheese",
+      "garlic"
+    ],
+    "source": "top_10_fast_food_menu_snapshot_pdf",
+    "nutrients": {
+      "calories": 220,
+      "protein": 6,
+      "carbs": 27,
+      "fat": 9,
+      "saturatedFat": 3,
+      "fiber": 1,
+      "sugar": 2,
+      "addedSugar": 0,
+      "sodium": 420,
+      "potassium": 120,
+      "calcium": 90,
+      "iron": 1.2,
+      "magnesium": 16,
+      "zinc": 0.7,
+      "vitA": 20,
+      "vitC": 0,
+      "vitD": 0.1,
+      "vitB12": 0.2,
+      "folate": 20
+    }
+  }
+]

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
 import '../../providers/profile_controller.dart';
-import '../../widgets/section_card.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
 
 class OnboardingCuisineStep extends ConsumerWidget {
@@ -26,55 +26,38 @@ class OnboardingCuisineStep extends ConsumerWidget {
     final preference = profile.constraints.preference;
     final controller = ref.read(profileControllerProvider.notifier);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Cuisine preference',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
+    return OnboardingStepLayout(
+      title: 'Cuisine\npreference',
+      subtitle:
           'This is a softer preference and can be relaxed when the result pool gets too small.',
-          style: Theme.of(context).textTheme.bodyLarge,
+      children: [
+        SelectionTile(
+          title: 'No preference',
+          subtitle: 'Do not favor one cuisine family.',
+          icon: Icons.public_rounded,
+          selected: preference.cuisinePreference == null,
+          onTap: () {
+            controller.updatePreference(
+              preference.copyWith(clearCuisinePreference: true),
+            );
+          },
         ),
-        const SizedBox(height: 20),
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SelectionTile(
-                title: 'No preference',
-                subtitle: 'Do not favor one cuisine family.',
-                icon: Icons.public_rounded,
-                selected: preference.cuisinePreference == null,
-                onTap: () {
-                  controller.updatePreference(
-                    preference.copyWith(clearCuisinePreference: true),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              ..._cuisines.map((cuisine) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: SelectionTile(
-                    title: _labelize(cuisine),
-                    icon: Icons.restaurant_menu_rounded,
-                    selected: preference.cuisinePreference == cuisine,
-                    onTap: () {
-                      controller.updatePreference(
-                        preference.copyWith(cuisinePreference: cuisine),
-                      );
-                    },
-                  ),
-                );
-              }),
-            ],
+        const SizedBox(height: 14),
+        for (final cuisine in _cuisines) ...[
+          SelectionTile(
+            title: _labelize(cuisine),
+            icon: Icons.restaurant_menu_rounded,
+            subtitle:
+                'Favor ${_labelize(cuisine).toLowerCase()} options when possible.',
+            selected: preference.cuisinePreference == cuisine,
+            onTap: () {
+              controller.updatePreference(
+                preference.copyWith(cuisinePreference: cuisine),
+              );
+            },
           ),
-        ),
+          if (cuisine != _cuisines.last) const SizedBox(height: 14),
+        ],
       ],
     );
   }

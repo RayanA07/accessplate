@@ -32,7 +32,7 @@ export const FOODS = [
     allergens: [],
     religionExcluded: [],
     medicalExcluded: [],
-    availability: ['grocery', 'fast_food'],
+    availability: ['grocery'],
     nutrients: {
       calories: 480, protein: 22, carbs: 70, fat: 10,
       saturatedFat: 2, fiber: 16, sugar: 4, addedSugar: 0,
@@ -108,7 +108,7 @@ export const FOODS = [
     allergens: ['dairy', 'egg', 'fish', 'wheat', 'gluten'],
     religionExcluded: [],
     medicalExcluded: [{ code: 'low_sodium', severity: 'limit' }],
-    availability: ['grocery', 'fast_food'],
+    availability: ['grocery'],
     nutrients: {
       calories: 520, protein: 38, carbs: 22, fat: 32,
       saturatedFat: 8, fiber: 4, sugar: 4, addedSugar: 1,
@@ -225,7 +225,7 @@ export const FOODS = [
       { code: 'low_sodium', severity: 'limit' },
       { code: 'diabetic', severity: 'limit' },
     ],
-    availability: ['grocery', 'fast_food', 'convenience'],
+    availability: ['grocery', 'convenience'],
     nutrients: {
       calories: 290, protein: 12, carbs: 36, fat: 11,
       saturatedFat: 5, fiber: 2, sugar: 4, addedSugar: 1,
@@ -249,7 +249,7 @@ export const FOODS = [
       { religion: 'jain', reason: 'meat' },
     ],
     medicalExcluded: [],
-    availability: ['grocery', 'fast_food'],
+    availability: ['grocery'],
     nutrients: {
       calories: 460, protein: 26, carbs: 38, fat: 22,
       saturatedFat: 7, fiber: 4, sugar: 3, addedSugar: 0,
@@ -385,7 +385,7 @@ export const FOODS = [
     allergens: ['dairy', 'wheat', 'gluten'],
     religionExcluded: [],
     medicalExcluded: [{ code: 'low_sodium', severity: 'limit' }],
-    availability: ['grocery', 'fast_food', 'convenience'],
+    availability: ['grocery', 'convenience'],
     nutrients: {
       calories: 420, protein: 18, carbs: 50, fat: 16,
       saturatedFat: 7, fiber: 8, sugar: 3, addedSugar: 1,
@@ -467,7 +467,7 @@ export const FOODS = [
       { code: 'low_sodium', severity: 'limit' },
       { code: 'diabetic', severity: 'limit' },
     ],
-    availability: ['grocery', 'fast_food'],
+    availability: ['grocery'],
     nutrients: {
       calories: 540, protein: 28, carbs: 38, fat: 28,
       saturatedFat: 10, fiber: 2, sugar: 6, addedSugar: 4,
@@ -721,7 +721,7 @@ export const FOODS = [
     allergens: ['dairy', 'wheat', 'gluten'],
     religionExcluded: [],
     medicalExcluded: [],
-    availability: ['grocery', 'convenience', 'fast_food'],
+    availability: ['grocery', 'convenience'],
     nutrients: {
       calories: 380, protein: 16, carbs: 42, fat: 16,
       saturatedFat: 7, fiber: 6, sugar: 4, addedSugar: 1,
@@ -759,7 +759,7 @@ export const FOODS = [
     allergens: ['dairy'],
     religionExcluded: [],
     medicalExcluded: [],
-    availability: ['grocery', 'convenience', 'fast_food'],
+    availability: ['grocery', 'convenience'],
     nutrients: {
       calories: 240, protein: 8, carbs: 48, fat: 3,
       saturatedFat: 1.5, fiber: 6, sugar: 36, addedSugar: 12,

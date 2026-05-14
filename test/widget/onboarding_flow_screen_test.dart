@@ -38,10 +38,12 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Disliked ingredients'), findsOneWidget);
+    expect(find.text('Disliked\ningredients'), findsOneWidget);
   });
 
-  testWidgets('final onboarding step shows recommendations CTA', (tester) async {
+  testWidgets('final onboarding step shows recommendations CTA', (
+    tester,
+  ) async {
     final profile = UserProfile.defaults().copyWith(
       onboardingStage: OnboardingStage.targets,
     );

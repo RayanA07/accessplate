@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_constraints.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../providers/profile_controller.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
 
 class OnboardingTargetsStep extends ConsumerStatefulWidget {
@@ -44,25 +45,17 @@ class _OnboardingTargetsStepState extends ConsumerState<OnboardingTargetsStep> {
     final fatPercent = _fatPercent;
     final derivedTargets = _buildTargets();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Meal targets',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
+    return OnboardingStepLayout(
+      title: 'Meal\ntargets',
+      subtitle:
           'Pick a calorie goal, then set the meal balance as percentages instead of a fixed preset.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
+      children: [
         SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const OnboardingMetaLabel('Calories'),
+              const SizedBox(height: 8),
               Text(
                 '${_calories.toStringAsFixed(0)} kcal',
                 style: Theme.of(
@@ -84,21 +77,18 @@ class _OnboardingTargetsStepState extends ConsumerState<OnboardingTargetsStep> {
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Macronutrient mix',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
+              const OnboardingMetaLabel('Macronutrient mix'),
+              const SizedBox(height: 10),
               Text(
                 'The three shares always add up to 100%.',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF8F8F95),
+                ),
               ),
               const SizedBox(height: 16),
               Wrap(
@@ -142,22 +132,19 @@ class _OnboardingTargetsStepState extends ConsumerState<OnboardingTargetsStep> {
               const SizedBox(height: 8),
               Text(
                 'Derived targets: ${derivedTargets.proteinG.toStringAsFixed(0)}g protein | ${derivedTargets.carbsG.toStringAsFixed(0)}g carbs | ${derivedTargets.fatG.toStringAsFixed(0)}g fat',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF5E5E64),
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Fiber target',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
+              const OnboardingMetaLabel('Fiber target'),
               const SizedBox(height: 8),
               Text(
                 '${_fiberTarget.toStringAsFixed(0)} g',

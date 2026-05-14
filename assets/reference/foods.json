@@ -65,8 +65,7 @@
     "religionExcluded": [],
     "medicalExcluded": [],
     "availability": [
-      "grocery",
-      "fast_food"
+      "grocery"
     ],
     "nutrients": {
       "calories": 480,
@@ -264,8 +263,7 @@
       }
     ],
     "availability": [
-      "grocery",
-      "fast_food"
+      "grocery"
     ],
     "nutrients": {
       "calories": 520,
@@ -563,7 +561,6 @@
     ],
     "availability": [
       "grocery",
-      "fast_food",
       "convenience"
     ],
     "nutrients": {
@@ -624,8 +621,7 @@
     ],
     "medicalExcluded": [],
     "availability": [
-      "grocery",
-      "fast_food"
+      "grocery"
     ],
     "nutrients": {
       "calories": 460,
@@ -967,7 +963,6 @@
     ],
     "availability": [
       "grocery",
-      "fast_food",
       "convenience"
     ],
     "nutrients": {
@@ -1174,8 +1169,7 @@
       }
     ],
     "availability": [
-      "grocery",
-      "fast_food"
+      "grocery"
     ],
     "nutrients": {
       "calories": 540,
@@ -1814,8 +1808,7 @@
     "medicalExcluded": [],
     "availability": [
       "grocery",
-      "convenience",
-      "fast_food"
+      "convenience"
     ],
     "nutrients": {
       "calories": 380,
@@ -1906,8 +1899,7 @@
     "medicalExcluded": [],
     "availability": [
       "grocery",
-      "convenience",
-      "fast_food"
+      "convenience"
     ],
     "nutrients": {
       "calories": 240,

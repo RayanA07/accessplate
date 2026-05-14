@@ -24,19 +24,20 @@ class AppDatabase {
 
     _database = await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
       onCreate: (db, version) async {
         await _createSchema(db);
-        await _seed(db);
+        await _syncSeedFoods(db);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
           await _createCacheTables(db);
-          await _backfillCacheEntries(db);
         }
+        await _syncSeedFoods(db);
+        await _backfillCacheEntries(db);
       },
       onOpen: (db) async {
         final count =
@@ -45,7 +46,7 @@ class AppDatabase {
             ) ??
             0;
         if (count == 0) {
-          await _seed(db);
+          await _syncSeedFoods(db);
         } else {
           await _backfillCacheEntries(db);
         }
@@ -191,7 +192,7 @@ class AppDatabase {
     );
   }
 
-  Future<void> _seed(Database db) async {
+  Future<void> _syncSeedFoods(Database db) async {
     final foods = await _seedLoader.loadFoods();
     final batch = db.batch();
     final now = DateTime.now().toUtc();
@@ -216,8 +217,22 @@ class AppDatabase {
           (value) => Map<String, dynamic>.from(value as Map),
         ),
       );
-      final ingredients = _deriveIngredientTokens(name);
+      final ingredients = _normalizedIngredientTokens(item, name);
       final nutrients = Map<String, dynamic>.from(item['nutrients'] as Map);
+
+      batch.delete('nutrients', where: 'food_id = ?', whereArgs: [id]);
+      batch.delete('food_allergens', where: 'food_id = ?', whereArgs: [id]);
+      batch.delete(
+        'food_religion_excluded',
+        where: 'food_id = ?',
+        whereArgs: [id],
+      );
+      batch.delete(
+        'food_medical_excluded',
+        where: 'food_id = ?',
+        whereArgs: [id],
+      );
+      batch.delete('food_availability', where: 'food_id = ?', whereArgs: [id]);
 
       batch.insert('foods', {
         'id': id,
@@ -236,8 +251,8 @@ class AppDatabase {
         'religion_json': jsonEncode(religionRules),
         'medical_json': jsonEncode(medicalRules),
         'ingredients_json': jsonEncode(ingredients),
-        'source': 'bundled_reference',
-      });
+        'source': item['source'] ?? 'bundled_reference',
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
 
       batch.insert('nutrients', {
         'food_id': id,
@@ -260,7 +275,7 @@ class AppDatabase {
         'vit_d_mcg': (nutrients['vitD'] as num).toDouble(),
         'vit_b12_mcg': (nutrients['vitB12'] as num).toDouble(),
         'folate_mcg_dfe': (nutrients['folate'] as num).toDouble(),
-      });
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
 
       for (final allergen in allergens) {
         batch.insert('food_allergens', {
@@ -367,5 +382,21 @@ class AppDatabase {
         .toSet()
         .toList()
       ..sort();
+  }
+
+  List<String> _normalizedIngredientTokens(
+    Map<String, dynamic> item,
+    String fallbackName,
+  ) {
+    final raw = item['ingredients'];
+    if (raw is List<dynamic>) {
+      return raw
+          .map((value) => value.toString().trim().toLowerCase())
+          .where((token) => token.isNotEmpty)
+          .toSet()
+          .toList()
+        ..sort();
+    }
+    return _deriveIngredientTokens(fallbackName);
   }
 }

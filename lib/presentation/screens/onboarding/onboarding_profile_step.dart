@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/demographics.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../providers/profile_controller.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
 
 class OnboardingProfileStep extends ConsumerWidget {
@@ -27,46 +28,35 @@ class OnboardingProfileStep extends ConsumerWidget {
     final controller = ref.read(profileControllerProvider.notifier);
     final age = demographics.ageYears.clamp(14, 75);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return OnboardingStepLayout(
+      title: 'Profile\ncontext',
+      subtitle: 'This helps the scoring model prioritize the right nutrients.',
       children: [
-        Text(
-          'Profile context',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'This helps the scoring model prioritize the right nutrients.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
         SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Sex', style: Theme.of(context).textTheme.labelLarge),
+              const OnboardingMetaLabel('Sex'),
               const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                children: Sex.values.map((sex) {
-                  return ChoiceChip(
-                    selected: demographics.sex == sex,
-                    label: Text(sex == Sex.female ? 'Female' : 'Male'),
-                    onSelected: (_) {
-                      controller.updateDemographics(
-                        demographics.copyWith(sex: sex),
-                      );
-                    },
+              OnboardingSegmentedControl<Sex>(
+                value: demographics.sex,
+                options: Sex.values,
+                labelBuilder: (sex) => sex == Sex.female ? 'Female' : 'Male',
+                onChanged: (sex) {
+                  controller.updateDemographics(
+                    demographics.copyWith(sex: sex),
                   );
-                }).toList(),
+                },
               ),
-              const SizedBox(height: 18),
-              Text(
-                'Age: $age',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        SectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              OnboardingMetaLabel('Age: $age'),
               Slider(
                 min: 14,
                 max: 75,
@@ -78,12 +68,16 @@ class OnboardingProfileStep extends ConsumerWidget {
                   );
                 },
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Health priorities',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+        SectionCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const OnboardingMetaLabel('Health priorities'),
+              const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,

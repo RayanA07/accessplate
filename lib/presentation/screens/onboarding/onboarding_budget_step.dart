@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
 import '../../providers/profile_controller.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
 
 class OnboardingBudgetStep extends ConsumerWidget {
@@ -16,39 +17,25 @@ class OnboardingBudgetStep extends ConsumerWidget {
     final feasibility = profile.constraints.feasibility;
     final controller = ref.read(profileControllerProvider.notifier);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return OnboardingStepLayout(
+      title: 'What\u2019s your\nmeal budget?',
+      subtitle: 'Set the maximum you want the engine to spend on one meal.',
+      topSpacing: 44,
       children: [
-        Text(
-          'Budget',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Set the maximum you want the engine to spend on one meal.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
         SectionCard(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Budget per meal',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  Text(
-                    '\$${feasibility.maxCostPerMeal.toStringAsFixed(0)}',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
+              const OnboardingMetaLabel('Budget per meal'),
+              const SizedBox(height: 10),
+              Text(
+                '\$${feasibility.maxCostPerMeal.toStringAsFixed(0)}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 38,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -1.1,
+                  color: Color(0xFF111111),
+                ),
               ),
               const SizedBox(height: 12),
               Slider(
@@ -58,6 +45,15 @@ class OnboardingBudgetStep extends ConsumerWidget {
                 divisions: 14,
                 value: feasibility.maxCostPerMeal.clamp(1, 15),
                 onChanged: controller.updateBudget,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'The engine will favor foods at or below this cost target.',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF8F8F95),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),

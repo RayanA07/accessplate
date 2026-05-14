@@ -4,7 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/allergen.dart';
 import '../../providers/profile_controller.dart';
-import '../../widgets/section_card.dart';
+import '../../widgets/onboarding_ui.dart';
+import '../../widgets/selection_tile.dart';
 
 class OnboardingAllergensStep extends ConsumerWidget {
   const OnboardingAllergensStep({super.key});
@@ -17,40 +18,55 @@ class OnboardingAllergensStep extends ConsumerWidget {
     final safety = profile.constraints.safety;
     final controller = ref.read(profileControllerProvider.notifier);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Allergens',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
+    return OnboardingStepLayout(
+      title: 'Allergens',
+      subtitle:
           'Pick any allergens that must never show up in your recommendations.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
-        SectionCard(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: Allergen.values.map((allergen) {
-              final selected = safety.allergens.contains(allergen);
-              return FilterChip(
-                selected: selected,
-                label: Text(allergen.label),
-                onSelected: (value) {
-                  final next = {...safety.allergens};
-                  value ? next.add(allergen) : next.remove(allergen);
-                  controller.updateSafety(safety.copyWith(allergens: next));
-                },
-              );
-            }).toList(),
+      children: [
+        for (final allergen in Allergen.values) ...[
+          SelectionTile(
+            title: allergen.label,
+            subtitle:
+                'Exclude foods containing ${allergen.label.toLowerCase()}.',
+            icon: _iconFor(allergen),
+            selected: safety.allergens.contains(allergen),
+            indicatorStyle: SelectionTileIndicatorStyle.check,
+            onTap: () {
+              final next = {...safety.allergens};
+              next.contains(allergen)
+                  ? next.remove(allergen)
+                  : next.add(allergen);
+              controller.updateSafety(safety.copyWith(allergens: next));
+            },
           ),
-        ),
+          if (allergen != Allergen.values.last) const SizedBox(height: 14),
+        ],
       ],
     );
+  }
+
+  IconData _iconFor(Allergen allergen) {
+    switch (allergen) {
+      case Allergen.peanut:
+        return Icons.local_florist_rounded;
+      case Allergen.treeNut:
+        return Icons.park_rounded;
+      case Allergen.dairy:
+        return Icons.water_drop_rounded;
+      case Allergen.egg:
+        return Icons.egg_alt_rounded;
+      case Allergen.soy:
+        return Icons.spa_outlined;
+      case Allergen.wheat:
+        return Icons.grain_rounded;
+      case Allergen.gluten:
+        return Icons.bakery_dining_outlined;
+      case Allergen.fish:
+        return Icons.set_meal_rounded;
+      case Allergen.shellfish:
+        return Icons.water_outlined;
+      case Allergen.sesame:
+        return Icons.scatter_plot_outlined;
+    }
   }
 }

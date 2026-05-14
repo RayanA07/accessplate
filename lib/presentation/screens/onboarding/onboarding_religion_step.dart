@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/religion.dart';
 import '../../providers/profile_controller.dart';
-import '../../widgets/section_card.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
 
 class OnboardingReligionStep extends ConsumerWidget {
@@ -18,40 +18,22 @@ class OnboardingReligionStep extends ConsumerWidget {
     final safety = profile.constraints.safety;
     final controller = ref.read(profileControllerProvider.notifier);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return OnboardingStepLayout(
+      title: 'Religious\nrestrictions',
+      subtitle: 'Choose the rule set the app should always respect.',
       children: [
-        Text(
-          'Religious restrictions',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Choose the rule set the app should always respect.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: Religion.values.map((religion) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SelectionTile(
-                  title: religion.label,
-                  subtitle: _descriptionFor(religion),
-                  icon: _iconFor(religion),
-                  selected: safety.religion == religion,
-                  onTap: () {
-                    controller.updateSafety(safety.copyWith(religion: religion));
-                  },
-                ),
-              );
-            }).toList(),
+        for (final religion in Religion.values) ...[
+          SelectionTile(
+            title: religion.label,
+            subtitle: _descriptionFor(religion),
+            icon: _iconFor(religion),
+            selected: safety.religion == religion,
+            onTap: () {
+              controller.updateSafety(safety.copyWith(religion: religion));
+            },
           ),
-        ),
+          if (religion != Religion.values.last) const SizedBox(height: 14),
+        ],
       ],
     );
   }

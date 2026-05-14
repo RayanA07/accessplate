@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/availability_context.dart';
 import '../../providers/profile_controller.dart';
-import '../../widgets/section_card.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
 
 class OnboardingAvailabilityStep extends ConsumerWidget {
@@ -18,48 +18,30 @@ class OnboardingAvailabilityStep extends ConsumerWidget {
     final feasibility = profile.constraints.feasibility;
     final controller = ref.read(profileControllerProvider.notifier);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return OnboardingStepLayout(
+      title: 'Shopping\naccess',
+      subtitle: 'Pick every food source that is realistic for you right now.',
       children: [
-        Text(
-          'Shopping access',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Pick every food source that is realistic for you right now.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: AvailabilityContext.values.map((contextValue) {
+        for (final contextValue in AvailabilityContext.values) ...[
+          SelectionTile(
+            title: contextValue.label,
+            subtitle: _descriptionFor(contextValue),
+            icon: _iconFor(contextValue),
+            selected: feasibility.availability.contains(contextValue),
+            indicatorStyle: SelectionTileIndicatorStyle.check,
+            onTap: () {
               final selected = feasibility.availability.contains(contextValue);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SelectionTile(
-                  title: contextValue.label,
-                  subtitle: _descriptionFor(contextValue),
-                  icon: _iconFor(contextValue),
-                  selected: selected,
-                  onTap: () {
-                    final next = {...feasibility.availability};
-                    selected
-                        ? next.remove(contextValue)
-                        : next.add(contextValue);
-                    if (next.isEmpty) {
-                      next.add(contextValue);
-                    }
-                    controller.updateAvailability(next);
-                  },
-                ),
-              );
-            }).toList(),
+              final next = {...feasibility.availability};
+              selected ? next.remove(contextValue) : next.add(contextValue);
+              if (next.isEmpty) {
+                next.add(contextValue);
+              }
+              controller.updateAvailability(next);
+            },
           ),
-        ),
+          if (contextValue != AvailabilityContext.values.last)
+            const SizedBox(height: 14),
+        ],
       ],
     );
   }

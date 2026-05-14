@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_constraints.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../providers/profile_controller.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
 
 class OnboardingDislikesStep extends ConsumerStatefulWidget {
@@ -31,48 +32,30 @@ class _OnboardingDislikesStepState
         UserProfile.defaults();
     final preference = profile.constraints.preference;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Disliked ingredients',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 8),
-        Text(
+    return OnboardingStepLayout(
+      title: 'Disliked\ningredients',
+      subtitle:
           'Only add ingredients you truly want excluded from the shortlist.',
-          style: Theme.of(context).textTheme.bodyLarge,
+      children: [
+        OnboardingSearchField(
+          controller: _dislikeController,
+          hintText: 'Add one ingredient',
+          onSubmitted: (_) => _addDislike(preference),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
         SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _dislikeController,
-                      decoration: const InputDecoration(
-                        hintText: 'Add one ingredient',
-                      ),
-                      onSubmitted: (_) => _addDislike(preference),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  FilledButton(
-                    onPressed: () => _addDislike(preference),
-                    child: const Text('Add'),
-                  ),
-                ],
-              ),
+              const OnboardingMetaLabel('Excluded ingredients'),
               const SizedBox(height: 12),
               if (preference.dislikedIngredients.isEmpty)
                 Text(
                   'Nothing excluded yet.',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF8F8F95),
+                    fontWeight: FontWeight.w500,
+                  ),
                 )
               else
                 Wrap(
@@ -93,6 +76,14 @@ class _OnboardingDislikesStepState
                     );
                   }).toList(),
                 ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () => _addDislike(preference),
+                  child: const Text('Add ingredient'),
+                ),
+              ),
             ],
           ),
         ),

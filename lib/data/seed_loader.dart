@@ -6,7 +6,15 @@ import '../domain/engine/score_config_provider.dart';
 
 class SeedLoader {
   Future<List<Map<String, dynamic>>> loadFoods() async {
-    final raw = await rootBundle.loadString('assets/reference/foods.json');
+    final bundled = await _loadFoodAsset('assets/reference/foods.json');
+    final fastFoodMenus = await _loadFoodAsset(
+      'assets/reference/fast_food_menus.json',
+    );
+    return [...bundled, ...fastFoodMenus];
+  }
+
+  Future<List<Map<String, dynamic>>> _loadFoodAsset(String assetPath) async {
+    final raw = await rootBundle.loadString(assetPath);
     final decoded = jsonDecode(raw) as List<dynamic>;
     return decoded
         .map((item) => Map<String, dynamic>.from(item as Map))

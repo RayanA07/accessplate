@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
 
 class OnboardingSplashStep extends StatelessWidget {
@@ -8,38 +9,30 @@ class OnboardingSplashStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Choose food with the same clarity you expect from a polished health app.',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 10),
-        Text(
+    return const OnboardingStepLayout(
+      title:
+          'Choose food with the\nsame clarity you expect\nfrom a polished health app.',
+      subtitle:
           'AccessPlate scores each option through safety, feasibility, preferences, and nutrition so the shortlist stays understandable.',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 24),
-        const _FeatureGrid(),
-        const SizedBox(height: 18),
+      topSpacing: 26,
+      children: [
+        _FeatureGrid(),
+        SizedBox(height: 18),
         SectionCard(
           tintColor: NihPalette.primaryAltLight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'What stays local',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
+              OnboardingMetaLabel('What stays local'),
+              SizedBox(height: 10),
               Text(
                 'Your profile stays on-device, and this prototype currently ranks from a bundled offline food set backed by the local cache.',
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.34,
+                  color: Color(0xFF5E5E64),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -54,39 +47,30 @@ class _FeatureGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: const [
-        SizedBox(
-          width: 250,
-          child: _FeatureCard(
-            title: 'Constraint-aware',
-            detail:
-                'Budget, prep setup, allergens, religion, and context shape every recommendation directly.',
-            icon: Icons.tune_rounded,
-            color: NihPalette.primary,
-          ),
+    return const Column(
+      children: [
+        _FeatureCard(
+          title: 'Constraint-aware',
+          detail:
+              'Budget, prep setup, allergens, religion, and context shape every recommendation directly.',
+          icon: Icons.tune_rounded,
+          color: NihPalette.primary,
         ),
-        SizedBox(
-          width: 250,
-          child: _FeatureCard(
-            title: 'Explainable',
-            detail:
-                'Each recommendation carries reasons, tradeoffs, and comparable alternatives.',
-            icon: Icons.insights_rounded,
-            color: NihPalette.secondary,
-          ),
+        SizedBox(height: 14),
+        _FeatureCard(
+          title: 'Explainable',
+          detail:
+              'Each recommendation carries reasons, tradeoffs, and comparable alternatives.',
+          icon: Icons.insights_rounded,
+          color: NihPalette.secondary,
         ),
-        SizedBox(
-          width: 250,
-          child: _FeatureCard(
-            title: 'Cache-first',
-            detail:
-                'The architecture is already prepared for online refresh later without changing the experience.',
-            icon: Icons.cloud_done_rounded,
-            color: NihPalette.success,
-          ),
+        SizedBox(height: 14),
+        _FeatureCard(
+          title: 'Cache-first',
+          detail:
+              'The architecture is already prepared for online refresh later without changing the experience.',
+          icon: Icons.cloud_done_rounded,
+          color: NihPalette.success,
         ),
       ],
     );
