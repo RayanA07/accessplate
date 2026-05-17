@@ -46,4 +46,21 @@ void main() {
 
     expect(score, inInclusiveRange(0, 1));
   });
+
+  test('minimum agreement keeps protein overshoot at full credit', () {
+    expect(MacroScorer.minimumAgreement(25, 32), 1);
+  });
+
+  test('agreement treats a broad calorie range as good enough', () {
+    expect(
+      MacroScorer.agreement(
+        500,
+        580,
+        lowerGoodRatio: 0.55,
+        upperGoodRatio: 1.25,
+        upperZeroRatio: 1.9,
+      ),
+      1,
+    );
+  });
 }

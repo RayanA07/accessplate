@@ -7,6 +7,7 @@ import '../value_objects/meal_type.dart';
 import '../value_objects/prep_environment.dart';
 import 'explainer.dart';
 import 'filters/feasibility_filter.dart';
+import 'filters/macro_alignment_prioritizer.dart';
 import 'filters/preference_filter.dart';
 import 'filters/safety_filter.dart';
 import 'preference_scorer.dart';
@@ -24,6 +25,7 @@ class DecisionEngine {
     this.safetyFilter = const SafetyFilter(),
     this.feasibilityFilter = const FeasibilityFilter(),
     this.preferenceFilter = const PreferenceFilter(),
+    this.macroAlignmentPrioritizer = const MacroAlignmentPrioritizer(),
   });
 
   final FoodRepository repo;
@@ -31,6 +33,7 @@ class DecisionEngine {
   final SafetyFilter safetyFilter;
   final FeasibilityFilter feasibilityFilter;
   final PreferenceFilter preferenceFilter;
+  final MacroAlignmentPrioritizer macroAlignmentPrioritizer;
 
   Future<RecommendationResult> recommend({
     required UserConstraints user,
@@ -115,16 +118,15 @@ class DecisionEngine {
       weights: config.compositeWeights,
     );
 
-    final ranked =
-        preferred
-            .map(
-              (record) => scorer.score(
-                record: record,
-                budgetUsd: user.feasibility.maxCostPerMeal,
-              ),
-            )
-            .toList()
-          ..sort(_compareScoredFoods);
+    final ranked = macroAlignmentPrioritizer.apply(
+      preferred
+          .map(
+            (record) =>
+                scorer.score(record: record, feasibility: user.feasibility),
+          )
+          .toList(),
+      user.targets,
+    )..sort(_compareScoredFoods);
 
     final scaled = _applyDisplayScaling(ranked);
     final explainer = Explainer(config: config, user: user);
@@ -279,16 +281,70 @@ class DecisionEngine {
 
   List<ScoredFood> _attachComparables(List<ScoredFood> foods) {
     return foods.map((food) {
-      final comparableIds = foods
-          .where((candidate) => candidate.food.id != food.food.id)
-          .where(
-            (candidate) =>
-                (candidate.displayScore - food.displayScore).abs() < 10,
-          )
-          .where((candidate) => _maxRelativeDelta(food, candidate) >= 0.2)
-          .take(3)
-          .map((candidate) => candidate.food.id)
-          .toList();
+      final cheaper =
+          foods
+              .where((candidate) => candidate.food.id != food.food.id)
+              .where(
+                (candidate) =>
+                    candidate.food.costEstimate <=
+                    food.food.costEstimate * 0.85,
+              )
+              .toList()
+            ..sort((a, b) {
+              final byComposite = b.composite.compareTo(a.composite);
+              if (byComposite != 0) {
+                return byComposite;
+              }
+              return a.food.costEstimate.compareTo(b.food.costEstimate);
+            });
+
+      final healthier =
+          foods
+              .where((candidate) => candidate.food.id != food.food.id)
+              .where(
+                (candidate) =>
+                    candidate.breakdown.penalty + 0.05 <
+                        food.breakdown.penalty ||
+                    candidate.nutrients.proteinG >=
+                        food.nutrients.proteinG + 4 ||
+                    candidate.nutrients.fiberG >= food.nutrients.fiberG + 3,
+              )
+              .where(
+                (candidate) =>
+                    candidate.food.costEstimate <=
+                    food.food.costEstimate * 1.35,
+              )
+              .toList()
+            ..sort((a, b) {
+              final byPenalty = a.breakdown.penalty.compareTo(
+                b.breakdown.penalty,
+              );
+              if (byPenalty != 0) {
+                return byPenalty;
+              }
+              final byComposite = b.composite.compareTo(a.composite);
+              if (byComposite != 0) {
+                return byComposite;
+              }
+              return a.food.costEstimate.compareTo(b.food.costEstimate);
+            });
+
+      final similar =
+          foods
+              .where((candidate) => candidate.food.id != food.food.id)
+              .where(
+                (candidate) =>
+                    (candidate.displayScore - food.displayScore).abs() < 10,
+              )
+              .where((candidate) => _maxRelativeDelta(food, candidate) >= 0.2)
+              .toList()
+            ..sort(_compareScoredFoods);
+
+      final comparableIds = <int>[
+        if (cheaper.isNotEmpty) cheaper.first.food.id,
+        if (healthier.isNotEmpty) healthier.first.food.id,
+        ...similar.map((candidate) => candidate.food.id),
+      ].toSet().take(3).toList();
 
       return food.copyWith(
         explanation: food.explanation?.copyWith(compareWithIds: comparableIds),

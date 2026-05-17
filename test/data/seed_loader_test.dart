@@ -12,9 +12,36 @@ void main() {
               (item['availability'] as List<dynamic>).contains('fast_food'),
         )
         .toList();
+    final pantryCount = foods
+        .where(
+          (item) =>
+              (item['availability'] as List<dynamic>).contains('food_pantry'),
+        )
+        .length;
+    final dollarStoreCount = foods
+        .where(
+          (item) =>
+              (item['availability'] as List<dynamic>).contains('dollar_store'),
+        )
+        .length;
+    final cheapNoPrep = foods
+        .where((item) => (item['cost'] as num).toDouble() < 5)
+        .where((item) => item['prep'] == 'none')
+        .where(
+          (item) =>
+              (item['availability'] as List<dynamic>).contains('food_pantry') ||
+              (item['availability'] as List<dynamic>).contains(
+                'dollar_store',
+              ) ||
+              (item['availability'] as List<dynamic>).contains('convenience'),
+        )
+        .length;
 
-    expect(foods.length, greaterThanOrEqualTo(100));
+    expect(foods.length, greaterThanOrEqualTo(120));
     expect(fastFood.length, greaterThanOrEqualTo(60));
+    expect(pantryCount, greaterThanOrEqualTo(20));
+    expect(dollarStoreCount, greaterThanOrEqualTo(20));
+    expect(cheapNoPrep, greaterThanOrEqualTo(28));
     expect(
       fastFood.any((item) => item['name'] == "McDonald's Big Mac"),
       isTrue,

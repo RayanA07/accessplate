@@ -1,7 +1,10 @@
 import 'dart:math' as math;
 
 import '../../entities/food.dart';
+import '../../entities/nutrients.dart';
 import '../../entities/recommendation.dart';
+import '../../entities/user_constraints.dart';
+import '../../value_objects/availability_context.dart';
 import '../preference_scorer.dart';
 import 'macro_scorer.dart';
 import 'micro_scorer.dart';
@@ -88,14 +91,19 @@ class CompositeScorer {
   final PreferenceScorer preferenceScorer;
   final CompositeWeights weights;
 
-  ScoredFood score({required FoodRecord record, required double budgetUsd}) {
+  ScoredFood score({
+    required FoodRecord record,
+    required FeasibilityConstraints feasibility,
+  }) {
     final food = record.food;
     final macro = macroScorer.score(record.nutrients);
     final micro = microScorer.score(record.nutrients);
     final penalty = penaltyCalculator.penalty(record.nutrients);
-    final cost = budgetUsd <= 0
-        ? 0.0
-        : math.min(1.0, food.costEstimate / budgetUsd).toDouble();
+    final cost = _costPressure(
+      food: food,
+      nutrients: record.nutrients,
+      feasibility: feasibility,
+    );
     final preference = preferenceScorer.score(food);
 
     final composite =
@@ -118,4 +126,96 @@ class CompositeScorer {
       ),
     );
   }
+
+  double _costPressure({
+    required Food food,
+    required Nutrients nutrients,
+    required FeasibilityConstraints feasibility,
+  }) {
+    final budgetUsd = feasibility.maxCostPerMeal;
+    if (budgetUsd <= 0) {
+      return 1;
+    }
+
+    final priceShare = (food.costEstimate / budgetUsd).clamp(0, 1).toDouble();
+    final sharePressure = switch (_budgetMode(budgetUsd)) {
+      _BudgetMode.crisis => math.pow(priceShare, 0.72).toDouble(),
+      _BudgetMode.tight => math.pow(priceShare, 0.84).toDouble(),
+      _BudgetMode.standard => math.pow(priceShare, 1.0).toDouble(),
+    };
+
+    final proteinFloor = _boundedFloor(macroScorer.targets.proteinG, 0.55, 20);
+    final fiberFloor = _boundedFloor(macroScorer.targets.fiberG, 0.60, 8);
+
+    final proteinShortfall = _shortfallRatio(proteinFloor, nutrients.proteinG);
+    final fiberShortfall = _shortfallRatio(fiberFloor, nutrients.fiberG);
+    final floorPenalty = (proteinShortfall * 0.60) + (fiberShortfall * 0.40);
+
+    final proteinPerDollar =
+        nutrients.proteinG / math.max(food.costEstimate, 1);
+    final fiberPerDollar = nutrients.fiberG / math.max(food.costEstimate, 1);
+
+    var valueRelief = 0.0;
+    valueRelief += math.min(0.22, proteinPerDollar / 28).toDouble();
+    valueRelief += math.min(0.16, fiberPerDollar / 18).toDouble();
+
+    if (food.readyToEat) {
+      valueRelief += 0.10;
+    } else if (food.prepTimeMin <= 5) {
+      valueRelief += 0.05;
+    }
+
+    if (_supportsBudgetAccess(food, feasibility.availability)) {
+      valueRelief += 0.06;
+    }
+
+    final pressure =
+        (sharePressure * 0.72) + (floorPenalty * 0.38) - valueRelief;
+    return pressure.clamp(0, 1).toDouble();
+  }
+
+  _BudgetMode _budgetMode(double budgetUsd) {
+    if (budgetUsd <= 3.0) {
+      return _BudgetMode.crisis;
+    }
+    if (budgetUsd <= 5.0) {
+      return _BudgetMode.tight;
+    }
+    return _BudgetMode.standard;
+  }
+
+  bool _supportsBudgetAccess(
+    Food food,
+    Set<AvailabilityContext> activeContexts,
+  ) {
+    const budgetContexts = {
+      AvailabilityContext.foodPantry,
+      AvailabilityContext.dollarStore,
+      AvailabilityContext.convenience,
+    };
+
+    return food.availability.any(
+      (context) =>
+          budgetContexts.contains(context) && activeContexts.contains(context),
+    );
+  }
+
+  double _boundedFloor(double target, double ratio, double cap) {
+    if (target <= 0) {
+      return 0;
+    }
+    return math.min(target * ratio, cap).toDouble();
+  }
+
+  double _shortfallRatio(double floor, double actual) {
+    if (floor <= 0) {
+      return 0;
+    }
+    if (actual >= floor) {
+      return 0;
+    }
+    return ((floor - actual) / floor).clamp(0, 1).toDouble();
+  }
 }
+
+enum _BudgetMode { crisis, tight, standard }

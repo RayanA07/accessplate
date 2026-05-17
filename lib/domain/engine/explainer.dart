@@ -2,6 +2,7 @@ import '../entities/explanation.dart';
 import '../entities/food.dart';
 import '../entities/recommendation.dart';
 import '../entities/user_constraints.dart';
+import '../value_objects/availability_context.dart';
 import '../value_objects/religion.dart';
 import 'score_config_provider.dart';
 
@@ -46,16 +47,28 @@ class Explainer {
       SatisfiedConstraint(
         category: 'budget',
         description:
-            'Under \$${user.feasibility.maxCostPerMeal.toStringAsFixed(0)} at \$${food.costEstimate.toStringAsFixed(2)}',
+            '\$${food.costEstimate.toStringAsFixed(2)} now, under your \$${user.feasibility.maxCostPerMeal.toStringAsFixed(0)} limit',
       ),
     );
 
     satisfied.add(
       SatisfiedConstraint(
         category: 'environment',
-        description: 'Works for ${user.feasibility.environment.label}',
+        description: food.readyToEat
+            ? 'Works with no prep'
+            : 'Works for ${user.feasibility.environment.label} in ${food.prepTimeMin} min',
       ),
     );
+
+    final availability = _matchedAvailability(food);
+    if (availability != null) {
+      satisfied.add(
+        SatisfiedConstraint(
+          category: 'availability',
+          description: 'Available at ${availability.label.toLowerCase()}',
+        ),
+      );
+    }
 
     return satisfied;
   }
@@ -65,13 +78,16 @@ class Explainer {
     final nutrients = scored.nutrients;
     final targets = config.macroTargets;
 
-    if (nutrients.proteinG >= targets.proteinG * 0.75) {
+    if (nutrients.proteinG >= _proteinFloor(targets)) {
       positives.add(
         ScoreFactor(
-          label: 'Strong protein fit',
+          label:
+              scored.food.costEstimate <= user.feasibility.maxCostPerMeal * 0.6
+              ? 'Budget-friendly protein'
+              : 'Strong protein fit',
           weight: scored.breakdown.macro,
           detail:
-              '${nutrients.proteinG.toStringAsFixed(0)}g vs ${targets.proteinG.toStringAsFixed(0)}g target',
+              '${nutrients.proteinG.toStringAsFixed(0)}g protein for \$${scored.food.costEstimate.toStringAsFixed(2)}',
         ),
       );
     }
@@ -87,21 +103,46 @@ class Explainer {
       );
     }
 
-    if (nutrients.fiberG >= 5) {
+    if (nutrients.fiberG >= _fiberFloor(targets)) {
       positives.add(
         ScoreFactor(
-          label: 'High fiber',
+          label:
+              scored.food.costEstimate <= user.feasibility.maxCostPerMeal * 0.6
+              ? 'Low-cost fiber win'
+              : 'High fiber',
           weight: scored.breakdown.macro,
           detail: '${nutrients.fiberG.toStringAsFixed(0)}g fiber',
         ),
       );
     }
 
-    if (scored.breakdown.cost <= 0.5) {
+    if (scored.food.readyToEat) {
+      positives.add(
+        const ScoreFactor(
+          label: 'Works with no prep',
+          weight: 0.72,
+          detail: 'Ready to eat as-is',
+        ),
+      );
+    }
+
+    final matchedAvailability = _matchedAvailability(scored.food);
+    if (matchedAvailability != null &&
+        matchedAvailability != AvailabilityContext.grocery) {
+      positives.add(
+        ScoreFactor(
+          label: 'Easy to find today',
+          weight: 0.68,
+          detail: 'Available at ${matchedAvailability.label.toLowerCase()}',
+        ),
+      );
+    }
+
+    if (scored.food.costEstimate <= user.feasibility.maxCostPerMeal * 0.5) {
       positives.add(
         ScoreFactor(
           label: 'Well under budget',
-          weight: 1 - scored.breakdown.cost,
+          weight: 1 - _budgetShare(scored.food),
           detail: '\$${scored.food.costEstimate.toStringAsFixed(2)} estimated',
         ),
       );
@@ -137,18 +178,80 @@ class Explainer {
       );
     }
 
-    if (scored.breakdown.cost > 0.8) {
+    if (_budgetShare(scored.food) > 0.8) {
       tradeoffs.add(
         ScoreFactor(
           label: 'Near the top of your budget',
-          weight: scored.breakdown.cost,
+          weight: _budgetShare(scored.food),
           detail:
               '\$${scored.food.costEstimate.toStringAsFixed(2)} of \$${user.feasibility.maxCostPerMeal.toStringAsFixed(0)}',
         ),
       );
     }
 
+    if (nutrients.proteinG < _proteinFloor(config.macroTargets)) {
+      tradeoffs.add(
+        ScoreFactor(
+          label: 'Lower protein than the best-value options',
+          weight: 0.62,
+          detail: '${nutrients.proteinG.toStringAsFixed(0)}g protein',
+        ),
+      );
+    }
+
+    if (!scored.food.readyToEat && scored.food.prepTimeMin >= 8) {
+      tradeoffs.add(
+        ScoreFactor(
+          label: 'Takes more time than the fastest options',
+          weight: 0.45,
+          detail: '${scored.food.prepTimeMin} min prep',
+        ),
+      );
+    }
+
     tradeoffs.sort((a, b) => b.weight.compareTo(a.weight));
     return tradeoffs.take(2).toList();
+  }
+
+  AvailabilityContext? _matchedAvailability(Food food) {
+    const priority = [
+      AvailabilityContext.foodPantry,
+      AvailabilityContext.dollarStore,
+      AvailabilityContext.convenience,
+      AvailabilityContext.fastFood,
+      AvailabilityContext.grocery,
+    ];
+
+    for (final context in priority) {
+      if (food.availability.contains(context) &&
+          user.feasibility.availability.contains(context)) {
+        return context;
+      }
+    }
+    return null;
+  }
+
+  double _budgetShare(Food food) {
+    final budget = user.feasibility.maxCostPerMeal;
+    if (budget <= 0) {
+      return 1;
+    }
+    return (food.costEstimate / budget).clamp(0, 1).toDouble();
+  }
+
+  double _proteinFloor(NutritionalTargets targets) {
+    if (targets.proteinG <= 0) {
+      return 0;
+    }
+    final scaled = targets.proteinG * 0.55;
+    return scaled < 20 ? scaled : 20;
+  }
+
+  double _fiberFloor(NutritionalTargets targets) {
+    if (targets.fiberG <= 0) {
+      return 0;
+    }
+    final scaled = targets.fiberG * 0.60;
+    return scaled < 8 ? scaled : 8;
   }
 }

@@ -24,7 +24,9 @@ class RecommendationsScreen extends ConsumerWidget {
         UserProfile.defaults();
     final recommendationsAsync = ref.watch(recommendationsProvider);
     final result = recommendationsAsync.valueOrNull;
-    final error = recommendationsAsync.hasError ? recommendationsAsync.error : null;
+    final error = recommendationsAsync.hasError
+        ? recommendationsAsync.error
+        : null;
 
     return Scaffold(
       bottomNavigationBar: SafeArea(
@@ -364,6 +366,7 @@ class _PinnedOverview extends StatelessWidget {
       builder: (context, constraints) {
         if (constraints.maxWidth < 420) {
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (var index = 0; index < cards.length; index++) ...[
                 cards[index],
@@ -374,12 +377,13 @@ class _PinnedOverview extends StatelessWidget {
         }
 
         return SizedBox(
-          height: 148,
+          height: 188,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: cards.length,
             separatorBuilder: (_, _) => const SizedBox(width: 12),
-            itemBuilder: (_, index) => SizedBox(width: 210, child: cards[index]),
+            itemBuilder: (_, index) =>
+                SizedBox(width: 224, child: cards[index]),
           ),
         );
       },
@@ -407,7 +411,9 @@ class _MiniInsightCard extends StatelessWidget {
     final theme = Theme.of(context);
     return SectionCard(
       tintColor: color.withValues(alpha: 0.16),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(

@@ -2072,5 +2072,908 @@
       "vitB12": 0,
       "folate": 60
     }
+  },
+  {
+    "id": 43,
+    "name": "Peanut butter sandwich and banana",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 220,
+    "servingLabel": "1 sandwich + 1 banana",
+    "cost": 1.8,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "peanut",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 390,
+      "protein": 12,
+      "carbs": 53,
+      "fat": 16,
+      "saturatedFat": 3,
+      "fiber": 7,
+      "sugar": 19,
+      "addedSugar": 3,
+      "sodium": 360,
+      "potassium": 480,
+      "calcium": 90,
+      "iron": 1.8,
+      "magnesium": 70,
+      "zinc": 1.4,
+      "vitA": 30,
+      "vitC": 10,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 70
+    }
+  },
+  {
+    "id": 44,
+    "name": "Tuna pouch with whole-grain crackers",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 125,
+    "servingLabel": "1 pouch + 1 pack",
+    "cost": 2.75,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "snack",
+      "dinner"
+    ],
+    "allergens": [
+      "fish",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "fish"
+      },
+      {
+        "religion": "jain",
+        "reason": "animal protein"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 260,
+      "protein": 20,
+      "carbs": 20,
+      "fat": 8,
+      "saturatedFat": 1,
+      "fiber": 3,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 430,
+      "potassium": 260,
+      "calcium": 40,
+      "iron": 1.6,
+      "magnesium": 32,
+      "zinc": 1.3,
+      "vitA": 10,
+      "vitC": 2,
+      "vitD": 0.6,
+      "vitB12": 1.6,
+      "folate": 24
+    }
+  },
+  {
+    "id": 45,
+    "name": "Black beans and brown rice cup",
+    "category": "prepared_meal",
+    "cuisine": "latin",
+    "servingG": 255,
+    "servingLabel": "1 cup",
+    "cost": 2.1,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 330,
+      "protein": 12,
+      "carbs": 58,
+      "fat": 4,
+      "saturatedFat": 0.5,
+      "fiber": 11,
+      "sugar": 2,
+      "addedSugar": 0,
+      "sodium": 320,
+      "potassium": 520,
+      "calcium": 70,
+      "iron": 3.2,
+      "magnesium": 82,
+      "zinc": 2.0,
+      "vitA": 20,
+      "vitC": 4,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 170
+    }
+  },
+  {
+    "id": 46,
+    "name": "Instant oatmeal cup with peanut butter",
+    "category": "grain_whole",
+    "cuisine": "american",
+    "servingG": 190,
+    "servingLabel": "1 cup",
+    "cost": 1.6,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "peanut"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 290,
+      "protein": 10,
+      "carbs": 34,
+      "fat": 12,
+      "saturatedFat": 2,
+      "fiber": 6,
+      "sugar": 10,
+      "addedSugar": 4,
+      "sodium": 210,
+      "potassium": 260,
+      "calcium": 40,
+      "iron": 2.4,
+      "magnesium": 72,
+      "zinc": 1.9,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 30
+    }
+  },
+  {
+    "id": 47,
+    "name": "Greek yogurt with mixed nuts",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 180,
+    "servingLabel": "1 cup",
+    "cost": 2.2,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy",
+      "tree_nut"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 230,
+      "protein": 17,
+      "carbs": 16,
+      "fat": 11,
+      "saturatedFat": 3.5,
+      "fiber": 2,
+      "sugar": 11,
+      "addedSugar": 4,
+      "sodium": 85,
+      "potassium": 260,
+      "calcium": 180,
+      "iron": 0.7,
+      "magnesium": 34,
+      "zinc": 1.6,
+      "vitA": 60,
+      "vitC": 1,
+      "vitD": 0,
+      "vitB12": 0.9,
+      "folate": 20
+    }
+  },
+  {
+    "id": 48,
+    "name": "Cottage cheese with pineapple",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 190,
+    "servingLabel": "1 cup",
+    "cost": 2.0,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack",
+      "lunch"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 200,
+      "protein": 15,
+      "carbs": 16,
+      "fat": 8,
+      "saturatedFat": 4,
+      "fiber": 1,
+      "sugar": 12,
+      "addedSugar": 2,
+      "sodium": 360,
+      "potassium": 220,
+      "calcium": 130,
+      "iron": 0.2,
+      "magnesium": 18,
+      "zinc": 1.1,
+      "vitA": 80,
+      "vitC": 10,
+      "vitD": 0,
+      "vitB12": 0.8,
+      "folate": 18
+    }
+  },
+  {
+    "id": 49,
+    "name": "Hummus snack box with pretzels and carrots",
+    "category": "snack",
+    "cuisine": "mediterranean",
+    "servingG": 170,
+    "servingLabel": "1 box",
+    "cost": 3.2,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten",
+      "sesame"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 280,
+      "protein": 8,
+      "carbs": 32,
+      "fat": 13,
+      "saturatedFat": 1.5,
+      "fiber": 7,
+      "sugar": 5,
+      "addedSugar": 1,
+      "sodium": 410,
+      "potassium": 280,
+      "calcium": 70,
+      "iron": 2.1,
+      "magnesium": 44,
+      "zinc": 1.4,
+      "vitA": 320,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 80
+    }
+  },
+  {
+    "id": 50,
+    "name": "Sardines with saltines",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 110,
+    "servingLabel": "1 tin + 1 pack",
+    "cost": 2.4,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "snack",
+      "dinner"
+    ],
+    "allergens": [
+      "fish",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "fish"
+      },
+      {
+        "religion": "jain",
+        "reason": "animal protein"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 250,
+      "protein": 18,
+      "carbs": 15,
+      "fat": 13,
+      "saturatedFat": 2.5,
+      "fiber": 1,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 440,
+      "potassium": 360,
+      "calcium": 220,
+      "iron": 2.0,
+      "magnesium": 38,
+      "zinc": 1.5,
+      "vitA": 20,
+      "vitC": 0,
+      "vitD": 4.5,
+      "vitB12": 5.0,
+      "folate": 18
+    }
+  },
+  {
+    "id": 51,
+    "name": "String cheese, apple, and peanut butter crackers",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 175,
+    "servingLabel": "1 snack combo",
+    "cost": 3.1,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "dairy",
+      "peanut",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 320,
+      "protein": 10,
+      "carbs": 31,
+      "fat": 18,
+      "saturatedFat": 5,
+      "fiber": 4,
+      "sugar": 12,
+      "addedSugar": 4,
+      "sodium": 320,
+      "potassium": 240,
+      "calcium": 170,
+      "iron": 1.2,
+      "magnesium": 34,
+      "zinc": 1.3,
+      "vitA": 90,
+      "vitC": 6,
+      "vitD": 0,
+      "vitB12": 0.4,
+      "folate": 28
+    }
+  },
+  {
+    "id": 52,
+    "name": "Shelf-stable milk and cereal cup",
+    "category": "grain_whole",
+    "cuisine": "american",
+    "servingG": 210,
+    "servingLabel": "1 cup",
+    "cost": 1.95,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "food_pantry",
+      "dollar_store",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 250,
+      "protein": 10,
+      "carbs": 40,
+      "fat": 6,
+      "saturatedFat": 2,
+      "fiber": 4,
+      "sugar": 16,
+      "addedSugar": 8,
+      "sodium": 260,
+      "potassium": 320,
+      "calcium": 240,
+      "iron": 5.2,
+      "magnesium": 28,
+      "zinc": 1.6,
+      "vitA": 120,
+      "vitC": 12,
+      "vitD": 2.5,
+      "vitB12": 1.0,
+      "folate": 80
+    }
+  },
+  {
+    "id": 53,
+    "name": "Split pea soup can with crackers",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 350,
+    "servingLabel": "1 can + 1 pack",
+    "cost": 2.15,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 300,
+      "protein": 16,
+      "carbs": 46,
+      "fat": 5,
+      "saturatedFat": 0.5,
+      "fiber": 10,
+      "sugar": 5,
+      "addedSugar": 1,
+      "sodium": 620,
+      "potassium": 620,
+      "calcium": 52,
+      "iron": 3.0,
+      "magnesium": 58,
+      "zinc": 1.7,
+      "vitA": 90,
+      "vitC": 4,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 90
+    }
+  },
+  {
+    "id": 54,
+    "name": "Lentil pasta bowl with tomato sauce",
+    "category": "prepared_meal",
+    "cuisine": "italian",
+    "servingG": 265,
+    "servingLabel": "1 bowl",
+    "cost": 3.6,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 4,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 360,
+      "protein": 19,
+      "carbs": 52,
+      "fat": 7,
+      "saturatedFat": 1,
+      "fiber": 11,
+      "sugar": 7,
+      "addedSugar": 2,
+      "sodium": 430,
+      "potassium": 580,
+      "calcium": 60,
+      "iron": 4.0,
+      "magnesium": 78,
+      "zinc": 2.3,
+      "vitA": 220,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 130
+    }
+  },
+  {
+    "id": 55,
+    "name": "Hard-boiled eggs with toast",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 165,
+    "servingLabel": "2 eggs + 2 slices",
+    "cost": 2.3,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "eggs"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "convenience"
+    ],
+    "nutrients": {
+      "calories": 290,
+      "protein": 16,
+      "carbs": 26,
+      "fat": 13,
+      "saturatedFat": 3.5,
+      "fiber": 2,
+      "sugar": 3,
+      "addedSugar": 2,
+      "sodium": 340,
+      "potassium": 210,
+      "calcium": 90,
+      "iron": 2.6,
+      "magnesium": 26,
+      "zinc": 1.5,
+      "vitA": 180,
+      "vitC": 0,
+      "vitD": 2.0,
+      "vitB12": 1.0,
+      "folate": 64
+    }
+  },
+  {
+    "id": 56,
+    "name": "Black bean chili cup",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 255,
+    "servingLabel": "1 cup",
+    "cost": 1.95,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 240,
+      "protein": 13,
+      "carbs": 36,
+      "fat": 4,
+      "saturatedFat": 0.5,
+      "fiber": 11,
+      "sugar": 5,
+      "addedSugar": 1,
+      "sodium": 540,
+      "potassium": 540,
+      "calcium": 74,
+      "iron": 3.4,
+      "magnesium": 70,
+      "zinc": 1.8,
+      "vitA": 120,
+      "vitC": 10,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 150
+    }
+  },
+  {
+    "id": 57,
+    "name": "Peanut butter crackers and shelf milk",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 140,
+    "servingLabel": "1 pack + 1 carton",
+    "cost": 1.9,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "peanut",
+      "dairy",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 290,
+      "protein": 11,
+      "carbs": 28,
+      "fat": 15,
+      "saturatedFat": 3,
+      "fiber": 3,
+      "sugar": 12,
+      "addedSugar": 5,
+      "sodium": 330,
+      "potassium": 260,
+      "calcium": 220,
+      "iron": 1.8,
+      "magnesium": 36,
+      "zinc": 1.4,
+      "vitA": 100,
+      "vitC": 0,
+      "vitD": 2.2,
+      "vitB12": 0.9,
+      "folate": 38
+    }
+  },
+  {
+    "id": 58,
+    "name": "Chickpea salad wrap kit",
+    "category": "prepared_meal",
+    "cuisine": "mediterranean",
+    "servingG": 210,
+    "servingLabel": "1 wrap",
+    "cost": 2.85,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "food_pantry"
+    ],
+    "nutrients": {
+      "calories": 320,
+      "protein": 11,
+      "carbs": 44,
+      "fat": 11,
+      "saturatedFat": 1.5,
+      "fiber": 9,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 360,
+      "potassium": 380,
+      "calcium": 74,
+      "iron": 2.8,
+      "magnesium": 48,
+      "zinc": 1.4,
+      "vitA": 160,
+      "vitC": 9,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 110
+    }
+  },
+  {
+    "id": 59,
+    "name": "Chicken salad cracker kit",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 145,
+    "servingLabel": "1 kit",
+    "cost": 2.95,
+    "costConfidence": "medium",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "egg",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "halal",
+        "reason": "meat not certified"
+      },
+      {
+        "religion": "kosher",
+        "reason": "meat not certified"
+      },
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "convenience",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 280,
+      "protein": 17,
+      "carbs": 19,
+      "fat": 14,
+      "saturatedFat": 2.5,
+      "fiber": 2,
+      "sugar": 2,
+      "addedSugar": 1,
+      "sodium": 470,
+      "potassium": 210,
+      "calcium": 34,
+      "iron": 1.4,
+      "magnesium": 22,
+      "zinc": 1.1,
+      "vitA": 60,
+      "vitC": 1,
+      "vitD": 0,
+      "vitB12": 0.4,
+      "folate": 28
+    }
+  },
+  {
+    "id": 60,
+    "name": "Edamame and brown rice bowl",
+    "category": "prepared_meal",
+    "cuisine": "asian",
+    "servingG": 250,
+    "servingLabel": "1 bowl",
+    "cost": 3.15,
+    "costConfidence": "medium",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "soy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store"
+    ],
+    "nutrients": {
+      "calories": 340,
+      "protein": 15,
+      "carbs": 43,
+      "fat": 11,
+      "saturatedFat": 1.5,
+      "fiber": 8,
+      "sugar": 3,
+      "addedSugar": 0,
+      "sodium": 280,
+      "potassium": 470,
+      "calcium": 80,
+      "iron": 3.0,
+      "magnesium": 88,
+      "zinc": 2.0,
+      "vitA": 70,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 190
+    }
   }
 ]

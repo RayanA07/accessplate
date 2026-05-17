@@ -144,7 +144,56 @@ class ScoreConfigProvider {
       microPriorities: priorities,
       penaltyThresholds: penaltyConfig.thresholds,
       penaltyWeights: penaltyConfig.weights,
-      compositeWeights: weights.normalized(),
+      compositeWeights: _budgetAdjustedWeights(user, weights),
     );
+  }
+
+  CompositeWeights _budgetAdjustedWeights(
+    UserConstraints user,
+    CompositeWeights weights,
+  ) {
+    final normalized = weights.normalized();
+    final budget = user.feasibility.maxCostPerMeal;
+
+    if (budget <= 3) {
+      return _scaledWeights(
+        normalized,
+        macro: 0.82,
+        micro: 0.78,
+        penalty: 1.10,
+        cost: 2.35,
+        preference: 0.95,
+      );
+    }
+
+    if (budget <= 5) {
+      return _scaledWeights(
+        normalized,
+        macro: 0.90,
+        micro: 0.86,
+        penalty: 1.06,
+        cost: 1.75,
+        preference: 0.98,
+      );
+    }
+
+    return normalized;
+  }
+
+  CompositeWeights _scaledWeights(
+    CompositeWeights weights, {
+    required double macro,
+    required double micro,
+    required double penalty,
+    required double cost,
+    required double preference,
+  }) {
+    return CompositeWeights(
+      macro: weights.macro * macro,
+      micro: weights.micro * micro,
+      penalty: weights.penalty * penalty,
+      cost: weights.cost * cost,
+      preference: weights.preference * preference,
+    ).normalized();
   }
 }

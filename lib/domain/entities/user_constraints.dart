@@ -61,7 +61,7 @@ class SafetyConstraints {
 
 class FeasibilityConstraints {
   const FeasibilityConstraints({
-    this.maxCostPerMeal = 8,
+    this.maxCostPerMeal = 5,
     this.environment = PrepEnvironment.microwave,
     this.availability = const {
       AvailabilityContext.grocery,
@@ -100,15 +100,12 @@ class FeasibilityConstraints {
             .toSet();
 
     return FeasibilityConstraints(
-      maxCostPerMeal: (json['maxCostPerMeal'] as num?)?.toDouble() ?? 8,
+      maxCostPerMeal: (json['maxCostPerMeal'] as num?)?.toDouble() ?? 5,
       environment: PrepEnvironment.fromCode(
         json['environment'] as String? ?? PrepEnvironment.microwave.code,
       ),
       availability: availabilityValues.isEmpty
-          ? const {
-              AvailabilityContext.grocery,
-              AvailabilityContext.convenience,
-            }
+          ? const {AvailabilityContext.grocery, AvailabilityContext.convenience}
           : availabilityValues,
     );
   }

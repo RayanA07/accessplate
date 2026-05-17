@@ -40,7 +40,7 @@ class ExplainDetailScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${recommendation.displayScore.round()}/100 • \$${recommendation.food.costEstimate.toStringAsFixed(2)}',
+                  '${recommendation.displayScore.round()}/100 | \$${recommendation.food.costEstimate.toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ],
@@ -65,7 +65,7 @@ class ExplainDetailScreen extends StatelessWidget {
                       (item) => _BulletText(
                         item.detail == null
                             ? item.label
-                            : '${item.label} • ${item.detail}',
+                            : '${item.label} | ${item.detail}',
                       ),
                     )
                     .toList(),
@@ -86,7 +86,7 @@ class ExplainDetailScreen extends StatelessWidget {
                             (item) => _BulletText(
                               item.detail == null
                                   ? item.label
-                                  : '${item.label} • ${item.detail}',
+                                  : '${item.label} | ${item.detail}',
                             ),
                           )
                           .toList(),

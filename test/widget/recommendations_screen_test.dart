@@ -13,6 +13,7 @@ import 'package:access_plate/domain/value_objects/meal_type.dart';
 import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/providers/recommendations_provider.dart';
 import 'package:access_plate/presentation/screens/recommendations/recommendations_screen.dart';
+import 'package:access_plate/presentation/widgets/section_card.dart';
 
 void main() {
   testWidgets('recommendations screen stays balanced on a narrow viewport', (
@@ -59,6 +60,14 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Summary'), findsOneWidget);
     expect(find.text('Vegetarian lunch suggestions'), findsOneWidget);
+    final preparationLabel = find.text('Preparation', skipOffstage: false);
+    await tester.ensureVisible(preparationLabel);
+    await tester.pumpAndSettle();
+    final preparationCard = find.ancestor(
+      of: preparationLabel,
+      matching: find.byType(SectionCard, skipOffstage: false),
+    );
+    expect(tester.getSize(preparationCard).width, greaterThan(250));
     await tester.scrollUntilVisible(
       find.text('Recommended for now'),
       200,
