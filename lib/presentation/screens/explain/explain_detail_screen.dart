@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/recommendation.dart';
+import '../../widgets/live_store_match_widgets.dart';
 import '../../widgets/section_card.dart';
 
 class ExplainDetailScreen extends StatelessWidget {
@@ -48,6 +49,19 @@ class ExplainDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           if (explanation != null) ...[
+            if (explanation.accessSummary?.isNotEmpty == true) ...[
+              SectionCard(
+                child: _ExplanationSection(
+                  title: 'Access snapshot',
+                  children: [
+                    _BulletText(explanation.accessSummary!),
+                    if (explanation.accessTags.isNotEmpty)
+                      _BulletText(explanation.accessTags.join(' | ')),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             SectionCard(
               child: _ExplanationSection(
                 title: 'Satisfied constraints',
@@ -115,6 +129,10 @@ class ExplainDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          LiveStoreProductsSection(
+            food: recommendation.food,
+            emptyFallback: false,
           ),
           if (comparables.isNotEmpty) ...[
             const SizedBox(height: 12),

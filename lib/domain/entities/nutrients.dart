@@ -145,4 +145,50 @@ class Nutrients {
       'folate_mcg_dfe': folateMcgDfe,
     };
   }
+
+  Nutrients plus(Nutrients other) {
+    return Nutrients(
+      caloriesKcal: caloriesKcal + other.caloriesKcal,
+      proteinG: proteinG + other.proteinG,
+      carbsG: carbsG + other.carbsG,
+      fatG: fatG + other.fatG,
+      saturatedFatG: saturatedFatG + other.saturatedFatG,
+      fiberG: fiberG + other.fiberG,
+      sugarG: sugarG + other.sugarG,
+      addedSugarG: addedSugarG + other.addedSugarG,
+      sodiumMg: sodiumMg + other.sodiumMg,
+      potassiumMg: potassiumMg + other.potassiumMg,
+      calciumMg: calciumMg + other.calciumMg,
+      ironMg: ironMg + other.ironMg,
+      magnesiumMg: magnesiumMg + other.magnesiumMg,
+      zincMg: zincMg + other.zincMg,
+      vitAMcgRae: vitAMcgRae + other.vitAMcgRae,
+      vitCMg: vitCMg + other.vitCMg,
+      vitDMcg: vitDMcg + other.vitDMcg,
+      vitB12Mcg: vitB12Mcg + other.vitB12Mcg,
+      folateMcgDfe: folateMcgDfe + other.folateMcgDfe,
+    );
+  }
+
+  static const zero = Nutrients(
+    caloriesKcal: 0,
+    proteinG: 0,
+    carbsG: 0,
+    fatG: 0,
+    saturatedFatG: 0,
+    fiberG: 0,
+    sugarG: 0,
+    addedSugarG: 0,
+    sodiumMg: 0,
+    potassiumMg: 0,
+    calciumMg: 0,
+    ironMg: 0,
+    magnesiumMg: 0,
+    zincMg: 0,
+    vitAMcgRae: 0,
+    vitCMg: 0,
+    vitDMcg: 0,
+    vitB12Mcg: 0,
+    folateMcgDfe: 0,
+  );
 }

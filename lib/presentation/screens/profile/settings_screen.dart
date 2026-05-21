@@ -5,6 +5,7 @@ import '../../../domain/engine/scoring/composite_scorer.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../providers/cache_controller.dart';
 import '../../providers/profile_controller.dart';
+import '../../widgets/live_grocery_settings_card.dart';
 import '../../widgets/section_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -69,6 +70,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          const LiveGrocerySettingsCard(),
           const SizedBox(height: 12),
           SectionCard(
             child: Column(

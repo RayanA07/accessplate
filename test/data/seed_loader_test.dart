@@ -1,4 +1,6 @@
 import 'package:access_plate/data/seed_loader.dart';
+import 'package:access_plate/domain/entities/local_access.dart';
+import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -56,5 +58,29 @@ void main() {
       ),
       isTrue,
     );
+  });
+
+  test('seed loader resolves bundled local access snapshots by ZIP', () async {
+    final catalog = await SeedLoader().loadLocalAccessCatalog();
+
+    final exact = catalog.resolve('45211');
+    final prefix = catalog.resolve('45299');
+    final fallback = catalog.resolve('99999');
+
+    expect(exact.matchType, LocalAccessMatchType.exact);
+    expect(exact.profile.communityLabel, 'Westwood');
+    expect(
+      exact.profile.sourceFor(AvailabilityContext.grocery)?.typicalTravelMinutes,
+      greaterThan(
+        exact.profile
+                .sourceFor(AvailabilityContext.convenience)
+                ?.typicalTravelMinutes ??
+            0,
+      ),
+    );
+    expect(prefix.matchType, LocalAccessMatchType.prefix);
+    expect(prefix.profile.communityLabel, 'Greater Cincinnati');
+    expect(fallback.matchType, LocalAccessMatchType.fallback);
+    expect(fallback.profile.profileId, 'default_low_resource');
   });
 }

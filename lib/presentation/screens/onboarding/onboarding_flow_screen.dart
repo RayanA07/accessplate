@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../providers/profile_controller.dart';
 import 'onboarding_allergens_step.dart';
+import 'onboarding_access_step.dart';
 import 'onboarding_availability_step.dart';
 import 'onboarding_budget_step.dart';
 import 'onboarding_cuisine_step.dart';
@@ -12,6 +13,7 @@ import 'onboarding_dislikes_step.dart';
 import 'onboarding_environment_step.dart';
 import 'onboarding_meal_timing_step.dart';
 import 'onboarding_medical_step.dart';
+import 'onboarding_pantry_step.dart';
 import 'onboarding_profile_step.dart';
 import 'onboarding_religion_step.dart';
 import 'onboarding_splash_step.dart';
@@ -25,10 +27,12 @@ const _orderedStages = <OnboardingStage>[
   OnboardingStage.budget,
   OnboardingStage.environment,
   OnboardingStage.availability,
+  OnboardingStage.access,
   OnboardingStage.dietaryStyle,
   OnboardingStage.mealTiming,
   OnboardingStage.cuisine,
   OnboardingStage.dislikes,
+  OnboardingStage.pantry,
   OnboardingStage.profile,
   OnboardingStage.targets,
 ];
@@ -83,6 +87,7 @@ class OnboardingFlowScreen extends ConsumerWidget {
                           const OnboardingEnvironmentStep(),
                         OnboardingStage.availability =>
                           const OnboardingAvailabilityStep(),
+                        OnboardingStage.access => const OnboardingAccessStep(),
                         OnboardingStage.dietaryStyle =>
                           const OnboardingDietaryStyleStep(),
                         OnboardingStage.mealTiming =>
@@ -91,6 +96,7 @@ class OnboardingFlowScreen extends ConsumerWidget {
                           const OnboardingCuisineStep(),
                         OnboardingStage.dislikes =>
                           const OnboardingDislikesStep(),
+                        OnboardingStage.pantry => const OnboardingPantryStep(),
                         OnboardingStage.profile =>
                           const OnboardingProfileStep(),
                         OnboardingStage.targets =>
@@ -152,6 +158,8 @@ class OnboardingFlowScreen extends ConsumerWidget {
         return const _StatusMeta(timer: '0:33', battery: '22');
       case OnboardingStage.availability:
         return const _StatusMeta(timer: '0:41', battery: '22');
+      case OnboardingStage.access:
+        return const _StatusMeta(timer: '0:44', battery: '22');
       case OnboardingStage.dietaryStyle:
         return const _StatusMeta(timer: '0:27', battery: '22');
       case OnboardingStage.mealTiming:
@@ -160,6 +168,8 @@ class OnboardingFlowScreen extends ConsumerWidget {
         return const _StatusMeta(timer: '0:25', battery: '22');
       case OnboardingStage.dislikes:
         return const _StatusMeta(timer: '0:18', battery: '22');
+      case OnboardingStage.pantry:
+        return const _StatusMeta(timer: '0:22', battery: '22');
       case OnboardingStage.profile:
         return const _StatusMeta(timer: '0:15', battery: '22');
       case OnboardingStage.targets:

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_palette.dart';
 import '../../domain/entities/explanation.dart';
 import '../../domain/entities/recommendation.dart';
+import 'live_store_match_widgets.dart';
 import 'section_card.dart';
 
 class RecommendationCard extends StatelessWidget {
@@ -91,10 +92,17 @@ class RecommendationCard extends StatelessWidget {
           ),
           if (explanation != null) ...[
             const SizedBox(height: 18),
+            if (explanation.accessSummary?.isNotEmpty == true) ...[
+              _AccessBanner(
+                summary: explanation.accessSummary!,
+                tags: explanation.accessTags,
+              ),
+              const SizedBox(height: 14),
+            ],
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: explanation.satisfied.take(2).map((item) {
+              children: explanation.satisfied.take(3).map((item) {
                 return Chip(
                   avatar: Icon(
                     Icons.check_circle_rounded,
@@ -122,7 +130,7 @@ class RecommendationCard extends StatelessWidget {
               ),
             ],
           ],
-          const SizedBox(height: 18),
+          LiveStorePreview(food: recommendation.food),
           OverflowBar(
             spacing: 10,
             overflowSpacing: 10,
@@ -272,6 +280,53 @@ class _ReasonLine extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _AccessBanner extends StatelessWidget {
+  const _AccessBanner({required this.summary, required this.tags});
+
+  final String summary;
+  final List<String> tags;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            summary,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          if (tags.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: tags
+                  .map(
+                    (tag) => Chip(
+                      label: Text(tag),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

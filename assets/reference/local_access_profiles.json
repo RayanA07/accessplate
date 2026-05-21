@@ -1,0 +1,416 @@
+{
+  "default": {
+    "profileId": "default_low_resource",
+    "label": "General low-resource fallback",
+    "communityLabel": "Fallback profile",
+    "lowAccessArea": true,
+    "notes": "Used when a ZIP-specific access snapshot is not bundled in the demo dataset.",
+    "sources": {
+      "food_pantry": {
+        "nearbyOptions": 2,
+        "typicalTravelMinutes": 14,
+        "sameDayConfidence": 0.74,
+        "note": "Pantry hours can still vary."
+      },
+      "dollar_store": {
+        "nearbyOptions": 2,
+        "typicalTravelMinutes": 11,
+        "sameDayConfidence": 0.82
+      },
+      "convenience": {
+        "nearbyOptions": 4,
+        "typicalTravelMinutes": 9,
+        "sameDayConfidence": 0.87
+      },
+      "fast_food": {
+        "nearbyOptions": 3,
+        "typicalTravelMinutes": 13,
+        "sameDayConfidence": 0.84
+      },
+      "grocery": {
+        "nearbyOptions": 1,
+        "typicalTravelMinutes": 24,
+        "sameDayConfidence": 0.58
+      }
+    }
+  },
+  "exact": [
+    {
+      "postalCode": "45211",
+      "profileId": "cincinnati_westwood",
+      "label": "Bundled snapshot for Westwood, Cincinnati",
+      "communityLabel": "Westwood",
+      "lowAccessArea": true,
+      "notes": "Pantry and discount retail are modeled as closer than a full grocery trip in this demo profile.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "45238",
+      "profileId": "cincinnati_delhi",
+      "label": "Bundled snapshot for Delhi Township, Cincinnati",
+      "communityLabel": "Delhi Township",
+      "lowAccessArea": false,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 2,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.76
+        },
+        "dollar_store": {
+          "nearbyOptions": 2,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.82
+        },
+        "convenience": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.88
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.83
+        },
+        "grocery": {
+          "nearbyOptions": 2,
+          "typicalTravelMinutes": 19,
+          "sameDayConfidence": 0.72
+        }
+      }
+    },
+    {
+      "postalCode": "60623",
+      "profileId": "chicago_little_village",
+      "label": "Bundled snapshot for Little Village, Chicago",
+      "communityLabel": "Little Village",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 9,
+          "sameDayConfidence": 0.81
+        },
+        "dollar_store": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.87
+        },
+        "convenience": {
+          "nearbyOptions": 6,
+          "typicalTravelMinutes": 6,
+          "sameDayConfidence": 0.92
+        },
+        "fast_food": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.88
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 23,
+          "sameDayConfidence": 0.61
+        }
+      }
+    },
+    {
+      "postalCode": "19133",
+      "profileId": "philadelphia_fairhill",
+      "label": "Bundled snapshot for Fairhill, Philadelphia",
+      "communityLabel": "Fairhill",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.83
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 9,
+          "sameDayConfidence": 0.84
+        },
+        "convenience": {
+          "nearbyOptions": 7,
+          "typicalTravelMinutes": 6,
+          "sameDayConfidence": 0.91
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.85
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 28,
+          "sameDayConfidence": 0.56
+        }
+      }
+    },
+    {
+      "postalCode": "77026",
+      "profileId": "houston_fifth_ward",
+      "label": "Bundled snapshot for Fifth Ward, Houston",
+      "communityLabel": "Fifth Ward",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 2,
+          "typicalTravelMinutes": 13,
+          "sameDayConfidence": 0.74
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.82
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.88
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 27,
+          "sameDayConfidence": 0.55
+        }
+      }
+    },
+    {
+      "postalCode": "90011",
+      "profileId": "los_angeles_south_central",
+      "label": "Bundled snapshot for South Los Angeles",
+      "communityLabel": "South Los Angeles",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.78
+        },
+        "dollar_store": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.87
+        },
+        "convenience": {
+          "nearbyOptions": 6,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.86
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 24,
+          "sameDayConfidence": 0.59
+        }
+      }
+    }
+  ],
+  "prefixes": [
+    {
+      "prefix": "452",
+      "profileId": "greater_cincinnati_low_resource",
+      "label": "Greater Cincinnati fallback",
+      "communityLabel": "Greater Cincinnati",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 2,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.76
+        },
+        "dollar_store": {
+          "nearbyOptions": 2,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.83
+        },
+        "convenience": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.88
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 22,
+          "sameDayConfidence": 0.64
+        }
+      }
+    },
+    {
+      "prefix": "606",
+      "profileId": "chicago_low_resource",
+      "label": "Chicago fallback",
+      "communityLabel": "Chicago",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 9,
+          "sameDayConfidence": 0.84
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.86
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 21,
+          "sameDayConfidence": 0.63
+        }
+      }
+    },
+    {
+      "prefix": "191",
+      "profileId": "philadelphia_low_resource",
+      "label": "Philadelphia fallback",
+      "communityLabel": "Philadelphia",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.8
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 9,
+          "sameDayConfidence": 0.84
+        },
+        "convenience": {
+          "nearbyOptions": 6,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.85
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 24,
+          "sameDayConfidence": 0.59
+        }
+      }
+    },
+    {
+      "prefix": "770",
+      "profileId": "houston_low_resource",
+      "label": "Houston fallback",
+      "communityLabel": "Houston",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 2,
+          "typicalTravelMinutes": 13,
+          "sameDayConfidence": 0.74
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.82
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.88
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 25,
+          "sameDayConfidence": 0.58
+        }
+      }
+    },
+    {
+      "prefix": "900",
+      "profileId": "los_angeles_low_resource",
+      "label": "Los Angeles fallback",
+      "communityLabel": "Los Angeles",
+      "lowAccessArea": true,
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.78
+        },
+        "dollar_store": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 9,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 6,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.89
+        },
+        "fast_food": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 11,
+          "sameDayConfidence": 0.85
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 23,
+          "sameDayConfidence": 0.6
+        }
+      }
+    }
+  ]
+}

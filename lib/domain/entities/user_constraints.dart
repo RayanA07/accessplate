@@ -1,11 +1,15 @@
 import '../value_objects/allergen.dart';
 import '../value_objects/availability_context.dart';
+import '../value_objects/benefit_program.dart';
 import '../value_objects/dietary_style.dart';
 import '../value_objects/meal_type.dart';
 import '../value_objects/medical_restriction.dart';
 import '../value_objects/prep_environment.dart';
 import '../value_objects/religion.dart';
+import '../value_objects/transportation_mode.dart';
+import '../value_objects/user_language.dart';
 import 'demographics.dart';
+import 'grocery.dart';
 
 class SafetyConstraints {
   const SafetyConstraints({
@@ -67,21 +71,28 @@ class FeasibilityConstraints {
       AvailabilityContext.grocery,
       AvailabilityContext.convenience,
     },
+    this.groceryStore,
   });
 
   final double maxCostPerMeal;
   final PrepEnvironment environment;
   final Set<AvailabilityContext> availability;
+  final GroceryStore? groceryStore;
 
   FeasibilityConstraints copyWith({
     double? maxCostPerMeal,
     PrepEnvironment? environment,
     Set<AvailabilityContext>? availability,
+    GroceryStore? groceryStore,
+    bool clearGroceryStore = false,
   }) {
     return FeasibilityConstraints(
       maxCostPerMeal: maxCostPerMeal ?? this.maxCostPerMeal,
       environment: environment ?? this.environment,
       availability: availability ?? this.availability,
+      groceryStore: clearGroceryStore
+          ? null
+          : groceryStore ?? this.groceryStore,
     );
   }
 
@@ -90,6 +101,7 @@ class FeasibilityConstraints {
       'maxCostPerMeal': maxCostPerMeal,
       'environment': environment.code,
       'availability': availability.map((value) => value.code).toList(),
+      'groceryStore': groceryStore?.toJson(),
     };
   }
 
@@ -107,6 +119,11 @@ class FeasibilityConstraints {
       availability: availabilityValues.isEmpty
           ? const {AvailabilityContext.grocery, AvailabilityContext.convenience}
           : availabilityValues,
+      groceryStore: json['groceryStore'] is Map
+          ? GroceryStore.fromJson(
+              Map<String, dynamic>.from(json['groceryStore'] as Map),
+            )
+          : null,
     );
   }
 }
@@ -171,6 +188,99 @@ class PreferenceConstraints {
   }
 }
 
+class AccessConstraints {
+  const AccessConstraints({
+    this.postalCode = '',
+    this.transportation = TransportationMode.walk,
+    this.maxTravelMinutes = 20,
+    this.benefitPrograms = const {},
+    this.emergencyMode = false,
+    this.language = UserLanguage.english,
+    this.plainLanguage = true,
+  });
+
+  final String postalCode;
+  final TransportationMode transportation;
+  final int maxTravelMinutes;
+  final Set<BenefitProgram> benefitPrograms;
+  final bool emergencyMode;
+  final UserLanguage language;
+  final bool plainLanguage;
+
+  AccessConstraints copyWith({
+    String? postalCode,
+    TransportationMode? transportation,
+    int? maxTravelMinutes,
+    Set<BenefitProgram>? benefitPrograms,
+    bool? emergencyMode,
+    UserLanguage? language,
+    bool? plainLanguage,
+  }) {
+    return AccessConstraints(
+      postalCode: postalCode ?? this.postalCode,
+      transportation: transportation ?? this.transportation,
+      maxTravelMinutes: maxTravelMinutes ?? this.maxTravelMinutes,
+      benefitPrograms: benefitPrograms ?? this.benefitPrograms,
+      emergencyMode: emergencyMode ?? this.emergencyMode,
+      language: language ?? this.language,
+      plainLanguage: plainLanguage ?? this.plainLanguage,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'postalCode': postalCode,
+      'transportation': transportation.code,
+      'maxTravelMinutes': maxTravelMinutes,
+      'benefitPrograms': benefitPrograms.map((value) => value.code).toList(),
+      'emergencyMode': emergencyMode,
+      'language': language.code,
+      'plainLanguage': plainLanguage,
+    };
+  }
+
+  factory AccessConstraints.fromJson(Map<String, dynamic> json) {
+    return AccessConstraints(
+      postalCode: json['postalCode'] as String? ?? '',
+      transportation: TransportationMode.fromCode(
+        json['transportation'] as String? ?? TransportationMode.walk.code,
+      ),
+      maxTravelMinutes: (json['maxTravelMinutes'] as num?)?.toInt() ?? 20,
+      benefitPrograms: ((json['benefitPrograms'] as List<dynamic>? ?? const []))
+          .map((value) => BenefitProgram.fromCode(value as String))
+          .toSet(),
+      emergencyMode: json['emergencyMode'] as bool? ?? false,
+      language: UserLanguage.fromCode(
+        json['language'] as String? ?? UserLanguage.english.code,
+      ),
+      plainLanguage: json['plainLanguage'] as bool? ?? true,
+    );
+  }
+}
+
+class PantryConstraints {
+  const PantryConstraints({this.itemsOnHand = const {}});
+
+  final Set<String> itemsOnHand;
+
+  PantryConstraints copyWith({Set<String>? itemsOnHand}) {
+    return PantryConstraints(itemsOnHand: itemsOnHand ?? this.itemsOnHand);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'itemsOnHand': itemsOnHand.toList()..sort()};
+  }
+
+  factory PantryConstraints.fromJson(Map<String, dynamic> json) {
+    return PantryConstraints(
+      itemsOnHand: ((json['itemsOnHand'] as List<dynamic>? ?? const []))
+          .map((value) => value.toString().trim().toLowerCase())
+          .where((value) => value.isNotEmpty)
+          .toSet(),
+    );
+  }
+}
+
 class NutritionalTargets {
   const NutritionalTargets({
     this.calories = 700,
@@ -228,6 +338,8 @@ class UserConstraints {
     required this.safety,
     required this.feasibility,
     required this.preference,
+    required this.access,
+    required this.pantry,
     required this.targets,
     required this.demographics,
     this.todayIntake = const {},
@@ -237,6 +349,8 @@ class UserConstraints {
   final SafetyConstraints safety;
   final FeasibilityConstraints feasibility;
   final PreferenceConstraints preference;
+  final AccessConstraints access;
+  final PantryConstraints pantry;
   final NutritionalTargets targets;
   final Demographics demographics;
   final Map<String, double> todayIntake;
@@ -247,6 +361,8 @@ class UserConstraints {
       safety: const SafetyConstraints(),
       feasibility: const FeasibilityConstraints(),
       preference: const PreferenceConstraints(),
+      access: const AccessConstraints(),
+      pantry: const PantryConstraints(),
       targets: const NutritionalTargets(),
       demographics: const Demographics(sex: Sex.female, ageYears: 30),
     );
@@ -256,6 +372,8 @@ class UserConstraints {
     SafetyConstraints? safety,
     FeasibilityConstraints? feasibility,
     PreferenceConstraints? preference,
+    AccessConstraints? access,
+    PantryConstraints? pantry,
     NutritionalTargets? targets,
     Demographics? demographics,
     Map<String, double>? todayIntake,
@@ -265,6 +383,8 @@ class UserConstraints {
       safety: safety ?? this.safety,
       feasibility: feasibility ?? this.feasibility,
       preference: preference ?? this.preference,
+      access: access ?? this.access,
+      pantry: pantry ?? this.pantry,
       targets: targets ?? this.targets,
       demographics: demographics ?? this.demographics,
       todayIntake: todayIntake ?? this.todayIntake,
@@ -277,6 +397,8 @@ class UserConstraints {
       'safety': safety.toJson(),
       'feasibility': feasibility.toJson(),
       'preference': preference.toJson(),
+      'access': access.toJson(),
+      'pantry': pantry.toJson(),
       'targets': targets.toJson(),
       'demographics': demographics.toJson(),
       'todayIntake': todayIntake,
@@ -316,6 +438,12 @@ class UserConstraints {
         Map<String, dynamic>.from(json['feasibility'] as Map? ?? const {}),
       ),
       preference: preference.copyWith(dietaryStyle: migratedDietaryStyle),
+      access: AccessConstraints.fromJson(
+        Map<String, dynamic>.from(json['access'] as Map? ?? const {}),
+      ),
+      pantry: PantryConstraints.fromJson(
+        Map<String, dynamic>.from(json['pantry'] as Map? ?? const {}),
+      ),
       targets: NutritionalTargets.fromJson(
         Map<String, dynamic>.from(json['targets'] as Map? ?? const {}),
       ),

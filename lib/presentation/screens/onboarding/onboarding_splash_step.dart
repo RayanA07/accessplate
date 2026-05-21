@@ -11,9 +11,9 @@ class OnboardingSplashStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return const OnboardingStepLayout(
       title:
-          'Choose food with the\nsame clarity you expect\nfrom a polished health app.',
+          'Choose the safest,\ncheapest meal you can\nactually reach today.',
       subtitle:
-          'AccessPlate scores each option through safety, feasibility, preferences, and nutrition so the shortlist stays understandable.',
+          'AccessPlate ranks food through safety, budget, prep setup, travel reality, pantry overlap, and nutrition so the shortlist stays practical.',
       topSpacing: 26,
       children: [
         _FeatureGrid(),
@@ -26,7 +26,7 @@ class OnboardingSplashStep extends StatelessWidget {
               OnboardingMetaLabel('What stays local'),
               SizedBox(height: 10),
               Text(
-                'Your profile stays on-device, and this prototype currently ranks from a bundled offline food set backed by the local cache.',
+                'Your profile stays on-device, and this version already combines offline foods, low-resource access tags, and optional ZIP-based grocery matching.',
                 style: TextStyle(
                   fontSize: 15,
                   height: 1.34,
@@ -50,25 +50,25 @@ class _FeatureGrid extends StatelessWidget {
     return const Column(
       children: [
         _FeatureCard(
-          title: 'Constraint-aware',
+          title: 'Real-world access',
           detail:
-              'Budget, prep setup, allergens, religion, and context shape every recommendation directly.',
-          icon: Icons.tune_rounded,
+              'Budget, pantry items, travel limits, and low-resource food sources shape every recommendation directly.',
+          icon: Icons.route_rounded,
           color: NihPalette.primary,
         ),
         SizedBox(height: 14),
         _FeatureCard(
           title: 'Explainable',
           detail:
-              'Each recommendation carries reasons, tradeoffs, and comparable alternatives.',
+              'Each recommendation explains why it fits today and what tradeoffs still matter.',
           icon: Icons.insights_rounded,
           color: NihPalette.secondary,
         ),
         SizedBox(height: 14),
         _FeatureCard(
-          title: 'Cache-first',
+          title: 'Local-first',
           detail:
-              'The architecture is already prepared for online refresh later without changing the experience.',
+              'The app still works from saved foods when bandwidth is limited and keeps sensitive profile data local.',
           icon: Icons.cloud_done_rounded,
           color: NihPalette.success,
         ),

@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_palette.dart';
+import '../../../domain/entities/local_access.dart';
 import '../../../domain/entities/recommendation.dart';
 import '../../../domain/entities/user_constraints.dart';
 import '../../../domain/entities/user_profile.dart';
+import '../../../domain/value_objects/availability_context.dart';
+import '../../../domain/value_objects/benefit_program.dart';
 import '../../../domain/value_objects/dietary_style.dart';
+import '../../copy/app_copy.dart';
+import '../../providers/app_bootstrap.dart' show localAccessCatalogProvider;
 import '../../providers/profile_controller.dart';
 import '../../providers/recommendations_provider.dart';
+import '../../widgets/meal_basket_card.dart';
 import '../../widgets/quick_adjust_sheet.dart';
 import '../../widgets/recommendation_card.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/today_plan_card.dart';
 import '../explain/explain_detail_screen.dart';
 import '../profile/settings_screen.dart';
 
@@ -22,6 +29,11 @@ class RecommendationsScreen extends ConsumerWidget {
     final profile =
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
+    final copy = AppCopy(profile.constraints.access.language);
+    final localAccessCatalog = ref.watch(localAccessCatalogProvider).valueOrNull;
+    final accessResolution = localAccessCatalog?.resolve(
+      profile.constraints.access.postalCode,
+    );
     final recommendationsAsync = ref.watch(recommendationsProvider);
     final result = recommendationsAsync.valueOrNull;
     final error = recommendationsAsync.hasError
@@ -49,6 +61,7 @@ class RecommendationsScreen extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
             children: [
               _TopBar(
+                copy: copy,
                 onSettings: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -56,19 +69,58 @@ class RecommendationsScreen extends ConsumerWidget {
                 },
               ),
               const SizedBox(height: 18),
-              _SummaryHero(profile: profile, result: result),
+              _SummaryHero(
+                profile: profile,
+                result: result,
+                accessResolution: accessResolution,
+              ),
               const SizedBox(height: 14),
+              if (result?.todayPlan != null) ...[
+                Text(
+                  copy.todayPlanTitle,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  copy.todayPlanSubtitle,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 12),
+                TodayPlanCard(plan: result!.todayPlan!),
+                const SizedBox(height: 14),
+              ],
               _PinnedOverview(profile: profile, result: result),
+              if (result?.baskets.isNotEmpty == true) ...[
+                const SizedBox(height: 20),
+                Text(
+                  copy.basketTitle,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  copy.basketSubtitle,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 12),
+                for (final basket in result!.baskets) ...[
+                  MealBasketCard(plan: basket),
+                  if (basket != result.baskets.last) const SizedBox(height: 12),
+                ],
+              ],
               const SizedBox(height: 24),
               Text(
-                'Recommended for now',
+                copy.recommendationsTitle,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Safe, feasible picks ordered by fit, quality, and tradeoffs.',
+                copy.recommendationsSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               if (recommendationsAsync.isLoading)
@@ -132,8 +184,9 @@ class RecommendationsScreen extends ConsumerWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.onSettings});
+  const _TopBar({required this.copy, required this.onSettings});
 
+  final AppCopy copy;
   final VoidCallback onSettings;
 
   @override
@@ -145,14 +198,14 @@ class _TopBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Summary',
+                copy.summaryTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Your current meal snapshot.',
+                copy.summarySubtitle,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -232,16 +285,23 @@ class _RecommendationsErrorState extends StatelessWidget {
 }
 
 class _SummaryHero extends StatelessWidget {
-  const _SummaryHero({required this.profile, required this.result});
+  const _SummaryHero({
+    required this.profile,
+    required this.result,
+    required this.accessResolution,
+  });
 
   final UserProfile profile;
   final RecommendationResult? result;
+  final LocalAccessProfileResolution? accessResolution;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final feasibility = profile.constraints.feasibility;
     final preference = profile.constraints.preference;
+    final access = profile.constraints.access;
+    final groceryStore = feasibility.groceryStore;
     final visibleCount = result?.recommendations.length ?? 0;
     final summaryText = result == null
         ? 'Preparing a fresh set of recommendations.'
@@ -300,10 +360,25 @@ class _SummaryHero extends StatelessWidget {
               ),
               Chip(label: Text(feasibility.environment.label)),
               Chip(label: Text(preference.mealType.label)),
+              Chip(label: Text(access.transportation.label)),
+              if (groceryStore != null) Chip(label: Text(groceryStore.name)),
               if (preference.dietaryStyle != DietaryStyle.unrestricted)
                 Chip(label: Text(preference.dietaryStyle.label)),
+              if (access.postalCode.isNotEmpty)
+                Chip(label: Text('ZIP ${access.postalCode}')),
+              if (access.emergencyMode)
+                const Chip(label: Text('Emergency mode')),
+              for (final benefit in access.benefitPrograms)
+                Chip(label: Text(benefit.label)),
             ],
           ),
+          if (accessResolution != null && access.postalCode.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              _accessSnapshotLine(accessResolution!),
+              style: theme.textTheme.bodyMedium,
+            ),
+          ],
           if (result?.preferenceRelaxed == true) ...[
             const SizedBox(height: 12),
             Text(
@@ -322,6 +397,23 @@ class _SummaryHero extends StatelessWidget {
     }
     return '${preference.dietaryStyle.label} ${preference.mealType.label.toLowerCase()} suggestions';
   }
+
+  String _accessSnapshotLine(LocalAccessProfileResolution resolution) {
+    final profile = resolution.profile;
+    final pantry = profile.sourceFor(AvailabilityContext.foodPantry);
+    final grocery = profile.sourceFor(AvailabilityContext.grocery);
+    final intro = switch (resolution.matchType) {
+      LocalAccessMatchType.exact => 'ZIP snapshot',
+      LocalAccessMatchType.prefix => 'ZIP-area snapshot',
+      LocalAccessMatchType.fallback => 'Fallback snapshot',
+    };
+    if (pantry != null &&
+        grocery != null &&
+        pantry.typicalTravelMinutes < grocery.typicalTravelMinutes) {
+      return '$intro: ${profile.communityLabel} favors pantry, convenience, and discount sources before a full grocery trip.';
+    }
+    return '$intro: ${profile.communityLabel} access is built into today\'s ranking.';
+  }
 }
 
 class _PinnedOverview extends StatelessWidget {
@@ -334,6 +426,8 @@ class _PinnedOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     final feasibility = profile.constraints.feasibility;
     final preference = profile.constraints.preference;
+    final access = profile.constraints.access;
+    final pantryCount = profile.constraints.pantry.itemsOnHand.length;
     final cards = <Widget>[
       _MiniInsightCard(
         color: NihPalette.primary,
@@ -353,12 +447,14 @@ class _PinnedOverview extends StatelessWidget {
       ),
       _MiniInsightCard(
         color: NihPalette.success,
-        title: 'Turnaround',
-        value: result == null ? '--' : '${result!.elapsedMs} ms',
-        detail: result == null
-            ? 'Waiting on a fresh score'
-            : '${result!.recommendations.length} shown now',
-        icon: Icons.favorite_rounded,
+        title: 'Access',
+        value: access.emergencyMode ? 'Emergency on' : access.transportation.label,
+        detail: _accessDetail(
+          access: access,
+          pantryCount: pantryCount,
+          shownCount: result?.recommendations.length ?? 0,
+        ),
+        icon: Icons.route_rounded,
       ),
     ];
 
@@ -388,6 +484,27 @@ class _PinnedOverview extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _accessDetail({
+    required AccessConstraints access,
+    required int pantryCount,
+    required int shownCount,
+  }) {
+    final detailParts = <String>[];
+    if (pantryCount > 0) {
+      detailParts.add('$pantryCount pantry items');
+    }
+    if (access.benefitPrograms.contains(BenefitProgram.snap)) {
+      detailParts.add('SNAP aware');
+    }
+    if (access.benefitPrograms.contains(BenefitProgram.wic)) {
+      detailParts.add('WIC aware');
+    }
+    if (detailParts.isEmpty) {
+      detailParts.add('$shownCount options shown now');
+    }
+    return detailParts.join(' | ');
   }
 }
 

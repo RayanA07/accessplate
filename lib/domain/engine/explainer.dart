@@ -1,27 +1,41 @@
+import 'access_advisor.dart';
 import '../entities/explanation.dart';
 import '../entities/food.dart';
+import '../entities/local_access.dart';
 import '../entities/recommendation.dart';
 import '../entities/user_constraints.dart';
 import '../value_objects/availability_context.dart';
+import '../value_objects/benefit_program.dart';
 import '../value_objects/religion.dart';
 import 'score_config_provider.dart';
 
 class Explainer {
-  const Explainer({required this.config, required this.user});
+  Explainer({
+    required this.config,
+    required this.user,
+    FoodAccessAdvisor? accessAdvisor,
+  }) : _accessAdvisor = accessAdvisor ?? const FoodAccessAdvisor();
 
   final ScoreConfig config;
   final UserConstraints user;
+  final FoodAccessAdvisor _accessAdvisor;
 
   Explanation explain(ScoredFood scored) {
+    final accessInsight = _accessAdvisor.inspect(food: scored.food, user: user);
     return Explanation(
-      satisfied: _satisfiedConstraints(scored.food),
-      positives: _topPositives(scored),
-      tradeoffs: _topTradeoffs(scored),
+      satisfied: _satisfiedConstraints(scored.food, accessInsight),
+      positives: _topPositives(scored, accessInsight),
+      tradeoffs: _topTradeoffs(scored, accessInsight),
       compareWithIds: const [],
+      accessSummary: _accessSummary(accessInsight),
+      accessTags: _accessTags(accessInsight),
     );
   }
 
-  List<SatisfiedConstraint> _satisfiedConstraints(Food food) {
+  List<SatisfiedConstraint> _satisfiedConstraints(
+    Food food,
+    FoodAccessInsight accessInsight,
+  ) {
     final satisfied = <SatisfiedConstraint>[];
 
     if (user.safety.allergens.isNotEmpty) {
@@ -60,12 +74,38 @@ class Explainer {
       ),
     );
 
-    final availability = _matchedAvailability(food);
+    final availability = accessInsight.source ?? _matchedAvailability(food);
     if (availability != null) {
+      final zipSuffix =
+          accessInsight.zipAware && accessInsight.matchType != LocalAccessMatchType.fallback
+          ? ' in your ZIP snapshot'
+          : '';
       satisfied.add(
         SatisfiedConstraint(
           category: 'availability',
-          description: 'Available at ${availability.label.toLowerCase()}',
+          description: user.access.plainLanguage
+              ? 'Realistic from ${availability.label.toLowerCase()}$zipSuffix'
+              : 'Available at ${availability.label.toLowerCase()}$zipSuffix',
+        ),
+      );
+    }
+
+    if (accessInsight.snapFriendly) {
+      satisfied.add(
+        SatisfiedConstraint(
+          category: 'benefit',
+          description:
+              accessInsight.snapSupport?.label ?? 'Works with SNAP at this source',
+        ),
+      );
+    }
+
+    if (accessInsight.wicStapleCandidate) {
+      satisfied.add(
+        SatisfiedConstraint(
+          category: 'benefit',
+          description:
+              accessInsight.wicSupport?.label ?? 'Looks like a WIC staple match',
         ),
       );
     }
@@ -73,7 +113,10 @@ class Explainer {
     return satisfied;
   }
 
-  List<ScoreFactor> _topPositives(ScoredFood scored) {
+  List<ScoreFactor> _topPositives(
+    ScoredFood scored,
+    FoodAccessInsight accessInsight,
+  ) {
     final positives = <ScoreFactor>[];
     final nutrients = scored.nutrients;
     final targets = config.macroTargets;
@@ -126,7 +169,8 @@ class Explainer {
       );
     }
 
-    final matchedAvailability = _matchedAvailability(scored.food);
+    final matchedAvailability =
+        accessInsight.source ?? _matchedAvailability(scored.food);
     if (matchedAvailability != null &&
         matchedAvailability != AvailabilityContext.grocery) {
       positives.add(
@@ -148,11 +192,81 @@ class Explainer {
       );
     }
 
+    if (accessInsight.pantryMatches.isNotEmpty) {
+      positives.add(
+        ScoreFactor(
+          label: 'Stretches food you already have',
+          weight: 0.88,
+          detail: accessInsight.pantryMatches.take(3).join(', '),
+        ),
+      );
+    }
+
+    if (accessInsight.lowTravel) {
+      positives.add(
+        ScoreFactor(
+          label: user.access.plainLanguage
+              ? 'Lower-travel option'
+              : 'Lower travel burden',
+          weight: 0.78,
+          detail: _travelDetail(accessInsight),
+        ),
+      );
+    }
+
+    if (accessInsight.sourceSnapshot != null &&
+        accessInsight.nearbyOptions >= 2 &&
+        accessInsight.zipAware) {
+      positives.add(
+        ScoreFactor(
+          label: 'Supported by nearby options',
+          weight: 0.8,
+          detail:
+              '${accessInsight.nearbyOptions} ${accessInsight.source?.label.toLowerCase()} options in the bundled local snapshot',
+        ),
+      );
+    }
+
+    if (user.access.emergencyMode && accessInsight.emergencyFriendly) {
+      positives.add(
+        const ScoreFactor(
+          label: 'Emergency-friendly',
+          weight: 0.92,
+          detail: 'Cheap, fast, and manageable today',
+        ),
+      );
+    }
+
+    if (user.access.benefitPrograms.contains(BenefitProgram.snap) &&
+        (accessInsight.snapSupport?.positive ?? false)) {
+      positives.add(
+        ScoreFactor(
+          label: accessInsight.snapSupport!.label,
+          weight: 0.8,
+          detail: accessInsight.snapSupport!.detail,
+        ),
+      );
+    }
+
+    if (user.access.benefitPrograms.contains(BenefitProgram.wic) &&
+        (accessInsight.wicSupport?.positive ?? false)) {
+      positives.add(
+        ScoreFactor(
+          label: accessInsight.wicSupport!.label,
+          weight: 0.78,
+          detail: accessInsight.wicSupport!.detail,
+        ),
+      );
+    }
+
     positives.sort((a, b) => b.weight.compareTo(a.weight));
     return positives.take(3).toList();
   }
 
-  List<ScoreFactor> _topTradeoffs(ScoredFood scored) {
+  List<ScoreFactor> _topTradeoffs(
+    ScoredFood scored,
+    FoodAccessInsight accessInsight,
+  ) {
     final tradeoffs = <ScoreFactor>[];
     final nutrients = scored.nutrients;
 
@@ -209,8 +323,117 @@ class Explainer {
       );
     }
 
+    if (user.access.benefitPrograms.contains(BenefitProgram.snap) &&
+        (accessInsight.snapSupport?.caution ?? false)) {
+      tradeoffs.add(
+        ScoreFactor(
+          label: accessInsight.snapSupport!.label,
+          weight: 0.82,
+          detail: accessInsight.snapSupport!.detail,
+        ),
+      );
+    }
+
+    if (user.access.benefitPrograms.contains(BenefitProgram.wic) &&
+        accessInsight.wicSupport?.caution == true) {
+      tradeoffs.add(
+        ScoreFactor(
+          label: accessInsight.wicSupport!.label,
+          weight: 0.76,
+          detail: accessInsight.wicSupport!.detail,
+        ),
+      );
+    }
+
+    if (accessInsight.travelBurden == TravelBurden.high) {
+      tradeoffs.add(
+        ScoreFactor(
+          label: 'Harder trip for your travel setup',
+          weight: 0.84,
+          detail: _travelDetail(accessInsight),
+        ),
+      );
+    }
+
+    if (user.access.emergencyMode && !accessInsight.emergencyFriendly) {
+      tradeoffs.add(
+        const ScoreFactor(
+          label: 'Not ideal for emergency mode',
+          weight: 0.8,
+          detail: 'A cheaper or faster option is likely available',
+        ),
+      );
+    }
+
     tradeoffs.sort((a, b) => b.weight.compareTo(a.weight));
     return tradeoffs.take(2).toList();
+  }
+
+  String? _accessSummary(FoodAccessInsight accessInsight) {
+    final source = accessInsight.source?.label.toLowerCase();
+    final minutes = accessInsight.typicalTravelMinutes;
+    final localArea = accessInsight.localProfile?.communityLabel;
+
+    if (user.access.emergencyMode && accessInsight.emergencyFriendly) {
+      if (source != null && minutes != null) {
+        return 'Fast, cheap option for an emergency day through $source in about $minutes minutes.';
+      }
+      return 'Fast, cheap option for an emergency day.';
+    }
+    if (accessInsight.pantryMatches.isNotEmpty) {
+      return 'Uses ingredients you already have at home.';
+    }
+    if (accessInsight.snapFriendly && accessInsight.lowTravel) {
+      if (source != null) {
+        return 'Fits a lower-travel SNAP shopping trip through $source.';
+      }
+      return 'Fits a lower-travel SNAP shopping trip.';
+    }
+    if (accessInsight.wicStapleCandidate && source != null) {
+      return 'Looks like a realistic WIC staple candidate through $source.';
+    }
+    if (accessInsight.lowTravel && source != null && minutes != null) {
+      return 'Your local snapshot points to $source as a more realistic route, around $minutes minutes away.';
+    }
+    if (accessInsight.lowTravel) {
+      return 'Realistic from a lower-travel food source.';
+    }
+    if (accessInsight.travelBurden == TravelBurden.high) {
+      if (source != null && localArea != null) {
+        return 'Possible, but the $localArea snapshot suggests a harder $source trip than the best nearby options.';
+      }
+      return 'Possible, but travel burden is higher than the best nearby options.';
+    }
+    return null;
+  }
+
+  List<String> _accessTags(FoodAccessInsight accessInsight) {
+    final tags = <String>[];
+    if (accessInsight.source != null) {
+      tags.add(accessInsight.source!.label);
+    }
+    if (accessInsight.snapFriendly) {
+      tags.add(accessInsight.snapSupport?.label ?? 'SNAP');
+    }
+    if (accessInsight.wicStapleCandidate) {
+      tags.add(accessInsight.wicSupport?.label ?? 'WIC staple');
+    }
+    if (accessInsight.pantryMatches.isNotEmpty) {
+      tags.add('Pantry match');
+    }
+    if (user.access.emergencyMode && accessInsight.emergencyFriendly) {
+      tags.add('Emergency fit');
+    }
+    if (accessInsight.zipAware) {
+      if (accessInsight.matchType == LocalAccessMatchType.exact) {
+        tags.add('Exact ZIP');
+      } else if (accessInsight.matchType == LocalAccessMatchType.prefix) {
+        tags.add('ZIP area');
+      } else {
+        tags.add('Fallback');
+      }
+    }
+    return tags;
   }
 
   AvailabilityContext? _matchedAvailability(Food food) {
@@ -253,5 +476,17 @@ class Explainer {
     }
     final scaled = targets.fiberG * 0.60;
     return scaled < 8 ? scaled : 8;
+  }
+
+  String _travelDetail(FoodAccessInsight accessInsight) {
+    final source = accessInsight.source?.label.toLowerCase() ?? 'this source';
+    switch (accessInsight.travelBurden) {
+      case TravelBurden.low:
+        return 'Matches a shorter trip through $source';
+      case TravelBurden.medium:
+        return 'May take a fuller trip to $source';
+      case TravelBurden.high:
+        return 'This source may be harder to reach today';
+    }
   }
 }

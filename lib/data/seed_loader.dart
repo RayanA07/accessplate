@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
+import '../domain/entities/local_access.dart';
 import '../domain/engine/score_config_provider.dart';
 
 class SeedLoader {
@@ -72,6 +73,15 @@ class SeedLoader {
           (key, value) => MapEntry(key, (value as num).toDouble()),
         ),
       ),
+    );
+  }
+
+  Future<LocalAccessCatalog> loadLocalAccessCatalog() async {
+    final raw = await rootBundle.loadString(
+      'assets/reference/local_access_profiles.json',
+    );
+    return LocalAccessCatalog.fromJson(
+      Map<String, dynamic>.from(jsonDecode(raw) as Map<String, dynamic>),
     );
   }
 }

@@ -17,6 +17,7 @@ class QuickAdjustSheet extends ConsumerWidget {
         UserProfile.defaults();
     final feasibility = profile.constraints.feasibility;
     final preference = profile.constraints.preference;
+    final access = profile.constraints.access;
     final controller = ref.read(profileControllerProvider.notifier);
 
     return SafeArea(
@@ -107,6 +108,16 @@ class QuickAdjustSheet extends ConsumerWidget {
                     controller.updateMealType(value);
                   }
                 },
+              ),
+              const SizedBox(height: 12),
+              SwitchListTile(
+                value: access.emergencyMode,
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Emergency mode'),
+                subtitle: const Text(
+                  'Bias toward the fastest, cheapest, easiest options right now.',
+                ),
+                onChanged: controller.updateEmergencyMode,
               ),
             ],
           ),

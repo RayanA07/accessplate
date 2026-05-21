@@ -1,17 +1,21 @@
 import 'package:access_plate/domain/engine/decision_engine.dart';
+import 'package:access_plate/domain/engine/access_advisor.dart';
 import 'package:access_plate/domain/engine/score_config_provider.dart';
 import 'package:access_plate/domain/engine/scoring/composite_scorer.dart';
 import 'package:access_plate/domain/entities/food.dart';
+import 'package:access_plate/domain/entities/local_access.dart';
 import 'package:access_plate/domain/entities/nutrients.dart';
 import 'package:access_plate/domain/entities/user_constraints.dart';
 import 'package:access_plate/domain/repositories/food_repository.dart';
 import 'package:access_plate/domain/value_objects/allergen.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
+import 'package:access_plate/domain/value_objects/benefit_program.dart';
 import 'package:access_plate/domain/value_objects/dietary_style.dart';
 import 'package:access_plate/domain/value_objects/meal_type.dart';
 import 'package:access_plate/domain/value_objects/medical_restriction.dart';
 import 'package:access_plate/domain/value_objects/prep_environment.dart';
 import 'package:access_plate/domain/value_objects/religion.dart';
+import 'package:access_plate/domain/value_objects/transportation_mode.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -227,6 +231,196 @@ void main() {
       expect(result.recommendations.last.food.name, 'Turkey quinoa bowl');
     },
   );
+
+  test('access-aware explanation and baskets reflect pantry and SNAP reality', () async {
+    final repo = _FakeFoodRepository([
+      _record(
+        id: 20,
+        name: 'Rice & beans (canned)',
+        cost: 1.2,
+        calories: 320,
+        protein: 14,
+        carbs: 53,
+        fat: 3,
+        fiber: 11,
+        sodium: 260,
+        iron: 3.4,
+        category: 'legume',
+        availability: const {
+          AvailabilityContext.foodPantry,
+          AvailabilityContext.dollarStore,
+          AvailabilityContext.grocery,
+        },
+        ingredients: const {'rice', 'beans'},
+      ),
+      _record(
+        id: 21,
+        name: 'Banana',
+        cost: 0.3,
+        calories: 110,
+        protein: 1,
+        carbs: 28,
+        fat: 0,
+        fiber: 3,
+        sodium: 1,
+        iron: 0.4,
+        category: 'fruit',
+        availability: const {
+          AvailabilityContext.foodPantry,
+          AvailabilityContext.dollarStore,
+          AvailabilityContext.convenience,
+        },
+        ingredients: const {'banana'},
+      ),
+      _record(
+        id: 22,
+        name: 'Chicken combo meal',
+        cost: 5.5,
+        calories: 680,
+        protein: 29,
+        carbs: 72,
+        fat: 25,
+        fiber: 4,
+        sodium: 980,
+        iron: 1.2,
+        availability: const {AvailabilityContext.fastFood},
+        ingredients: const {'chicken', 'combo'},
+      ),
+    ]);
+    final engine = DecisionEngine(
+      repo: repo,
+      scoreConfigProvider: ScoreConfigProvider(_tables),
+    );
+
+    final user = UserConstraints.defaults().copyWith(
+      feasibility: const FeasibilityConstraints(
+        maxCostPerMeal: 3,
+        availability: {
+          AvailabilityContext.foodPantry,
+          AvailabilityContext.dollarStore,
+          AvailabilityContext.convenience,
+          AvailabilityContext.fastFood,
+        },
+      ),
+      access: const AccessConstraints(
+        transportation: TransportationMode.limited,
+        benefitPrograms: {BenefitProgram.snap},
+        emergencyMode: true,
+      ),
+      pantry: const PantryConstraints(itemsOnHand: {'rice', 'beans'}),
+    );
+
+    final result = await engine.recommend(
+      user: user,
+      weights: const CompositeWeights(),
+    );
+
+    expect(result.recommendations.first.food.name, 'Rice & beans (canned)');
+      expect(
+        result.recommendations.first.explanation?.accessTags,
+      containsAll(<String>['Food pantry', 'Pantry match', 'Emergency fit']),
+      );
+    expect(result.baskets, isNotEmpty);
+    expect(
+      result.baskets.any(
+        (plan) =>
+            plan.title.contains('Emergency') ||
+            plan.highlights.contains('Emergency fit'),
+      ),
+      isTrue,
+    );
+    expect(result.todayPlan, isNotNull);
+    expect(result.todayPlan?.title, contains('emergency'));
+  });
+
+  test('ZIP access snapshot can shift rank order toward a more reachable source', () async {
+    final repo = _FakeFoodRepository([
+      _record(
+        id: 30,
+        name: 'Protein grain bowl',
+        cost: 4.6,
+        calories: 460,
+        protein: 29,
+        carbs: 50,
+        fat: 11,
+        fiber: 9,
+        sodium: 280,
+        iron: 2.4,
+        availability: const {AvailabilityContext.grocery},
+        ingredients: const {'grain', 'bowl'},
+      ),
+      _record(
+        id: 31,
+        name: 'Convenience hummus snack box',
+        cost: 4.0,
+        calories: 390,
+        protein: 16,
+        carbs: 39,
+        fat: 15,
+        fiber: 7,
+        sodium: 300,
+        iron: 1.8,
+        availability: const {
+          AvailabilityContext.convenience,
+          AvailabilityContext.dollarStore,
+        },
+        ingredients: const {'hummus', 'crackers'},
+      ),
+    ]);
+    final engine = DecisionEngine(
+      repo: repo,
+      scoreConfigProvider: ScoreConfigProvider(_tables),
+      accessAdvisor: FoodAccessAdvisor(catalog: _localAccessCatalog),
+    );
+
+    final baseUser = UserConstraints.defaults().copyWith(
+      targets: const NutritionalTargets(
+        calories: 450,
+        proteinG: 28,
+        carbsG: 52,
+        fatG: 13,
+        fiberG: 9,
+      ),
+      feasibility: const FeasibilityConstraints(
+        maxCostPerMeal: 5,
+        availability: {
+          AvailabilityContext.grocery,
+          AvailabilityContext.convenience,
+          AvailabilityContext.dollarStore,
+        },
+      ),
+      access: const AccessConstraints(
+        transportation: TransportationMode.car,
+        maxTravelMinutes: 25,
+      ),
+    );
+
+    final easierGroceryZip = baseUser.copyWith(
+      access: baseUser.access.copyWith(postalCode: '45238'),
+    );
+    final harderGroceryZip = baseUser.copyWith(
+      access: baseUser.access.copyWith(postalCode: '45211'),
+    );
+
+    final easierResult = await engine.recommend(
+      user: easierGroceryZip,
+      weights: const CompositeWeights(),
+    );
+    final harderResult = await engine.recommend(
+      user: harderGroceryZip,
+      weights: const CompositeWeights(),
+    );
+
+    expect(easierResult.recommendations.first.food.name, 'Protein grain bowl');
+    expect(
+      harderResult.recommendations.first.food.name,
+      'Convenience hummus snack box',
+    );
+    expect(
+      harderResult.recommendations.first.explanation?.accessTags,
+      contains('Exact ZIP'),
+    );
+  });
 }
 
 class _FakeFoodRepository implements FoodRepository {
@@ -304,6 +498,65 @@ const _tables = ReferenceTables(
     'added_sugar_g': 0.3,
     'saturated_fat_g': 0.3,
   },
+);
+
+const _localAccessCatalog = LocalAccessCatalog(
+  exactZipProfiles: {
+    '45211': LocalAccessProfile(
+      profileId: 'westwood',
+      label: 'Westwood',
+      communityLabel: 'Westwood',
+      lowAccessArea: true,
+      sources: {
+        AvailabilityContext.convenience: SourceAccessSnapshot(
+          nearbyOptions: 5,
+          typicalTravelMinutes: 7,
+          sameDayConfidence: 0.9,
+        ),
+        AvailabilityContext.dollarStore: SourceAccessSnapshot(
+          nearbyOptions: 3,
+          typicalTravelMinutes: 8,
+          sameDayConfidence: 0.85,
+        ),
+        AvailabilityContext.grocery: SourceAccessSnapshot(
+          nearbyOptions: 1,
+          typicalTravelMinutes: 26,
+          sameDayConfidence: 0.58,
+        ),
+      },
+    ),
+    '45238': LocalAccessProfile(
+      profileId: 'delhi',
+      label: 'Delhi',
+      communityLabel: 'Delhi Township',
+      lowAccessArea: false,
+      sources: {
+        AvailabilityContext.convenience: SourceAccessSnapshot(
+          nearbyOptions: 3,
+          typicalTravelMinutes: 8,
+          sameDayConfidence: 0.84,
+        ),
+        AvailabilityContext.dollarStore: SourceAccessSnapshot(
+          nearbyOptions: 2,
+          typicalTravelMinutes: 10,
+          sameDayConfidence: 0.8,
+        ),
+        AvailabilityContext.grocery: SourceAccessSnapshot(
+          nearbyOptions: 3,
+          typicalTravelMinutes: 8,
+          sameDayConfidence: 0.94,
+        ),
+      },
+    ),
+  },
+  prefixProfiles: {},
+  fallbackProfile: LocalAccessProfile(
+    profileId: 'fallback',
+    label: 'Fallback',
+    communityLabel: 'Fallback',
+    lowAccessArea: true,
+    sources: {},
+  ),
 );
 
 final _foods = <FoodRecord>[

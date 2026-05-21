@@ -5,9 +5,11 @@ import '../value_objects/availability_context.dart';
 import '../value_objects/dietary_style.dart';
 import '../value_objects/meal_type.dart';
 import '../value_objects/prep_environment.dart';
+import 'access_advisor.dart';
 import 'explainer.dart';
 import 'filters/feasibility_filter.dart';
 import 'filters/macro_alignment_prioritizer.dart';
+import 'meal_basket_planner.dart';
 import 'filters/preference_filter.dart';
 import 'filters/safety_filter.dart';
 import 'preference_scorer.dart';
@@ -17,19 +19,22 @@ import 'scoring/macro_scorer.dart';
 import 'scoring/micro_scorer.dart';
 import 'scoring/penalty_calculator.dart';
 import 'scoring/variety_dampener.dart';
+import 'today_plan_builder.dart';
 
 class DecisionEngine {
   DecisionEngine({
     required this.repo,
     required this.scoreConfigProvider,
+    FoodAccessAdvisor? accessAdvisor,
     this.safetyFilter = const SafetyFilter(),
     this.feasibilityFilter = const FeasibilityFilter(),
     this.preferenceFilter = const PreferenceFilter(),
     this.macroAlignmentPrioritizer = const MacroAlignmentPrioritizer(),
-  });
+  }) : accessAdvisor = accessAdvisor ?? const FoodAccessAdvisor();
 
   final FoodRepository repo;
   final ScoreConfigProvider scoreConfigProvider;
+  final FoodAccessAdvisor accessAdvisor;
   final SafetyFilter safetyFilter;
   final FeasibilityFilter feasibilityFilter;
   final PreferenceFilter preferenceFilter;
@@ -121,19 +126,42 @@ class DecisionEngine {
     final ranked = macroAlignmentPrioritizer.apply(
       preferred
           .map(
-            (record) =>
-                scorer.score(record: record, feasibility: user.feasibility),
+            (record) => _applyAccessRealism(
+              scorer.score(record: record, feasibility: user.feasibility),
+              user,
+            ),
           )
           .toList(),
       user.targets,
     )..sort(_compareScoredFoods);
 
     final scaled = _applyDisplayScaling(ranked);
-    final explainer = Explainer(config: config, user: user);
+    final explainer = Explainer(
+      config: config,
+      user: user,
+      accessAdvisor: accessAdvisor,
+    );
     final explained = scaled
         .take(limit)
         .map((item) => item.copyWith(explanation: explainer.explain(item)))
         .toList();
+    final basketPlanner = MealBasketPlanner(
+      user: user,
+      macroScorer: MacroScorer(
+        targets: config.macroTargets,
+        weights: config.macroWeights,
+      ),
+      penaltyCalculator: PenaltyCalculator(
+        thresholds: config.penaltyThresholds,
+        weights: config.penaltyWeights,
+      ),
+      accessAdvisor: accessAdvisor,
+    );
+    final baskets = basketPlanner.build(explained);
+    final todayPlan = TodayPlanBuilder(
+      user: user,
+      accessAdvisor: accessAdvisor,
+    ).build(recommendations: explained, baskets: baskets);
     await repo.touchFoods(explained.map((item) => item.food.id));
 
     stopwatch.stop();
@@ -142,6 +170,27 @@ class DecisionEngine {
       preferenceRelaxed: preferenceRelaxed,
       candidatePoolSize: preferred.length,
       elapsedMs: stopwatch.elapsedMilliseconds,
+      baskets: baskets,
+      todayPlan: todayPlan,
+    );
+  }
+
+  ScoredFood _applyAccessRealism(ScoredFood scored, UserConstraints user) {
+    final insight = accessAdvisor.inspect(food: scored.food, user: user);
+    final adjustment = accessAdvisor.accessAdjustment(
+      insight: insight,
+      user: user,
+    );
+    return scored.copyWith(
+      composite: scored.composite + adjustment,
+      breakdown: ScoreBreakdown(
+        macro: scored.breakdown.macro,
+        micro: scored.breakdown.micro,
+        penalty: scored.breakdown.penalty,
+        cost: scored.breakdown.cost,
+        preference: scored.breakdown.preference,
+        access: adjustment,
+      ),
     );
   }
 
@@ -340,11 +389,11 @@ class DecisionEngine {
               .toList()
             ..sort(_compareScoredFoods);
 
-      final comparableIds = <int>[
+      final comparableIds = <int>{
         if (cheaper.isNotEmpty) cheaper.first.food.id,
         if (healthier.isNotEmpty) healthier.first.food.id,
         ...similar.map((candidate) => candidate.food.id),
-      ].toSet().take(3).toList();
+      }.take(3).toList();
 
       return food.copyWith(
         explanation: food.explanation?.copyWith(compareWithIds: comparableIds),

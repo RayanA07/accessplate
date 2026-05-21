@@ -9,10 +9,12 @@ enum OnboardingStage {
   budget,
   environment,
   availability,
+  access,
   dietaryStyle,
   mealTiming,
   cuisine,
   dislikes,
+  pantry,
   profile,
   targets;
 
@@ -32,6 +34,8 @@ enum OnboardingStage {
         return OnboardingStage.environment;
       case 'availability':
         return OnboardingStage.availability;
+      case 'access':
+        return OnboardingStage.access;
       case 'dietaryStyle':
         return OnboardingStage.dietaryStyle;
       case 'mealTiming':
@@ -40,6 +44,8 @@ enum OnboardingStage {
         return OnboardingStage.cuisine;
       case 'dislikes':
         return OnboardingStage.dislikes;
+      case 'pantry':
+        return OnboardingStage.pantry;
       case 'profile':
         return OnboardingStage.profile;
       case 'targets':

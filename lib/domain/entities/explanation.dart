@@ -22,24 +22,32 @@ class Explanation {
     required this.positives,
     required this.tradeoffs,
     required this.compareWithIds,
+    this.accessSummary,
+    this.accessTags = const [],
   });
 
   final List<SatisfiedConstraint> satisfied;
   final List<ScoreFactor> positives;
   final List<ScoreFactor> tradeoffs;
   final List<int> compareWithIds;
+  final String? accessSummary;
+  final List<String> accessTags;
 
   Explanation copyWith({
     List<SatisfiedConstraint>? satisfied,
     List<ScoreFactor>? positives,
     List<ScoreFactor>? tradeoffs,
     List<int>? compareWithIds,
+    String? accessSummary,
+    List<String>? accessTags,
   }) {
     return Explanation(
       satisfied: satisfied ?? this.satisfied,
       positives: positives ?? this.positives,
       tradeoffs: tradeoffs ?? this.tradeoffs,
       compareWithIds: compareWithIds ?? this.compareWithIds,
+      accessSummary: accessSummary ?? this.accessSummary,
+      accessTags: accessTags ?? this.accessTags,
     );
   }
 }
