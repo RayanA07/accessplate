@@ -1,4 +1,5 @@
 import '../engine/scoring/composite_scorer.dart';
+import 'local_login.dart';
 import 'user_constraints.dart';
 
 enum OnboardingStage {
@@ -69,6 +70,7 @@ class UserProfile {
   const UserProfile({
     required this.constraints,
     required this.scoringWeights,
+    this.localLogin = const LocalLogin(),
     this.onboardingComplete = false,
     this.onboardingStage = OnboardingStage.splash,
     this.themePreference = AppThemePreference.system,
@@ -76,6 +78,7 @@ class UserProfile {
 
   final UserConstraints constraints;
   final CompositeWeights scoringWeights;
+  final LocalLogin localLogin;
   final bool onboardingComplete;
   final OnboardingStage onboardingStage;
   final AppThemePreference themePreference;
@@ -90,6 +93,7 @@ class UserProfile {
   UserProfile copyWith({
     UserConstraints? constraints,
     CompositeWeights? scoringWeights,
+    LocalLogin? localLogin,
     bool? onboardingComplete,
     OnboardingStage? onboardingStage,
     AppThemePreference? themePreference,
@@ -97,6 +101,7 @@ class UserProfile {
     return UserProfile(
       constraints: constraints ?? this.constraints,
       scoringWeights: scoringWeights ?? this.scoringWeights,
+      localLogin: localLogin ?? this.localLogin,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
       onboardingStage: onboardingStage ?? this.onboardingStage,
       themePreference: themePreference ?? this.themePreference,
@@ -107,6 +112,7 @@ class UserProfile {
     return {
       'constraints': constraints.toJson(),
       'scoringWeights': scoringWeights.toJson(),
+      'localLogin': localLogin.toJson(),
       'onboardingComplete': onboardingComplete,
       'onboardingStage': onboardingStage.name,
       'themePreference': themePreference.name,
@@ -120,6 +126,9 @@ class UserProfile {
       ),
       scoringWeights: CompositeWeights.fromJson(
         Map<String, dynamic>.from(json['scoringWeights'] as Map? ?? const {}),
+      ),
+      localLogin: LocalLogin.fromJson(
+        Map<String, dynamic>.from(json['localLogin'] as Map? ?? const {}),
       ),
       onboardingComplete: json['onboardingComplete'] as bool? ?? false,
       onboardingStage: OnboardingStage.fromName(

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/availability_context.dart';
 import '../../../domain/value_objects/prep_environment.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/section_card.dart';
 import '../../widgets/selection_tile.dart';
@@ -17,20 +18,24 @@ class OnboardingFeasibilityStep extends ConsumerWidget {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final feasibility = profile.constraints.feasibility;
+    final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Feasibility',
+          copy.choose('Feasibility', 'Factibilidad'),
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
         Text(
-          'Good recommendations are useless if they do not fit your budget, prep setup, or access points.',
+          copy.choose(
+            'Good food choices are useless if they do not fit your budget, prep setup, or access points.',
+            'Buenas opciones de comida no sirven si no encajan con tu presupuesto, tu cocina o tus puntos de acceso.',
+          ),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 20),
@@ -42,7 +47,10 @@ class OnboardingFeasibilityStep extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Budget per meal',
+                    copy.choose(
+                      'Budget per meal',
+                      'Presupuesto por comida',
+                    ),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -70,7 +78,7 @@ class OnboardingFeasibilityStep extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Preparation setup',
+                copy.choose('Preparation setup', 'Equipo de cocina'),
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
@@ -81,16 +89,8 @@ class OnboardingFeasibilityStep extends ConsumerWidget {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: SelectionTile(
-                    title: environment.label,
-                    subtitle: switch (environment) {
-                      PrepEnvironment.none => 'Ready to eat only.',
-                      PrepEnvironment.microwave =>
-                        'Microwave meals and ready-to-eat items.',
-                      PrepEnvironment.stoveTop =>
-                        'Stovetop, microwave, and most pantry meals.',
-                      PrepEnvironment.fullKitchen =>
-                        'All prep methods, including oven meals.',
-                    },
+                    title: copy.prepEnvironmentLabel(environment),
+                    subtitle: copy.prepEnvironmentDetail(environment),
                     icon: switch (environment) {
                       PrepEnvironment.none => Icons.flash_on_rounded,
                       PrepEnvironment.microwave => Icons.microwave_rounded,
@@ -111,14 +111,17 @@ class OnboardingFeasibilityStep extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Where you can shop',
+                copy.choose('Where you can shop', 'Donde puedes comprar'),
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 8),
               Text(
-                'Pick every context that is realistic for you right now.',
+                copy.choose(
+                  'Pick every food source that is realistic for you right now.',
+                  'Marca cada fuente de comida que si es realista para ti ahorita.',
+                ),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 12),
@@ -129,8 +132,8 @@ class OnboardingFeasibilityStep extends ConsumerWidget {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: SelectionTile(
-                    title: contextValue.label,
-                    subtitle: _availabilityDescription(contextValue),
+                    title: copy.sourceLabel(contextValue),
+                    subtitle: copy.availabilityDetail(contextValue),
                     icon: _availabilityIcon(contextValue),
                     selected: selected,
                     onTap: () {
@@ -151,21 +154,6 @@ class OnboardingFeasibilityStep extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  String _availabilityDescription(AvailabilityContext contextValue) {
-    switch (contextValue) {
-      case AvailabilityContext.grocery:
-        return 'Prepared foods, produce, and standard staples.';
-      case AvailabilityContext.convenience:
-        return 'Grab-and-go food and small essentials.';
-      case AvailabilityContext.fastFood:
-        return 'Restaurant and drive-thru options.';
-      case AvailabilityContext.foodPantry:
-        return 'Shelf-stable or donated basics.';
-      case AvailabilityContext.dollarStore:
-        return 'Low-cost pantry items and snacks.';
-    }
   }
 
   IconData _availabilityIcon(AvailabilityContext contextValue) {

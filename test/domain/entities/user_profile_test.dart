@@ -59,7 +59,11 @@ void main() {
         plainLanguage: false,
       ),
       pantry: const PantryConstraints(
-        itemsOnHand: {'rice', 'beans', 'oats'},
+        stockByItem: {
+          'rice': PantryStockLevel.enough,
+          'beans': PantryStockLevel.low,
+          'oats': PantryStockLevel.out,
+        },
       ),
     );
 
@@ -75,6 +79,19 @@ void main() {
     expect(roundTrip.access.emergencyMode, isTrue);
     expect(roundTrip.access.language, UserLanguage.spanish);
     expect(roundTrip.access.plainLanguage, isFalse);
-    expect(roundTrip.pantry.itemsOnHand, containsAll({'rice', 'beans', 'oats'}));
+    expect(roundTrip.pantry.enoughItems, contains('rice'));
+    expect(roundTrip.pantry.lowStockItems, contains('beans'));
+    expect(roundTrip.pantry.restockItems, contains('oats'));
+  });
+
+  test('legacy pantry lists migrate to enough stock', () {
+    final constraints = UserConstraints.fromJson(const {
+      'pantry': {
+        'itemsOnHand': ['rice', 'beans'],
+      },
+    });
+
+    expect(constraints.pantry.stockFor('rice'), PantryStockLevel.enough);
+    expect(constraints.pantry.stockFor('beans'), PantryStockLevel.enough);
   });
 }

@@ -7,6 +7,7 @@ import 'package:access_plate/domain/entities/grocery.dart';
 import 'package:access_plate/domain/entities/local_access.dart';
 import 'package:access_plate/domain/entities/nutrients.dart';
 import 'package:access_plate/domain/entities/recommendation.dart';
+import 'package:access_plate/domain/engine/score_config_provider.dart';
 import 'package:access_plate/domain/entities/user_constraints.dart';
 import 'package:access_plate/domain/entities/user_profile.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
@@ -17,6 +18,7 @@ import 'package:access_plate/presentation/providers/live_grocery_providers.dart'
 import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/providers/recommendations_provider.dart';
 import 'package:access_plate/presentation/screens/recommendations/recommendations_screen.dart';
+import 'package:access_plate/presentation/widgets/recommendation_card.dart';
 
 void main() {
   testWidgets('recommendations screen stays balanced on a narrow viewport', (
@@ -50,7 +52,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          localAccessCatalogProvider.overrideWith((ref) async => _testAccessCatalog),
+          localAccessCatalogProvider.overrideWith(
+            (ref) async => _testAccessCatalog,
+          ),
+          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
           profileControllerProvider.overrideWith(
             () => _TestProfileController(profile),
           ),
@@ -62,17 +67,42 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Summary'), findsOneWidget);
-    expect(find.text('Vegetarian lunch suggestions'), findsOneWidget);
+    expect(find.text('Today snapshot'), findsOneWidget);
+    expect(
+      find.text(
+        'Vegetarian options for lunch you can realistically reach today',
+      ),
+      findsOneWidget,
+    );
     await tester.scrollUntilVisible(
-      find.text('Recommended for now'),
+      find.text('Do this first today'),
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Do this first today'), findsOneWidget);
+    expect(find.text('Why this route'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Best first stop'),
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Best first stop'), findsOneWidget);
+    await tester.tap(find.text('Best first stop'));
+    await tester.pumpAndSettle();
+    expect(find.text('Best first stop: Food pantry'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Reachable food options'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
-    expect(find.text('Recommended for now'), findsOneWidget);
+    expect(find.text('Reachable food options'), findsOneWidget);
     expect(
-      find.text('Safe, feasible picks ordered by fit, quality, and tradeoffs.'),
+      find.text(
+        'Use from home first, then compare safe buys you can actually reach.',
+      ),
       findsOneWidget,
     );
   });
@@ -108,50 +138,54 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          localAccessCatalogProvider.overrideWith((ref) async => _testAccessCatalog),
+          localAccessCatalogProvider.overrideWith(
+            (ref) async => _testAccessCatalog,
+          ),
+          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
           profileControllerProvider.overrideWith(
             () => _TestProfileController(profile),
           ),
           recommendationsProvider.overrideWith((ref) async => _result),
           liveGroceryMatchesProvider.overrideWith(
             (ref) async => {
-              1: GroceryProductLookup(
-                foodId: 1,
-                foodName: 'Sweet potato with black beans',
-                store: const GroceryStore(
-                  retailer: GroceryRetailer.kroger,
-                  locationId: '01400477',
-                  name: 'Kroger Delhi',
-                  addressLine1: '5080 Delhi Pike',
-                  city: 'Cincinnati',
-                  state: 'OH',
-                  postalCode: '45238',
-                ),
-                plan: const GrocerySearchPlan(
-                  term: 'black beans',
-                  displayLabel: 'black beans',
-                  rationale: 'Core staple search for this suggestion',
-                  exactMatch: false,
-                ),
-                products: const [
-                  GroceryProduct(
+              for (final id in [1, 2, 3])
+                id: GroceryProductLookup(
+                  foodId: id,
+                  foodName: 'Sweet potato with black beans',
+                  store: const GroceryStore(
                     retailer: GroceryRetailer.kroger,
-                    productId: '1',
-                    description: 'Simple Truth Black Beans',
-                    brand: 'Simple Truth',
-                    regularPrice: 1.19,
-                    availableInStore: true,
+                    locationId: '01400477',
+                    name: 'Kroger Delhi',
+                    addressLine1: '5080 Delhi Pike',
+                    city: 'Cincinnati',
+                    state: 'OH',
+                    postalCode: '45238',
                   ),
-                  GroceryProduct(
-                    retailer: GroceryRetailer.kroger,
-                    productId: '2',
-                    description: 'Kroger Black Beans',
-                    brand: 'Kroger',
-                    regularPrice: 0.99,
-                    availableInStore: true,
+                  plan: const GrocerySearchPlan(
+                    term: 'black beans',
+                    displayLabel: 'black beans',
+                    rationale: 'Core staple search for this suggestion',
+                    exactMatch: false,
                   ),
-                ],
-              ),
+                  products: const [
+                    GroceryProduct(
+                      retailer: GroceryRetailer.kroger,
+                      productId: '1',
+                      description: 'Simple Truth Black Beans',
+                      brand: 'Simple Truth',
+                      regularPrice: 1.19,
+                      availableInStore: true,
+                    ),
+                    GroceryProduct(
+                      retailer: GroceryRetailer.kroger,
+                      productId: '2',
+                      description: 'Kroger Black Beans',
+                      brand: 'Kroger',
+                      regularPrice: 0.99,
+                      availableInStore: true,
+                    ),
+                  ],
+                ),
             },
           ),
         ],
@@ -159,19 +193,123 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-
     await tester.scrollUntilVisible(
-      find.textContaining('brands at Kroger Delhi'),
+      find.text('Reachable food options'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
+    final firstCard = find.byType(RecommendationCard).first;
+    await tester.scrollUntilVisible(
+      firstCard,
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(of: firstCard, matching: find.text('Show details')),
+    );
+    await tester.pumpAndSettle();
+
     expect(
-      find.textContaining('black beans brands at Kroger Delhi'),
+      find.descendant(
+        of: firstCard,
+        matching: find.textContaining('black beans brands at Kroger Delhi'),
+      ),
       findsOneWidget,
     );
-    expect(find.text('Simple Truth | \$1.19'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: firstCard,
+        matching: find.text('Simple Truth | \$1.19'),
+      ),
+      findsOneWidget,
+    );
   });
+
+  testWidgets(
+    'recommendations screen surfaces first-action labels and fallback evidence copy',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 900);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+
+      final profile = UserProfile.defaults().copyWith(
+        onboardingComplete: true,
+        constraints: UserConstraints.defaults().copyWith(
+          feasibility: const FeasibilityConstraints(
+            maxCostPerMeal: 9,
+            availability: {
+              AvailabilityContext.grocery,
+              AvailabilityContext.convenience,
+              AvailabilityContext.foodPantry,
+            },
+          ),
+          access: const AccessConstraints(
+            postalCode: '99999',
+            plainLanguage: true,
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            localAccessCatalogProvider.overrideWith(
+              (ref) async => _testAccessCatalog,
+            ),
+            referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
+            profileControllerProvider.overrideWith(
+              () => _TestProfileController(profile),
+            ),
+            recommendationsProvider.overrideWith((ref) async => _result),
+          ],
+          child: const MaterialApp(home: RecommendationsScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.text('Do this first today'),
+        120,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Go first'), findsOneWidget);
+      expect(find.text('Use from home'), findsOneWidget);
+      expect(find.text('Buy first'), findsOneWidget);
+      expect(find.text('Skip first'), findsOneWidget);
+      expect(find.text('Why this route'), findsOneWidget);
+      expect(find.text('Backup'), findsOneWidget);
+
+      await tester.scrollUntilVisible(
+        find.text('Decision evidence'),
+        120,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Decision evidence'), findsOneWidget);
+      await tester.tap(find.text('Decision evidence'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          'Confidence is lower here because this falls back to a general low-resource model.',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'No live grocery store is attached right now. Grocery access is still ranked with bundled modeled data.',
+        ),
+        findsOneWidget,
+      );
+    },
+  );
 }
 
 class _TestProfileController extends ProfileController {
@@ -206,6 +344,30 @@ final _result = RecommendationResult(
   preferenceRelaxed: false,
   candidatePoolSize: 17,
   elapsedMs: 32,
+  sourceTripPlan: const SourceTripPlan(
+    mission: SourceTripMission.pantryStretch,
+    primarySource: AvailabilityContext.foodPantry,
+    backupSource: AvailabilityContext.grocery,
+    title: 'Best first stop: Food pantry',
+    summary:
+        'Your ZIP snapshot makes a food pantry the best first stop for stretching pantry staples.',
+    reasons: [
+      '12 min typical travel with 2 nearby options.',
+      'Shorter trip than the bundled grocery route in this snapshot.',
+      'Works better for topping off what is already in the kitchen.',
+    ],
+    highlights: ['Food pantry', 'Pantry stretch', '12 min'],
+    bestFor: ['Staples', 'Pantry stretch'],
+    communityLabel: 'Fallback',
+    travelMinutes: 12,
+    routeReason:
+        'More realistic than the grocery route because this pantry stop is shorter and still covers the top staples.',
+    benefitSummary: 'Best when you need food first with no purchase.',
+    confidenceSummary:
+        'Lower-confidence access read because this falls back to the general bundled low-resource model.',
+    dataSourceSummary:
+        'First-stop ranking uses bundled ZIP access data only, not live store inventory.',
+  ),
   todayPlan: TodayPlan(
     type: TodayPlanType.pantryFirst,
     title: 'Today plan: pantry-first',
@@ -216,6 +378,27 @@ final _result = RecommendationResult(
       'Keep the total low before a full grocery trip.',
     ],
     highlights: ['Pantry-first', 'Food pantry'],
+    routeReason:
+        'This is more realistic because it uses food from home first, then asks for only a few add-ons.',
+    benefitSummary:
+        'Using food from home first lowers the amount you still need to buy.',
+    confidenceSummary:
+        'Lower-confidence access read because this plan falls back to the general bundled low-resource model.',
+    dataSourceSummary:
+        'Access burden here uses bundled ZIP access data, not live store inventory.',
+    purchases: const [
+      PlannedPurchase(
+        label: 'Bananas',
+        priority: PlannedPurchasePriority.buyFirst,
+        detail: 'Lower-risk staple if stock is limited.',
+        estimatedCost: 0.60,
+      ),
+      PlannedPurchase(
+        label: 'Yogurt cup',
+        priority: PlannedPurchasePriority.ifBudgetLeft,
+        estimatedCost: 1.25,
+      ),
+    ],
     leadRecommendation: ScoredFood(
       food: Food(
         id: 999,
@@ -273,6 +456,37 @@ final _result = RecommendationResult(
   ),
 );
 
+const _testReferenceTables = ReferenceTables(
+  rdaTable: {
+    'female_19_50': {
+      'iron_mg': 18,
+      'calcium_mg': 1000,
+      'potassium_mg': 2600,
+      'magnesium_mg': 310,
+      'zinc_mg': 8,
+      'vit_a_mcg_rae': 700,
+      'vit_c_mg': 75,
+      'vit_d_mcg': 15,
+      'vit_b12_mcg': 2.4,
+      'folate_mcg_dfe': 400,
+    },
+  },
+  medicalModifiers: {},
+  microPriorityElevations: {
+    'anemia': {'iron_mg': 2.0},
+  },
+  basePenaltyThresholds: {
+    'sodium_mg': 750,
+    'added_sugar_g': 12,
+    'saturated_fat_g': 7,
+  },
+  basePenaltyWeights: {
+    'sodium_mg': 0.4,
+    'added_sugar_g': 0.3,
+    'saturated_fat_g': 0.3,
+  },
+);
+
 const _testAccessCatalog = LocalAccessCatalog(
   exactZipProfiles: {},
   prefixProfiles: {},
@@ -281,6 +495,10 @@ const _testAccessCatalog = LocalAccessCatalog(
     label: 'Fallback',
     communityLabel: 'Fallback',
     lowAccessArea: true,
+    communityType: CommunityAccessType.innerNeighborhood,
+    walkSupport: 0.72,
+    transitSupport: 0.64,
+    groceryGapSeverity: 0.72,
     sources: {
       AvailabilityContext.foodPantry: SourceAccessSnapshot(
         nearbyOptions: 2,

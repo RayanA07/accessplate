@@ -109,3 +109,8 @@ final localAccessCatalogProvider = FutureProvider<LocalAccessCatalog>((ref) asyn
   final bootstrap = await ref.watch(appBootstrapProvider.future);
   return bootstrap.localAccessCatalog;
 });
+
+final referenceTablesProvider = FutureProvider<ReferenceTables>((ref) async {
+  final bootstrap = await ref.watch(appBootstrapProvider.future);
+  return bootstrap.referenceTables;
+});

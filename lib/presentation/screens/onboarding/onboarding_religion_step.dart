@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/religion.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
@@ -16,16 +17,23 @@ class OnboardingReligionStep extends ConsumerWidget {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final safety = profile.constraints.safety;
+    final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
 
     return OnboardingStepLayout(
-      title: 'Religious\nrestrictions',
-      subtitle: 'Choose the rule set the app should always respect.',
+      title: copy.choose(
+        'Religious\nrestrictions',
+        'Restricciones\nreligiosas',
+      ),
+      subtitle: copy.choose(
+        'Choose the food rules the app should always respect.',
+        'Elige las reglas de comida que la app siempre debe respetar.',
+      ),
       children: [
         for (final religion in Religion.values) ...[
           SelectionTile(
-            title: religion.label,
-            subtitle: _descriptionFor(religion),
+            title: copy.religionLabel(religion),
+            subtitle: copy.religionDetail(religion),
             icon: _iconFor(religion),
             selected: safety.religion == religion,
             onTap: () {
@@ -36,21 +44,6 @@ class OnboardingReligionStep extends ConsumerWidget {
         ],
       ],
     );
-  }
-
-  String _descriptionFor(Religion religion) {
-    switch (religion) {
-      case Religion.none:
-        return 'Do not apply any religion-based filtering.';
-      case Religion.halal:
-        return 'Hide foods that conflict with halal restrictions.';
-      case Religion.kosher:
-        return 'Hide foods that conflict with kosher restrictions.';
-      case Religion.hinduVeg:
-        return 'Keep recommendations vegetarian for Hindu users.';
-      case Religion.jain:
-        return 'Hide foods that conflict with Jain restrictions.';
-    }
   }
 
   IconData _iconFor(Religion religion) {

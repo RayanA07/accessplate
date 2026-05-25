@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_constraints.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/medical_restriction.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
@@ -17,15 +18,22 @@ class OnboardingMedicalStep extends ConsumerWidget {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final safety = profile.constraints.safety;
+    final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
 
     return OnboardingStepLayout(
-      title: 'Medical\nrestrictions',
-      subtitle:
-          'Use Avoid for hard exclusions and Limit when something should count against the score.',
+      title: copy.choose(
+        'Medical\nrestrictions',
+        'Restricciones\nmedicas',
+      ),
+      subtitle: copy.choose(
+        'Use Avoid for hard exclusions and Limit when something should count against the score.',
+        'Usa Evitar para exclusiones fuertes y Limitar cuando algo solo debe contar en contra.',
+      ),
       children: [
         for (final restriction in MedicalRestriction.values) ...[
           _RestrictionCard(
+            copy: copy,
             restriction: restriction,
             currentMode: safety.medicalAvoid.contains(restriction)
                 ? _RestrictionMode.avoid
@@ -69,11 +77,13 @@ class OnboardingMedicalStep extends ConsumerWidget {
 
 class _RestrictionCard extends StatelessWidget {
   const _RestrictionCard({
+    required this.copy,
     required this.restriction,
     required this.currentMode,
     required this.onSelected,
   });
 
+  final AppCopy copy;
   final MedicalRestriction restriction;
   final _RestrictionMode currentMode;
   final ValueChanged<_RestrictionMode> onSelected;
@@ -85,7 +95,7 @@ class _RestrictionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            restriction.label,
+            copy.medicalRestrictionLabel(restriction),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
               color: const Color(0xFF232326),
@@ -93,7 +103,10 @@ class _RestrictionCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Choose how strongly this restriction should affect recommendations.',
+            copy.choose(
+              'Choose how strongly this restriction should affect food choices.',
+              'Elige que tan fuerte debe afectar esta restriccion a las opciones de comida.',
+            ),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: const Color(0xFF8F8F95),
               fontWeight: FontWeight.w500,
@@ -103,21 +116,28 @@ class _RestrictionCard extends StatelessWidget {
           OnboardingSegmentedControl<_RestrictionMode>(
             value: currentMode,
             options: _RestrictionMode.values,
-            labelBuilder: (mode) => mode.label,
+            labelBuilder: (mode) => _modeLabel(mode),
             onChanged: onSelected,
           ),
         ],
       ),
     );
   }
+
+  String _modeLabel(_RestrictionMode mode) {
+    switch (mode) {
+      case _RestrictionMode.off:
+        return copy.choose('Off', 'Apagado');
+      case _RestrictionMode.limit:
+        return copy.choose('Limit', 'Limitar');
+      case _RestrictionMode.avoid:
+        return copy.choose('Avoid', 'Evitar');
+    }
+  }
 }
 
 enum _RestrictionMode {
-  off('Off'),
-  limit('Limit'),
-  avoid('Avoid');
-
-  const _RestrictionMode(this.label);
-
-  final String label;
+  off,
+  limit,
+  avoid;
 }

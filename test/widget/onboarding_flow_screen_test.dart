@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:access_plate/domain/engine/score_config_provider.dart';
+import 'package:access_plate/domain/entities/user_constraints.dart';
 import 'package:access_plate/domain/entities/user_profile.dart';
+import 'package:access_plate/domain/value_objects/user_language.dart';
+import 'package:access_plate/presentation/providers/app_bootstrap.dart';
 import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/screens/onboarding/onboarding_flow_screen.dart';
 
@@ -24,6 +28,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
           profileControllerProvider.overrideWith(
             () => _TestProfileController(profile),
           ),
@@ -51,6 +56,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
           profileControllerProvider.overrideWith(
             () => _TestProfileController(profile),
           ),
@@ -61,6 +67,69 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('See recommendations'), findsOneWidget);
+  });
+
+  testWidgets('access step shows Spanish onboarding copy when selected', (
+    tester,
+  ) async {
+    final profile = UserProfile.defaults().copyWith(
+      onboardingStage: OnboardingStage.access,
+      constraints: UserConstraints.defaults().copyWith(
+        access: UserConstraints.defaults().access.copyWith(
+          language: UserLanguage.spanish,
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
+          profileControllerProvider.overrideWith(
+            () => _TestProfileController(profile),
+          ),
+        ],
+        child: const MaterialApp(home: OnboardingFlowScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Continuar'), findsOneWidget);
+    expect(find.text('Codigo postal'), findsOneWidget);
+    expect(find.text('Bus o tren'), findsOneWidget);
+    expect(find.text('Ingles'), findsOneWidget);
+    expect(find.text('Espanol'), findsOneWidget);
+  });
+
+  testWidgets('meal timing step shows Spanish localized meal copy', (
+    tester,
+  ) async {
+    final profile = UserProfile.defaults().copyWith(
+      onboardingStage: OnboardingStage.mealTiming,
+      constraints: UserConstraints.defaults().copyWith(
+        access: UserConstraints.defaults().access.copyWith(
+          language: UserLanguage.spanish,
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
+          profileControllerProvider.overrideWith(
+            () => _TestProfileController(profile),
+          ),
+        ],
+        child: const MaterialApp(home: OnboardingFlowScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Momento de\ncomida'), findsOneWidget);
+    expect(find.text('Desayuno'), findsOneWidget);
+    expect(find.text('A cualquier hora'), findsOneWidget);
+    expect(find.text('Continuar'), findsOneWidget);
   });
 }
 
@@ -90,3 +159,34 @@ class _TestProfileController extends ProfileController {
     state = AsyncData(_profile);
   }
 }
+
+const _testReferenceTables = ReferenceTables(
+  rdaTable: {
+    'female_19_50': {
+      'iron_mg': 18,
+      'calcium_mg': 1000,
+      'potassium_mg': 2600,
+      'magnesium_mg': 310,
+      'zinc_mg': 8,
+      'vit_a_mcg_rae': 700,
+      'vit_c_mg': 75,
+      'vit_d_mcg': 15,
+      'vit_b12_mcg': 2.4,
+      'folate_mcg_dfe': 400,
+    },
+  },
+  medicalModifiers: {},
+  microPriorityElevations: {
+    'anemia': {'iron_mg': 2.0},
+  },
+  basePenaltyThresholds: {
+    'sodium_mg': 750,
+    'added_sugar_g': 12,
+    'saturated_fat_g': 7,
+  },
+  basePenaltyWeights: {
+    'sodium_mg': 0.4,
+    'added_sugar_g': 0.3,
+    'saturated_fat_g': 0.3,
+  },
+);

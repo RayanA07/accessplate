@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_constraints.dart';
 import '../../../domain/entities/user_profile.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
@@ -31,15 +32,15 @@ class _OnboardingDislikesStepState
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final preference = profile.constraints.preference;
+    final copy = AppCopy(profile.constraints.access.language);
 
     return OnboardingStepLayout(
-      title: 'Disliked\ningredients',
-      subtitle:
-          'Only add ingredients you truly want excluded from the shortlist.',
+      title: copy.dislikesTitle,
+      subtitle: copy.dislikesSubtitle,
       children: [
         OnboardingSearchField(
           controller: _dislikeController,
-          hintText: 'Add one ingredient',
+          hintText: copy.dislikesFieldHint,
           onSubmitted: (_) => _addDislike(preference),
         ),
         const SizedBox(height: 14),
@@ -47,11 +48,11 @@ class _OnboardingDislikesStepState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const OnboardingMetaLabel('Excluded ingredients'),
+              OnboardingMetaLabel(copy.dislikesSectionLabel),
               const SizedBox(height: 12),
               if (preference.dislikedIngredients.isEmpty)
                 Text(
-                  'Nothing excluded yet.',
+                  copy.dislikesEmptyLabel,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: const Color(0xFF8F8F95),
                     fontWeight: FontWeight.w500,
@@ -81,7 +82,7 @@ class _OnboardingDislikesStepState
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () => _addDislike(preference),
-                  child: const Text('Add ingredient'),
+                  child: Text(copy.dislikesAddButton),
                 ),
               ),
             ],

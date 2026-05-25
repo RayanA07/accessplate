@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
@@ -15,17 +16,26 @@ class OnboardingBudgetStep extends ConsumerWidget {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final feasibility = profile.constraints.feasibility;
+    final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
 
     return OnboardingStepLayout(
-      title: 'What\u2019s your\nmeal budget?',
-      subtitle: 'Set the maximum you want the engine to spend on one meal.',
+      title: copy.choose(
+        'What\u2019s your\nmeal budget?',
+        'Cual es tu\npresupuesto?',
+      ),
+      subtitle: copy.choose(
+        'Set the maximum you want the engine to spend on one meal.',
+        'Pon el maximo que quieres gastar en una comida.',
+      ),
       topSpacing: 44,
       children: [
         SectionCard(
           child: Column(
             children: [
-              const OnboardingMetaLabel('Budget per meal'),
+              OnboardingMetaLabel(
+                copy.choose('Budget per meal', 'Presupuesto por comida'),
+              ),
               const SizedBox(height: 10),
               Text(
                 '\$${feasibility.maxCostPerMeal.toStringAsFixed(0)}',
@@ -48,7 +58,10 @@ class OnboardingBudgetStep extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'The engine will favor foods at or below this cost target.',
+                copy.choose(
+                  'The engine will favor foods at or below this cost target.',
+                  'La app favorecera comida en este costo o menos.',
+                ),
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: const Color(0xFF8F8F95),

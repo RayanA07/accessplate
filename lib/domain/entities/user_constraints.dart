@@ -258,27 +258,98 @@ class AccessConstraints {
   }
 }
 
+enum PantryStockLevel {
+  enough('enough', 'Have enough', 'Enough'),
+  low('low', 'Running low', 'Low'),
+  out('out', 'Need restock', 'Restock');
+
+  const PantryStockLevel(this.code, this.label, this.shortLabel);
+
+  final String code;
+  final String label;
+  final String shortLabel;
+
+  static PantryStockLevel fromCode(String code) {
+    return PantryStockLevel.values.firstWhere(
+      (value) => value.code == code,
+      orElse: () => PantryStockLevel.enough,
+    );
+  }
+}
+
 class PantryConstraints {
-  const PantryConstraints({this.itemsOnHand = const {}});
+  const PantryConstraints({this.stockByItem = const {}});
 
-  final Set<String> itemsOnHand;
+  final Map<String, PantryStockLevel> stockByItem;
 
-  PantryConstraints copyWith({Set<String>? itemsOnHand}) {
-    return PantryConstraints(itemsOnHand: itemsOnHand ?? this.itemsOnHand);
+  Set<String> get itemsOnHand =>
+      itemsFor(const {PantryStockLevel.enough, PantryStockLevel.low});
+  Set<String> get enoughItems => itemsFor(const {PantryStockLevel.enough});
+  Set<String> get lowStockItems => itemsFor(const {PantryStockLevel.low});
+  Set<String> get restockItems => itemsFor(const {PantryStockLevel.out});
+  int get trackedItemCount => stockByItem.length;
+
+  PantryStockLevel? stockFor(String item) => stockByItem[_normalizeItem(item)];
+
+  Set<String> itemsFor(Set<PantryStockLevel> levels) {
+    return stockByItem.entries
+        .where((entry) => levels.contains(entry.value))
+        .map((entry) => entry.key)
+        .toSet();
+  }
+
+  PantryConstraints copyWith({Map<String, PantryStockLevel>? stockByItem}) {
+    return PantryConstraints(stockByItem: stockByItem ?? this.stockByItem);
+  }
+
+  PantryConstraints withItem(String item, PantryStockLevel? level) {
+    final normalized = _normalizeItem(item);
+    final next = <String, PantryStockLevel>{...stockByItem};
+    if (normalized.isEmpty) {
+      return this;
+    }
+    if (level == null) {
+      next.remove(normalized);
+    } else {
+      next[normalized] = level;
+    }
+    return copyWith(stockByItem: next);
   }
 
   Map<String, dynamic> toJson() {
-    return {'itemsOnHand': itemsOnHand.toList()..sort()};
+    final sortedKeys = stockByItem.keys.toList()..sort();
+    return {
+      'itemsOnHand': itemsOnHand.toList()..sort(),
+      'stockByItem': {
+        for (final key in sortedKeys) key: stockByItem[key]!.code,
+      },
+    };
   }
 
   factory PantryConstraints.fromJson(Map<String, dynamic> json) {
-    return PantryConstraints(
-      itemsOnHand: ((json['itemsOnHand'] as List<dynamic>? ?? const []))
-          .map((value) => value.toString().trim().toLowerCase())
-          .where((value) => value.isNotEmpty)
-          .toSet(),
-    );
+    final stockByItem = <String, PantryStockLevel>{};
+    final rawStockByItem = json['stockByItem'];
+    if (rawStockByItem is Map) {
+      for (final entry in rawStockByItem.entries) {
+        final key = _normalizeItem(entry.key.toString());
+        if (key.isEmpty) {
+          continue;
+        }
+        stockByItem[key] = PantryStockLevel.fromCode(entry.value.toString());
+      }
+    }
+
+    final legacyItems = ((json['itemsOnHand'] as List<dynamic>? ?? const []))
+        .map((value) => _normalizeItem(value.toString()))
+        .where((value) => value.isNotEmpty);
+    for (final item in legacyItems) {
+      stockByItem.putIfAbsent(item, () => PantryStockLevel.enough);
+    }
+
+    return PantryConstraints(stockByItem: stockByItem);
   }
+
+  static String _normalizeItem(String item) => item.trim().toLowerCase();
 }
 
 class NutritionalTargets {
@@ -343,6 +414,7 @@ class UserConstraints {
     required this.targets,
     required this.demographics,
     this.todayIntake = const {},
+    this.todayIntakeDate,
     this.recentlyActed = const {},
   });
 
@@ -354,6 +426,7 @@ class UserConstraints {
   final NutritionalTargets targets;
   final Demographics demographics;
   final Map<String, double> todayIntake;
+  final DateTime? todayIntakeDate;
   final Map<int, DateTime> recentlyActed;
 
   factory UserConstraints.defaults() {
@@ -377,6 +450,7 @@ class UserConstraints {
     NutritionalTargets? targets,
     Demographics? demographics,
     Map<String, double>? todayIntake,
+    DateTime? todayIntakeDate,
     Map<int, DateTime>? recentlyActed,
   }) {
     return UserConstraints(
@@ -388,6 +462,7 @@ class UserConstraints {
       targets: targets ?? this.targets,
       demographics: demographics ?? this.demographics,
       todayIntake: todayIntake ?? this.todayIntake,
+      todayIntakeDate: todayIntakeDate ?? this.todayIntakeDate,
       recentlyActed: recentlyActed ?? this.recentlyActed,
     );
   }
@@ -402,6 +477,7 @@ class UserConstraints {
       'targets': targets.toJson(),
       'demographics': demographics.toJson(),
       'todayIntake': todayIntake,
+      'todayIntakeDate': todayIntakeDate?.toIso8601String(),
       'recentlyActed': recentlyActed.map(
         (key, value) => MapEntry(key.toString(), value.toIso8601String()),
       ),
@@ -450,6 +526,9 @@ class UserConstraints {
       demographics: demographics.copyWith(concerns: normalizedConcerns),
       todayIntake: (json['todayIntake'] as Map<String, dynamic>? ?? const {})
           .map((key, value) => MapEntry(key, (value as num).toDouble())),
+      todayIntakeDate: (json['todayIntakeDate'] as String?) == null
+          ? null
+          : DateTime.tryParse(json['todayIntakeDate'] as String),
       recentlyActed:
           (json['recentlyActed'] as Map<String, dynamic>? ?? const {}).map(
             (key, value) =>

@@ -1,6 +1,7 @@
 import 'explanation.dart';
 import 'food.dart';
 import 'nutrients.dart';
+import '../value_objects/availability_context.dart';
 
 enum BlockingConstraint {
   safety('Safety profile'),
@@ -91,6 +92,10 @@ class MealBasketPlan {
     required this.totalCost,
     required this.totalPrepMinutes,
     required this.highlights,
+    this.estimatedMealsCovered = 1,
+    this.pantrySupportItems = const [],
+    this.primarySource,
+    this.sourceTravelMinutes,
   });
 
   final String title;
@@ -100,15 +105,88 @@ class MealBasketPlan {
   final double totalCost;
   final int totalPrepMinutes;
   final List<String> highlights;
+  final int estimatedMealsCovered;
+  final List<String> pantrySupportItems;
+  final AvailabilityContext? primarySource;
+  final int? sourceTravelMinutes;
 }
 
 enum TodayPlanType {
   emergency,
   pantryFirst,
+  restockRun,
   wicStaples,
   snapRun,
   oneStop,
   fallback,
+}
+
+enum PlannedPurchasePriority { buyFirst, ifBudgetLeft, skipFirst }
+
+class PlannedPurchase {
+  const PlannedPurchase({
+    required this.label,
+    required this.priority,
+    this.detail,
+    this.estimatedCost,
+  });
+
+  final String label;
+  final PlannedPurchasePriority priority;
+  final String? detail;
+  final double? estimatedCost;
+}
+
+class PlanCheckpoint {
+  const PlanCheckpoint({required this.title, required this.detail});
+
+  final String title;
+  final String detail;
+}
+
+enum SourceTripMission {
+  emergency,
+  pantryStretch,
+  restock,
+  benefitsRun,
+  oneStopMeal,
+  fallback,
+}
+
+class SourceTripPlan {
+  const SourceTripPlan({
+    required this.mission,
+    required this.primarySource,
+    required this.title,
+    required this.summary,
+    required this.reasons,
+    required this.highlights,
+    this.bestFor = const [],
+    this.backupSource,
+    this.communityLabel,
+    this.travelMinutes,
+    this.snapshotNote,
+    this.routeReason,
+    this.benefitSummary,
+    this.confidenceSummary,
+    this.dataSourceSummary,
+  });
+
+  final SourceTripMission mission;
+  final AvailabilityContext primarySource;
+  final AvailabilityContext? backupSource;
+  final String title;
+  final String summary;
+  final List<String> reasons;
+  final List<String> highlights;
+  final List<String> bestFor;
+  final String? communityLabel;
+  final int? travelMinutes;
+  final String? snapshotNote;
+  final String? routeReason;
+  final String? benefitSummary;
+  final String? confidenceSummary;
+  final String? dataSourceSummary;
 }
 
 class TodayPlan {
@@ -121,6 +199,13 @@ class TodayPlan {
     required this.leadRecommendation,
     this.basket,
     this.backupAction,
+    this.restockItems = const [],
+    this.purchases = const [],
+    this.checkpoints = const [],
+    this.routeReason,
+    this.benefitSummary,
+    this.confidenceSummary,
+    this.dataSourceSummary,
   });
 
   final TodayPlanType type;
@@ -131,6 +216,13 @@ class TodayPlan {
   final ScoredFood leadRecommendation;
   final MealBasketPlan? basket;
   final String? backupAction;
+  final List<String> restockItems;
+  final List<PlannedPurchase> purchases;
+  final List<PlanCheckpoint> checkpoints;
+  final String? routeReason;
+  final String? benefitSummary;
+  final String? confidenceSummary;
+  final String? dataSourceSummary;
 }
 
 class RecommendationResult {
@@ -140,6 +232,7 @@ class RecommendationResult {
     required this.candidatePoolSize,
     required this.elapsedMs,
     this.baskets = const [],
+    this.sourceTripPlan,
     this.todayPlan,
     this.diagnostic,
   });
@@ -149,6 +242,7 @@ class RecommendationResult {
   final int candidatePoolSize;
   final int elapsedMs;
   final List<MealBasketPlan> baskets;
+  final SourceTripPlan? sourceTripPlan;
   final TodayPlan? todayPlan;
   final InsufficientCandidatesAnalysis? diagnostic;
 

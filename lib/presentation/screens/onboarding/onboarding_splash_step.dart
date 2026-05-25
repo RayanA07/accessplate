@@ -1,33 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_palette.dart';
+import '../../../domain/entities/user_profile.dart';
+import '../../copy/app_copy.dart';
+import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
 
-class OnboardingSplashStep extends StatelessWidget {
+class OnboardingSplashStep extends ConsumerWidget {
   const OnboardingSplashStep({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const OnboardingStepLayout(
-      title:
-          'Choose the safest,\ncheapest meal you can\nactually reach today.',
-      subtitle:
-          'AccessPlate ranks food through safety, budget, prep setup, travel reality, pantry overlap, and nutrition so the shortlist stays practical.',
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(profileControllerProvider).valueOrNull;
+    final copy = AppCopy(
+      profile?.constraints.access.language ??
+          UserProfile.defaults().constraints.access.language,
+    );
+
+    return OnboardingStepLayout(
+      title: copy.splashTitle,
+      subtitle: copy.splashSubtitle,
       topSpacing: 26,
       children: [
-        _FeatureGrid(),
-        SizedBox(height: 18),
+        _FeatureGrid(copy: copy),
+        const SizedBox(height: 18),
         SectionCard(
           tintColor: NihPalette.primaryAltLight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              OnboardingMetaLabel('What stays local'),
-              SizedBox(height: 10),
+              OnboardingMetaLabel(copy.splashLocalDataTitle),
+              const SizedBox(height: 10),
               Text(
-                'Your profile stays on-device, and this version already combines offline foods, low-resource access tags, and optional ZIP-based grocery matching.',
-                style: TextStyle(
+                copy.splashLocalDataDetail,
+                style: const TextStyle(
                   fontSize: 15,
                   height: 1.34,
                   color: Color(0xFF5E5E64),
@@ -43,32 +51,31 @@ class OnboardingSplashStep extends StatelessWidget {
 }
 
 class _FeatureGrid extends StatelessWidget {
-  const _FeatureGrid();
+  const _FeatureGrid({required this.copy});
+
+  final AppCopy copy;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         _FeatureCard(
-          title: 'Real-world access',
-          detail:
-              'Budget, pantry items, travel limits, and low-resource food sources shape every recommendation directly.',
+          title: copy.splashAccessTitle,
+          detail: copy.splashAccessDetail,
           icon: Icons.route_rounded,
           color: NihPalette.primary,
         ),
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         _FeatureCard(
-          title: 'Explainable',
-          detail:
-              'Each recommendation explains why it fits today and what tradeoffs still matter.',
+          title: copy.splashExplainableTitle,
+          detail: copy.splashExplainableDetail,
           icon: Icons.insights_rounded,
           color: NihPalette.secondary,
         ),
-        SizedBox(height: 14),
+        const SizedBox(height: 14),
         _FeatureCard(
-          title: 'Local-first',
-          detail:
-              'The app still works from saved foods when bandwidth is limited and keeps sensitive profile data local.',
+          title: copy.splashLocalFirstTitle,
+          detail: copy.splashLocalFirstDetail,
           icon: Icons.cloud_done_rounded,
           color: NihPalette.success,
         ),

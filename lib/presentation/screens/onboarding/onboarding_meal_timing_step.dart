@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/meal_type.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
@@ -17,15 +18,16 @@ class OnboardingMealTimingStep extends ConsumerWidget {
         UserProfile.defaults();
     final preference = profile.constraints.preference;
     final controller = ref.read(profileControllerProvider.notifier);
+    final copy = AppCopy(profile.constraints.access.language);
 
     return OnboardingStepLayout(
-      title: 'Meal\ntiming',
-      subtitle: 'Choose the kind of meal you want the shortlist to focus on.',
+      title: copy.mealTimingTitle,
+      subtitle: copy.mealTimingSubtitle,
       children: [
         for (final mealType in MealType.values) ...[
           SelectionTile(
-            title: mealType.label,
-            subtitle: _descriptionFor(mealType),
+            title: copy.mealTimingLabel(mealType),
+            subtitle: copy.mealTimingDetail(mealType),
             icon: _iconFor(mealType),
             selected: preference.mealType == mealType,
             onTap: () => controller.updateMealType(mealType),
@@ -34,21 +36,6 @@ class OnboardingMealTimingStep extends ConsumerWidget {
         ],
       ],
     );
-  }
-
-  String _descriptionFor(MealType mealType) {
-    switch (mealType) {
-      case MealType.breakfast:
-        return 'Prioritize morning meals and breakfast-friendly options.';
-      case MealType.lunch:
-        return 'Focus on midday meals and quick lunch picks.';
-      case MealType.dinner:
-        return 'Favor more filling evening meals.';
-      case MealType.snack:
-        return 'Keep the shortlist centered on lighter snack options.';
-      case MealType.any:
-        return 'Allow the engine to match options regardless of meal timing.';
-    }
   }
 
   IconData _iconFor(MealType mealType) {

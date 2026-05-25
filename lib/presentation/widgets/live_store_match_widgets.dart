@@ -5,6 +5,7 @@ import '../../domain/entities/food.dart';
 import '../../domain/entities/grocery.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/value_objects/availability_context.dart';
+import '../copy/app_copy.dart';
 import '../providers/live_grocery_providers.dart';
 import '../providers/profile_controller.dart';
 import 'section_card.dart';
@@ -21,6 +22,7 @@ class LiveStorePreview extends ConsumerWidget {
         UserProfile.defaults();
     final feasibility = profile.constraints.feasibility;
     final store = feasibility.groceryStore;
+    final copy = AppCopy(profile.constraints.access.language);
     if (store == null ||
         !feasibility.availability.contains(AvailabilityContext.grocery) ||
         !food.availability.contains(AvailabilityContext.grocery)) {
@@ -56,8 +58,14 @@ class LiveStorePreview extends ConsumerWidget {
               children: [
                 Text(
                   cheapest == null
-                      ? '${lookup.products.length} ${lookup.plan.displayLabel} brands at ${store.name}'
-                      : '${lookup.products.length} ${lookup.plan.displayLabel} brands at ${store.name} from \$${cheapest.toStringAsFixed(2)}',
+                      ? copy.choose(
+                          '${lookup.products.length} ${lookup.plan.displayLabel} brands at ${store.name}',
+                          '${lookup.products.length} marcas de ${lookup.plan.displayLabel} en ${store.name}',
+                        )
+                      : copy.choose(
+                          '${lookup.products.length} ${lookup.plan.displayLabel} brands at ${store.name} from \$${cheapest.toStringAsFixed(2)}',
+                          '${lookup.products.length} marcas de ${lookup.plan.displayLabel} en ${store.name} desde \$${cheapest.toStringAsFixed(2)}',
+                        ),
                   style: Theme.of(
                     context,
                   ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -95,6 +103,7 @@ class LiveStoreProductsSection extends ConsumerWidget {
         UserProfile.defaults();
     final feasibility = profile.constraints.feasibility;
     final store = feasibility.groceryStore;
+    final copy = AppCopy(profile.constraints.access.language);
     if (store == null ||
         !feasibility.availability.contains(AvailabilityContext.grocery) ||
         !food.availability.contains(AvailabilityContext.grocery)) {
@@ -109,11 +118,14 @@ class LiveStoreProductsSection extends ConsumerWidget {
           if (!emptyFallback) {
             return const SizedBox.shrink();
           }
-          return const Padding(
-            padding: EdgeInsets.only(top: 12),
+          return Padding(
+            padding: const EdgeInsets.only(top: 12),
             child: SectionCard(
               child: Text(
-                'No clear store-specific brand match was available for this suggestion.',
+                copy.choose(
+                  'No clear store-specific brand match was available for this suggestion.',
+                  'No aparecio una marca clara de tienda para esta sugerencia.',
+                ),
               ),
             ),
           );
@@ -126,14 +138,17 @@ class LiveStoreProductsSection extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'At your store',
+                  copy.choose('At your store', 'En tu tienda'),
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${lookup.store.name} | Search term: ${lookup.plan.displayLabel}',
+                  copy.choose(
+                    '${lookup.store.name} | Search term: ${lookup.plan.displayLabel}',
+                    '${lookup.store.name} | Busqueda: ${lookup.plan.displayLabel}',
+                  ),
                 ),
                 if (!lookup.plan.exactMatch) ...[
                   const SizedBox(height: 8),
@@ -154,24 +169,34 @@ class LiveStoreProductsSection extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Padding(
-        padding: EdgeInsets.only(top: 12),
+      loading: () => Padding(
+        padding: const EdgeInsets.only(top: 12),
         child: SectionCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Checking live store products...'),
-              SizedBox(height: 10),
-              LinearProgressIndicator(),
+              Text(
+                copy.choose(
+                  'Checking live store products...',
+                  'Revisando productos de tienda en vivo...',
+                ),
+              ),
+              const SizedBox(height: 10),
+              const LinearProgressIndicator(),
             ],
           ),
         ),
       ),
       error: (_, _) => emptyFallback
-          ? const Padding(
-              padding: EdgeInsets.only(top: 12),
+          ? Padding(
+              padding: const EdgeInsets.only(top: 12),
               child: SectionCard(
-                child: Text('Live store products are unavailable right now.'),
+                child: Text(
+                  copy.choose(
+                    'Live store products are unavailable right now.',
+                    'Los productos de tienda en vivo no estan disponibles ahora.',
+                  ),
+                ),
               ),
             )
           : const SizedBox.shrink(),

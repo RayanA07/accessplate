@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/availability_context.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
@@ -16,16 +17,20 @@ class OnboardingAvailabilityStep extends ConsumerWidget {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final feasibility = profile.constraints.feasibility;
+    final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
 
     return OnboardingStepLayout(
-      title: 'Shopping\naccess',
-      subtitle: 'Pick every food source that is realistic for you right now.',
+      title: copy.choose('Shopping\naccess', 'Acceso para\ncomprar'),
+      subtitle: copy.choose(
+        'Pick every food source that is realistic for you right now.',
+        'Marca cada fuente de comida que si es realista para ti ahorita.',
+      ),
       children: [
         for (final contextValue in AvailabilityContext.values) ...[
           SelectionTile(
-            title: contextValue.label,
-            subtitle: _descriptionFor(contextValue),
+            title: copy.sourceLabel(contextValue),
+            subtitle: copy.availabilityDetail(contextValue),
             icon: _iconFor(contextValue),
             selected: feasibility.availability.contains(contextValue),
             indicatorStyle: SelectionTileIndicatorStyle.check,
@@ -44,21 +49,6 @@ class OnboardingAvailabilityStep extends ConsumerWidget {
         ],
       ],
     );
-  }
-
-  String _descriptionFor(AvailabilityContext contextValue) {
-    switch (contextValue) {
-      case AvailabilityContext.grocery:
-        return 'Prepared foods, staples, and produce.';
-      case AvailabilityContext.convenience:
-        return 'Grab-and-go food and small essentials.';
-      case AvailabilityContext.fastFood:
-        return 'Restaurant and drive-thru options.';
-      case AvailabilityContext.foodPantry:
-        return 'Shelf-stable or donated basics.';
-      case AvailabilityContext.dollarStore:
-        return 'Low-cost pantry items and snacks.';
-    }
   }
 
   IconData _iconFor(AvailabilityContext contextValue) {

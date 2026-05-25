@@ -16,6 +16,13 @@ class ScoreFactor {
   final String? detail;
 }
 
+class DecisionFact {
+  const DecisionFact({required this.label, required this.value});
+
+  final String label;
+  final String value;
+}
+
 class Explanation {
   const Explanation({
     required this.satisfied,
@@ -24,6 +31,7 @@ class Explanation {
     required this.compareWithIds,
     this.accessSummary,
     this.accessTags = const [],
+    this.decisionFacts = const [],
   });
 
   final List<SatisfiedConstraint> satisfied;
@@ -32,6 +40,7 @@ class Explanation {
   final List<int> compareWithIds;
   final String? accessSummary;
   final List<String> accessTags;
+  final List<DecisionFact> decisionFacts;
 
   Explanation copyWith({
     List<SatisfiedConstraint>? satisfied,
@@ -40,6 +49,7 @@ class Explanation {
     List<int>? compareWithIds,
     String? accessSummary,
     List<String>? accessTags,
+    List<DecisionFact>? decisionFacts,
   }) {
     return Explanation(
       satisfied: satisfied ?? this.satisfied,
@@ -48,6 +58,7 @@ class Explanation {
       compareWithIds: compareWithIds ?? this.compareWithIds,
       accessSummary: accessSummary ?? this.accessSummary,
       accessTags: accessTags ?? this.accessTags,
+      decisionFacts: decisionFacts ?? this.decisionFacts,
     );
   }
 }

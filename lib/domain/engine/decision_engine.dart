@@ -18,6 +18,7 @@ import 'scoring/composite_scorer.dart';
 import 'scoring/macro_scorer.dart';
 import 'scoring/micro_scorer.dart';
 import 'scoring/penalty_calculator.dart';
+import 'source_network_advisor.dart';
 import 'scoring/variety_dampener.dart';
 import 'today_plan_builder.dart';
 
@@ -26,15 +27,23 @@ class DecisionEngine {
     required this.repo,
     required this.scoreConfigProvider,
     FoodAccessAdvisor? accessAdvisor,
+    SourceNetworkAdvisor? sourceNetworkAdvisor,
     this.safetyFilter = const SafetyFilter(),
     this.feasibilityFilter = const FeasibilityFilter(),
     this.preferenceFilter = const PreferenceFilter(),
     this.macroAlignmentPrioritizer = const MacroAlignmentPrioritizer(),
-  }) : accessAdvisor = accessAdvisor ?? const FoodAccessAdvisor();
+  }) : accessAdvisor = accessAdvisor ?? const FoodAccessAdvisor(),
+       sourceNetworkAdvisor =
+           sourceNetworkAdvisor ??
+           SourceNetworkAdvisor(
+             catalog: accessAdvisor?.catalog,
+             accessAdvisor: accessAdvisor ?? const FoodAccessAdvisor(),
+           );
 
   final FoodRepository repo;
   final ScoreConfigProvider scoreConfigProvider;
   final FoodAccessAdvisor accessAdvisor;
+  final SourceNetworkAdvisor sourceNetworkAdvisor;
   final SafetyFilter safetyFilter;
   final FeasibilityFilter feasibilityFilter;
   final PreferenceFilter preferenceFilter;
@@ -132,7 +141,7 @@ class DecisionEngine {
             ),
           )
           .toList(),
-      user.targets,
+      config.macroTargets,
     )..sort(_compareScoredFoods);
 
     final scaled = _applyDisplayScaling(ranked);
@@ -156,12 +165,24 @@ class DecisionEngine {
         weights: config.penaltyWeights,
       ),
       accessAdvisor: accessAdvisor,
+      sourceNetworkAdvisor: sourceNetworkAdvisor,
     );
     final baskets = basketPlanner.build(explained);
-    final todayPlan = TodayPlanBuilder(
+    final sourceTripPlan = sourceNetworkAdvisor.buildPlan(
       user: user,
-      accessAdvisor: accessAdvisor,
-    ).build(recommendations: explained, baskets: baskets);
+      recommendations: explained,
+      baskets: baskets,
+    );
+    final todayPlan =
+        TodayPlanBuilder(
+          user: user,
+          accessAdvisor: accessAdvisor,
+          sourceNetworkAdvisor: sourceNetworkAdvisor,
+        ).build(
+          recommendations: explained,
+          baskets: baskets,
+          sourceTripPlan: sourceTripPlan,
+        );
     await repo.touchFoods(explained.map((item) => item.food.id));
 
     stopwatch.stop();
@@ -171,6 +192,7 @@ class DecisionEngine {
       candidatePoolSize: preferred.length,
       elapsedMs: stopwatch.elapsedMilliseconds,
       baskets: baskets,
+      sourceTripPlan: sourceTripPlan,
       todayPlan: todayPlan,
     );
   }

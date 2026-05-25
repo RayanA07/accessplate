@@ -146,6 +146,29 @@ class Nutrients {
     };
   }
 
+  Map<String, double> toIntakeMap() {
+    return {
+      'calories_kcal': caloriesKcal,
+      'protein_g': proteinG,
+      'carbs_g': carbsG,
+      'fat_g': fatG,
+      'fiber_g': fiberG,
+      'saturated_fat_g': saturatedFatG,
+      'added_sugar_g': addedSugarG,
+      'sodium_mg': sodiumMg,
+      'potassium_mg': potassiumMg,
+      'calcium_mg': calciumMg,
+      'iron_mg': ironMg,
+      'magnesium_mg': magnesiumMg,
+      'zinc_mg': zincMg,
+      'vit_a_mcg_rae': vitAMcgRae,
+      'vit_c_mg': vitCMg,
+      'vit_d_mcg': vitDMcg,
+      'vit_b12_mcg': vitB12Mcg,
+      'folate_mcg_dfe': folateMcgDfe,
+    };
+  }
+
   Nutrients plus(Nutrients other) {
     return Nutrients(
       caloriesKcal: caloriesKcal + other.caloriesKcal,

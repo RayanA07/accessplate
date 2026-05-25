@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import 'onboarding_allergens_step.dart';
 import 'onboarding_access_step.dart';
@@ -47,6 +48,7 @@ class OnboardingFlowScreen extends ConsumerWidget {
         UserProfile.defaults();
     final controller = ref.read(profileControllerProvider.notifier);
     final stage = profile.onboardingStage;
+    final copy = AppCopy(profile.constraints.access.language);
     final progress =
         (_orderedStages.indexOf(stage) + 1) / _orderedStages.length;
     final compact = MediaQuery.sizeOf(context).height < 760;
@@ -109,9 +111,15 @@ class OnboardingFlowScreen extends ConsumerWidget {
               SizedBox(height: compact ? 12 : 16),
               _ContinueButton(
                 label: switch (stage) {
-                  OnboardingStage.splash => 'Get started',
-                  OnboardingStage.targets => 'See recommendations',
-                  _ => 'Continue',
+                  OnboardingStage.splash => copy.choose(
+                    'Get started',
+                    'Empezar',
+                  ),
+                  OnboardingStage.targets => copy.choose(
+                    'See recommendations',
+                    'Ver opciones',
+                  ),
+                  _ => copy.choose('Continue', 'Continuar'),
                 },
                 onPressed: () => _goForward(controller, stage),
               ),

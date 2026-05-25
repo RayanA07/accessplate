@@ -2975,5 +2975,745 @@
       "vitB12": 0,
       "folate": 190
     }
+  },
+  {
+    "id": 61,
+    "name": "Plain instant oats cup",
+    "category": "grain_whole",
+    "cuisine": "american",
+    "servingG": 56,
+    "servingLabel": "1 cup",
+    "cost": 1.15,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "oats"
+    ],
+    "nutrients": {
+      "calories": 210,
+      "protein": 6,
+      "carbs": 38,
+      "fat": 4,
+      "saturatedFat": 0.5,
+      "fiber": 5,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 95,
+      "potassium": 150,
+      "calcium": 20,
+      "iron": 1.6,
+      "magnesium": 38,
+      "zinc": 1.3,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 18
+    }
+  },
+  {
+    "id": 62,
+    "name": "Canned black beans",
+    "category": "legume",
+    "cuisine": "latin",
+    "servingG": 130,
+    "servingLabel": "1/2 can",
+    "cost": 1.05,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "beans"
+    ],
+    "nutrients": {
+      "calories": 160,
+      "protein": 10,
+      "carbs": 29,
+      "fat": 0.5,
+      "saturatedFat": 0.1,
+      "fiber": 9,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 340,
+      "potassium": 480,
+      "calcium": 45,
+      "iron": 2.5,
+      "magnesium": 55,
+      "zinc": 1.2,
+      "vitA": 0,
+      "vitC": 1,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 120
+    }
+  },
+  {
+    "id": 63,
+    "name": "Peanut butter crackers pack",
+    "category": "snack",
+    "cuisine": "american",
+    "servingG": 45,
+    "servingLabel": "1 pack",
+    "cost": 0.95,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack",
+      "breakfast"
+    ],
+    "allergens": [
+      "peanut",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "peanut",
+      "cracker"
+    ],
+    "nutrients": {
+      "calories": 210,
+      "protein": 5,
+      "carbs": 23,
+      "fat": 11,
+      "saturatedFat": 2,
+      "fiber": 2,
+      "sugar": 3,
+      "addedSugar": 2,
+      "sodium": 270,
+      "potassium": 120,
+      "calcium": 20,
+      "iron": 1.0,
+      "magnesium": 24,
+      "zinc": 0.8,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 20
+    }
+  },
+  {
+    "id": 64,
+    "name": "Shelf-stable low-fat milk carton",
+    "category": "dairy",
+    "cuisine": "american",
+    "servingG": 240,
+    "servingLabel": "1 carton",
+    "cost": 1.35,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "snack"
+    ],
+    "allergens": [
+      "dairy"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "milk"
+    ],
+    "nutrients": {
+      "calories": 110,
+      "protein": 8,
+      "carbs": 13,
+      "fat": 2.5,
+      "saturatedFat": 1.5,
+      "fiber": 0,
+      "sugar": 12,
+      "addedSugar": 0,
+      "sodium": 125,
+      "potassium": 390,
+      "calcium": 300,
+      "iron": 0.1,
+      "magnesium": 27,
+      "zinc": 1.0,
+      "vitA": 140,
+      "vitC": 0,
+      "vitD": 2.5,
+      "vitB12": 1.1,
+      "folate": 12
+    }
+  },
+  {
+    "id": 65,
+    "name": "Tuna pouch with crackers",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 92,
+    "servingLabel": "1 pouch + 1 pack",
+    "cost": 2.35,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "fish",
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "animal"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "tuna",
+      "cracker"
+    ],
+    "nutrients": {
+      "calories": 220,
+      "protein": 18,
+      "carbs": 13,
+      "fat": 10,
+      "saturatedFat": 1.5,
+      "fiber": 1,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 430,
+      "potassium": 260,
+      "calcium": 28,
+      "iron": 1.1,
+      "magnesium": 24,
+      "zinc": 1.0,
+      "vitA": 10,
+      "vitC": 0,
+      "vitD": 0.8,
+      "vitB12": 1.5,
+      "folate": 18
+    }
+  },
+  {
+    "id": 66,
+    "name": "Ramen cup with mixed vegetables",
+    "category": "prepared_meal",
+    "cuisine": "asian",
+    "servingG": 235,
+    "servingLabel": "1 cup",
+    "cost": 1.45,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat",
+      "gluten"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "ramen",
+      "vegetables"
+    ],
+    "nutrients": {
+      "calories": 320,
+      "protein": 8,
+      "carbs": 46,
+      "fat": 12,
+      "saturatedFat": 6,
+      "fiber": 3,
+      "sugar": 3,
+      "addedSugar": 1,
+      "sodium": 980,
+      "potassium": 160,
+      "calcium": 20,
+      "iron": 1.8,
+      "magnesium": 28,
+      "zinc": 0.9,
+      "vitA": 160,
+      "vitC": 6,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 48
+    }
+  },
+  {
+    "id": 67,
+    "name": "Unsweetened applesauce cup",
+    "category": "fruit",
+    "cuisine": "american",
+    "servingG": 113,
+    "servingLabel": "1 cup",
+    "cost": 0.85,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "snack",
+      "breakfast"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "apple"
+    ],
+    "nutrients": {
+      "calories": 50,
+      "protein": 0,
+      "carbs": 13,
+      "fat": 0,
+      "saturatedFat": 0,
+      "fiber": 2,
+      "sugar": 10,
+      "addedSugar": 0,
+      "sodium": 0,
+      "potassium": 90,
+      "calcium": 6,
+      "iron": 0.1,
+      "magnesium": 4,
+      "zinc": 0.0,
+      "vitA": 2,
+      "vitC": 1,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 2
+    }
+  },
+  {
+    "id": 68,
+    "name": "Corn tortillas and refried beans",
+    "category": "legume",
+    "cuisine": "latin",
+    "servingG": 180,
+    "servingLabel": "2 tortillas + 1/2 cup beans",
+    "cost": 1.9,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry"
+    ],
+    "ingredients": [
+      "tortilla",
+      "beans"
+    ],
+    "nutrients": {
+      "calories": 280,
+      "protein": 10,
+      "carbs": 47,
+      "fat": 6,
+      "saturatedFat": 1,
+      "fiber": 9,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 420,
+      "potassium": 370,
+      "calcium": 70,
+      "iron": 2.3,
+      "magnesium": 52,
+      "zinc": 1.2,
+      "vitA": 0,
+      "vitC": 2,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 92
+    }
+  },
+  {
+    "id": 69,
+    "name": "Canned chili cup",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 250,
+    "servingLabel": "1 cup",
+    "cost": 1.85,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [],
+    "religionExcluded": [
+      {
+        "religion": "hindu_veg",
+        "reason": "meat"
+      },
+      {
+        "religion": "jain",
+        "reason": "meat"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "beans",
+      "beef",
+      "tomato"
+    ],
+    "nutrients": {
+      "calories": 290,
+      "protein": 15,
+      "carbs": 28,
+      "fat": 12,
+      "saturatedFat": 4.5,
+      "fiber": 8,
+      "sugar": 4,
+      "addedSugar": 1,
+      "sodium": 760,
+      "potassium": 430,
+      "calcium": 48,
+      "iron": 2.7,
+      "magnesium": 44,
+      "zinc": 2.3,
+      "vitA": 110,
+      "vitC": 6,
+      "vitD": 0,
+      "vitB12": 0.8,
+      "folate": 68
+    }
+  },
+  {
+    "id": 70,
+    "name": "Rice pouch with sardines",
+    "category": "protein_animal",
+    "cuisine": "global",
+    "servingG": 175,
+    "servingLabel": "1 pouch + 1 tin",
+    "cost": 2.75,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "fish"
+    ],
+    "religionExcluded": [
+      {
+        "religion": "jain",
+        "reason": "animal"
+      }
+    ],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry"
+    ],
+    "ingredients": [
+      "rice",
+      "sardine"
+    ],
+    "nutrients": {
+      "calories": 330,
+      "protein": 17,
+      "carbs": 35,
+      "fat": 13,
+      "saturatedFat": 2.5,
+      "fiber": 1,
+      "sugar": 0,
+      "addedSugar": 0,
+      "sodium": 520,
+      "potassium": 320,
+      "calcium": 160,
+      "iron": 2.2,
+      "magnesium": 46,
+      "zinc": 1.6,
+      "vitA": 35,
+      "vitC": 0,
+      "vitD": 3.0,
+      "vitB12": 5.5,
+      "folate": 16
+    }
+  },
+  {
+    "id": 71,
+    "name": "Chicken noodle soup and saltines",
+    "category": "prepared_meal",
+    "cuisine": "american",
+    "servingG": 305,
+    "servingLabel": "1 cup soup + 6 crackers",
+    "cost": 1.65,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 2,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "wheat"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "chicken",
+      "noodle",
+      "cracker"
+    ],
+    "nutrients": {
+      "calories": 210,
+      "protein": 8,
+      "carbs": 29,
+      "fat": 7,
+      "saturatedFat": 1.5,
+      "fiber": 1,
+      "sugar": 2,
+      "addedSugar": 0,
+      "sodium": 780,
+      "potassium": 180,
+      "calcium": 20,
+      "iron": 1.4,
+      "magnesium": 16,
+      "zinc": 0.6,
+      "vitA": 45,
+      "vitC": 1,
+      "vitD": 0,
+      "vitB12": 0.2,
+      "folate": 48
+    }
+  },
+  {
+    "id": 72,
+    "name": "Instant mashed potatoes with green beans",
+    "category": "vegetable_starchy",
+    "cuisine": "american",
+    "servingG": 220,
+    "servingLabel": "1 bowl",
+    "cost": 1.70,
+    "costConfidence": "high",
+    "prep": "microwave",
+    "prepTimeMin": 3,
+    "mealTypes": [
+      "lunch",
+      "dinner"
+    ],
+    "allergens": [
+      "milk"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry"
+    ],
+    "ingredients": [
+      "potato",
+      "green bean"
+    ],
+    "nutrients": {
+      "calories": 240,
+      "protein": 5,
+      "carbs": 46,
+      "fat": 4,
+      "saturatedFat": 1,
+      "fiber": 5,
+      "sugar": 4,
+      "addedSugar": 0,
+      "sodium": 540,
+      "potassium": 520,
+      "calcium": 38,
+      "iron": 1.6,
+      "magnesium": 38,
+      "zinc": 0.7,
+      "vitA": 180,
+      "vitC": 8,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 28
+    }
+  },
+  {
+    "id": 73,
+    "name": "Canned chicken and crackers",
+    "category": "protein_animal",
+    "cuisine": "american",
+    "servingG": 140,
+    "servingLabel": "1 pouch + 6 crackers",
+    "cost": 2.35,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "lunch",
+      "dinner",
+      "snack"
+    ],
+    "allergens": [
+      "wheat"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "chicken",
+      "cracker"
+    ],
+    "nutrients": {
+      "calories": 260,
+      "protein": 18,
+      "carbs": 22,
+      "fat": 10,
+      "saturatedFat": 2,
+      "fiber": 1,
+      "sugar": 1,
+      "addedSugar": 0,
+      "sodium": 680,
+      "potassium": 240,
+      "calcium": 28,
+      "iron": 1.3,
+      "magnesium": 20,
+      "zinc": 1.1,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0.2,
+      "folate": 26
+    }
+  },
+  {
+    "id": 74,
+    "name": "Peanut butter tortillas",
+    "category": "protein_plant",
+    "cuisine": "latin",
+    "servingG": 115,
+    "servingLabel": "2 tortillas + 2 tbsp peanut butter",
+    "cost": 1.45,
+    "costConfidence": "high",
+    "prep": "none",
+    "prepTimeMin": 0,
+    "mealTypes": [
+      "breakfast",
+      "lunch",
+      "snack"
+    ],
+    "allergens": [
+      "peanut",
+      "wheat"
+    ],
+    "religionExcluded": [],
+    "medicalExcluded": [],
+    "availability": [
+      "grocery",
+      "dollar_store",
+      "food_pantry",
+      "convenience"
+    ],
+    "ingredients": [
+      "tortilla",
+      "peanut"
+    ],
+    "nutrients": {
+      "calories": 340,
+      "protein": 10,
+      "carbs": 32,
+      "fat": 19,
+      "saturatedFat": 4,
+      "fiber": 4,
+      "sugar": 3,
+      "addedSugar": 1,
+      "sodium": 360,
+      "potassium": 210,
+      "calcium": 52,
+      "iron": 1.8,
+      "magnesium": 54,
+      "zinc": 1.4,
+      "vitA": 0,
+      "vitC": 0,
+      "vitD": 0,
+      "vitB12": 0,
+      "folate": 60
+    }
   }
 ]

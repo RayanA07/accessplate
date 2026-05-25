@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/allergen.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
@@ -16,18 +17,23 @@ class OnboardingAllergensStep extends ConsumerWidget {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final safety = profile.constraints.safety;
+    final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
 
     return OnboardingStepLayout(
-      title: 'Allergens',
-      subtitle:
-          'Pick any allergens that must never show up in your recommendations.',
+      title: copy.choose('Allergens', 'Alergenos'),
+      subtitle: copy.choose(
+        'Pick any allergens that must never show up in your food options.',
+        'Marca cualquier alergeno que nunca deba aparecer en tus opciones de comida.',
+      ),
       children: [
         for (final allergen in Allergen.values) ...[
           SelectionTile(
-            title: allergen.label,
-            subtitle:
-                'Exclude foods containing ${allergen.label.toLowerCase()}.',
+            title: copy.allergenLabel(allergen),
+            subtitle: copy.choose(
+              'Exclude foods containing ${copy.allergenLabel(allergen).toLowerCase()}.',
+              'Excluye comida con ${copy.allergenLabel(allergen).toLowerCase()}.',
+            ),
             icon: _iconFor(allergen),
             selected: safety.allergens.contains(allergen),
             indicatorStyle: SelectionTileIndicatorStyle.check,

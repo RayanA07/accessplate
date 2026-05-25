@@ -1,5 +1,6 @@
 import '../entities/demographics.dart';
 import '../entities/user_constraints.dart';
+import 'government_nutrition_guidance.dart';
 import 'scoring/composite_scorer.dart';
 import 'scoring/macro_scorer.dart';
 
@@ -95,9 +96,10 @@ class PenaltyConfigBuilder {
 }
 
 class ScoreConfigProvider {
-  const ScoreConfigProvider(this.tables);
+  const ScoreConfigProvider(this.tables, {this.guidance = const GovernmentNutritionGuidance()});
 
   final ReferenceTables tables;
+  final GovernmentNutritionGuidance guidance;
 
   ScoreConfig buildFor({
     required UserConstraints user,
@@ -136,9 +138,15 @@ class ScoreConfigProvider {
       baseWeights: tables.basePenaltyWeights,
       activeConditions: activeConditions,
     );
+    final macroTargets = guidance.hasPersonalizedInputs(user.demographics)
+        ? guidance.mealTargetsFor(
+            demographics: user.demographics,
+            mealType: user.preference.mealType,
+          )
+        : user.targets;
 
     return ScoreConfig(
-      macroTargets: user.targets,
+      macroTargets: macroTargets,
       macroWeights: const MacroWeights(),
       rda: rda,
       microPriorities: priorities,

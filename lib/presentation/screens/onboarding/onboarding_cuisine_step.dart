@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../domain/entities/user_profile.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/selection_tile.dart';
@@ -25,15 +26,15 @@ class OnboardingCuisineStep extends ConsumerWidget {
         UserProfile.defaults();
     final preference = profile.constraints.preference;
     final controller = ref.read(profileControllerProvider.notifier);
+    final copy = AppCopy(profile.constraints.access.language);
 
     return OnboardingStepLayout(
-      title: 'Cuisine\npreference',
-      subtitle:
-          'This is a softer preference and can be relaxed when the result pool gets too small.',
+      title: copy.cuisineTitle,
+      subtitle: copy.cuisineSubtitle,
       children: [
         SelectionTile(
-          title: 'No preference',
-          subtitle: 'Do not favor one cuisine family.',
+          title: copy.cuisineNoPreferenceTitle,
+          subtitle: copy.cuisineNoPreferenceSubtitle,
           icon: Icons.public_rounded,
           selected: preference.cuisinePreference == null,
           onTap: () {
@@ -45,10 +46,9 @@ class OnboardingCuisineStep extends ConsumerWidget {
         const SizedBox(height: 14),
         for (final cuisine in _cuisines) ...[
           SelectionTile(
-            title: _labelize(cuisine),
+            title: copy.cuisineLabel(cuisine),
             icon: Icons.restaurant_menu_rounded,
-            subtitle:
-                'Favor ${_labelize(cuisine).toLowerCase()} options when possible.',
+            subtitle: copy.cuisineDetail(cuisine),
             selected: preference.cuisinePreference == cuisine,
             onTap: () {
               controller.updatePreference(
@@ -60,12 +60,5 @@ class OnboardingCuisineStep extends ConsumerWidget {
         ],
       ],
     );
-  }
-
-  static String _labelize(String value) {
-    return value
-        .split('_')
-        .map((part) => part[0].toUpperCase() + part.substring(1))
-        .join(' ');
   }
 }
