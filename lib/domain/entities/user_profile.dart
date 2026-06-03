@@ -52,7 +52,7 @@ enum OnboardingStage {
       case 'dietaryStyle':
         return OnboardingStage.dietaryStyle;
       case 'mealTiming':
-        return OnboardingStage.mealTiming;
+        return OnboardingStage.allergens;
       case 'cuisine':
       case 'dislikes':
         return OnboardingStage.pantry;

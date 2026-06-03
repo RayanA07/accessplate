@@ -21,7 +21,14 @@ import '../explain/explain_detail_screen.dart';
 import '../profile/settings_screen.dart';
 
 class RecommendationsScreen extends ConsumerStatefulWidget {
-  const RecommendationsScreen({super.key});
+  const RecommendationsScreen({
+    super.key,
+    this.embedded = false,
+    this.onOpenProfile,
+  });
+
+  final bool embedded;
+  final VoidCallback? onOpenProfile;
 
   @override
   ConsumerState<RecommendationsScreen> createState() =>
@@ -48,137 +55,142 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
         ? result.recommendations
         : result.recommendations.take(3).toList();
 
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: NihPalette.lightContentBackground,
-        ),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
-            children: [
-              _TopBar(
-                name: profile.localLogin.displayName,
-                onSettings: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                  );
-                },
+    final content = DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: NihPalette.lightContentBackground,
+      ),
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
+          children: [
+            _TopBar(
+              name: profile.localLogin.displayName,
+              onSettings: () {
+                final openProfile = widget.onOpenProfile;
+                if (openProfile != null) {
+                  openProfile();
+                  return;
+                }
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                );
+              },
+            ),
+            const SizedBox(height: 18),
+            Text(
+              copy.choose('Suggested Meals', 'Comidas sugeridas'),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              copy.choose(
+                'High-fit meals ranked from your existing decision system.',
+                'Comidas con mejor ajuste segun tu sistema actual de decisiones.',
               ),
-              const SizedBox(height: 18),
-              Text(
-                copy.choose('Suggested Meals', 'Comidas sugeridas'),
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            if (recommendationsAsync.isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 14),
+                child: LinearProgressIndicator(),
               ),
-              const SizedBox(height: 4),
-              Text(
-                copy.choose(
-                  'High-fit meals ranked from your existing decision system.',
-                  'Comidas con mejor ajuste segun tu sistema actual de decisiones.',
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              if (recommendationsAsync.isLoading)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                  child: LinearProgressIndicator(),
-                ),
-              const SizedBox(height: 12),
-              if (result == null && recommendationsAsync.isLoading)
-                SectionCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Text(
-                      copy.choose(
-                        'Refreshing your recommendations...',
-                        'Actualizando tus recomendaciones...',
-                      ),
+            const SizedBox(height: 12),
+            if (result == null && recommendationsAsync.isLoading)
+              SectionCard(
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Text(
+                    copy.choose(
+                      'Refreshing your recommendations...',
+                      'Actualizando tus recomendaciones...',
                     ),
                   ),
-                )
-              else if (error != null)
-                _RecommendationsErrorState(
-                  copy: copy,
-                  plainLanguage: profile.constraints.access.plainLanguage,
-                  error: error,
-                  onRetry: () => ref.invalidate(recommendationsProvider),
-                  onAdjust: () => _showQuickAdjustSheet(context),
-                )
-              else if (result != null && result.isEmpty)
-                _EmptyState(
-                  copy: copy,
-                  plainLanguage: profile.constraints.access.plainLanguage,
-                  result: result,
-                  onAdjust: () => _showQuickAdjustSheet(context),
-                )
-              else if (result != null)
-                ...shownRecommendations.map(
-                  (recommendation) => Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: RecommendationCard(
-                      recommendation: recommendation,
-                      language: profile.constraints.access.language,
-                      onExplain: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => ExplainDetailScreen(
-                              recommendation: recommendation,
-                              allRecommendations: result.recommendations,
-                            ),
-                            ),
-                          );
-                      },
-                      onTrack: () async {
-                        await ref
-                            .read(profileControllerProvider.notifier)
-                            .logRecommendation(recommendation);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                copy.choose(
-                                  'Added to daily tracking',
-                                  'Agregado al seguimiento diario',
-                                ),
+                ),
+              )
+            else if (error != null)
+              _RecommendationsErrorState(
+                copy: copy,
+                plainLanguage: profile.constraints.access.plainLanguage,
+                error: error,
+                onRetry: () => ref.invalidate(recommendationsProvider),
+                onAdjust: () => _showQuickAdjustSheet(context),
+              )
+            else if (result != null && result.isEmpty)
+              _EmptyState(
+                copy: copy,
+                plainLanguage: profile.constraints.access.plainLanguage,
+                result: result,
+                onAdjust: () => _showQuickAdjustSheet(context),
+              )
+            else if (result != null)
+              ...shownRecommendations.map(
+                (recommendation) => Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: RecommendationCard(
+                    recommendation: recommendation,
+                    language: profile.constraints.access.language,
+                    onExplain: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ExplainDetailScreen(
+                            recommendation: recommendation,
+                            allRecommendations: result.recommendations,
+                          ),
+                        ),
+                      );
+                    },
+                    onTrack: () async {
+                      await ref
+                          .read(profileControllerProvider.notifier)
+                          .logRecommendation(recommendation);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              copy.choose(
+                                'Added to daily tracking',
+                                'Agregado al seguimiento diario',
                               ),
                             ),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ),
-              if (result != null && result.recommendations.length > 3)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _showAllRecommendations = !_showAllRecommendations;
-                      });
+                          ),
+                        );
+                      }
                     },
-                    icon: Icon(
-                      _showAllRecommendations
-                          ? Icons.expand_less_rounded
-                          : Icons.expand_more_rounded,
-                    ),
-                    label: Text(
-                      _showAllRecommendations
-                          ? copy.choose('Show fewer options', 'Mostrar menos')
-                          : copy.choose(
-                              'Show ${result.recommendations.length - 3} more options',
-                              'Mostrar ${result.recommendations.length - 3} opciones mas',
-                            ),
-                    ),
                   ),
                 ),
-            ],
-          ),
+              ),
+            if (result != null && result.recommendations.length > 3)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _showAllRecommendations = !_showAllRecommendations;
+                    });
+                  },
+                  icon: Icon(
+                    _showAllRecommendations
+                        ? Icons.expand_less_rounded
+                        : Icons.expand_more_rounded,
+                  ),
+                  label: Text(
+                    _showAllRecommendations
+                        ? copy.choose('Show fewer options', 'Mostrar menos')
+                        : copy.choose(
+                            'Show ${result.recommendations.length - 3} more options',
+                            'Mostrar ${result.recommendations.length - 3} opciones mas',
+                          ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
+
+    return widget.embedded ? content : Scaffold(body: content);
   }
 
   void _showQuickAdjustSheet(BuildContext context) {
@@ -270,9 +282,9 @@ class _TopBar extends StatelessWidget {
             border: Border.all(color: const Color(0xFFEAEAF0)),
           ),
           child: IconButton(
-            tooltip: 'Settings',
+            tooltip: 'Profile',
             onPressed: onSettings,
-            icon: const Icon(Icons.menu_rounded),
+            icon: const Icon(Icons.person_outline_rounded),
           ),
         ),
       ],

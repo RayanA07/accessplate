@@ -12,7 +12,6 @@ import 'onboarding_budget_step.dart';
 import 'onboarding_dietary_style_step.dart';
 import 'onboarding_environment_step.dart';
 import 'onboarding_height_step.dart';
-import 'onboarding_meal_timing_step.dart';
 import 'onboarding_medical_step.dart';
 import 'onboarding_name_step.dart';
 import 'onboarding_pantry_step.dart';
@@ -34,7 +33,6 @@ const _orderedStages = <OnboardingStage>[
   OnboardingStage.availability,
   OnboardingStage.access,
   OnboardingStage.dietaryStyle,
-  OnboardingStage.mealTiming,
   OnboardingStage.allergens,
   OnboardingStage.religion,
   OnboardingStage.medical,
@@ -93,10 +91,8 @@ class OnboardingFlowScreen extends ConsumerWidget {
                           child: switch (stage) {
                             OnboardingStage.splash =>
                               const OnboardingSplashStep(),
-                            OnboardingStage.name =>
-                              const OnboardingNameStep(),
-                            OnboardingStage.age =>
-                              const OnboardingAgeStep(),
+                            OnboardingStage.name => const OnboardingNameStep(),
+                            OnboardingStage.age => const OnboardingAgeStep(),
                             OnboardingStage.height =>
                               const OnboardingHeightStep(),
                             OnboardingStage.weight =>
@@ -120,7 +116,7 @@ class OnboardingFlowScreen extends ConsumerWidget {
                             OnboardingStage.dietaryStyle =>
                               const OnboardingDietaryStyleStep(),
                             OnboardingStage.mealTiming =>
-                              const OnboardingMealTimingStep(),
+                              const OnboardingAllergensStep(),
                             OnboardingStage.pantry =>
                               const OnboardingPantryStep(),
                             OnboardingStage.targets =>

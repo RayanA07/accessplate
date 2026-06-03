@@ -11,40 +11,43 @@ import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/screens/onboarding/onboarding_flow_screen.dart';
 
 void main() {
-  testWidgets('meal timing step keeps next action visible on a small viewport', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(360, 640);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
+  testWidgets(
+    'dietary style step keeps next action visible on a small viewport',
+    (tester) async {
+      tester.view.physicalSize = const Size(360, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
 
-    final profile = UserProfile.defaults().copyWith(
-      onboardingStage: OnboardingStage.mealTiming,
-    );
+      final profile = UserProfile.defaults().copyWith(
+        onboardingStage: OnboardingStage.dietaryStyle,
+      );
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
-          profileControllerProvider.overrideWith(
-            () => _TestProfileController(profile),
-          ),
-        ],
-        child: const MaterialApp(home: OnboardingFlowScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            referenceTablesProvider.overrideWith(
+              (ref) async => _testReferenceTables,
+            ),
+            profileControllerProvider.overrideWith(
+              () => _TestProfileController(profile),
+            ),
+          ],
+          child: const MaterialApp(home: OnboardingFlowScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.text('Continue'), findsOneWidget);
+      expect(find.text('Continue'), findsOneWidget);
 
-    await tester.tap(find.text('Continue'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Allergens'), findsOneWidget);
-  });
+      expect(find.text('Allergens'), findsOneWidget);
+    },
+  );
 
   testWidgets('final onboarding step shows recommendations CTA', (
     tester,
@@ -56,7 +59,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
+          referenceTablesProvider.overrideWith(
+            (ref) async => _testReferenceTables,
+          ),
           profileControllerProvider.overrideWith(
             () => _TestProfileController(profile),
           ),
@@ -84,7 +89,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
+          referenceTablesProvider.overrideWith(
+            (ref) async => _testReferenceTables,
+          ),
           profileControllerProvider.overrideWith(
             () => _TestProfileController(profile),
           ),
@@ -101,11 +108,11 @@ void main() {
     expect(find.text('Espanol'), findsOneWidget);
   });
 
-  testWidgets('meal timing step shows Spanish localized meal copy', (
+  testWidgets('dietary style step shows Spanish localized copy', (
     tester,
   ) async {
     final profile = UserProfile.defaults().copyWith(
-      onboardingStage: OnboardingStage.mealTiming,
+      onboardingStage: OnboardingStage.dietaryStyle,
       constraints: UserConstraints.defaults().copyWith(
         access: UserConstraints.defaults().access.copyWith(
           language: UserLanguage.spanish,
@@ -116,7 +123,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
+          referenceTablesProvider.overrideWith(
+            (ref) async => _testReferenceTables,
+          ),
           profileControllerProvider.overrideWith(
             () => _TestProfileController(profile),
           ),
@@ -126,9 +135,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Momento de\ncomida'), findsOneWidget);
-    expect(find.text('Desayuno'), findsOneWidget);
-    expect(find.text('A cualquier hora'), findsOneWidget);
+    expect(find.text('Estilo de\ncomida'), findsOneWidget);
+    expect(find.text('Sin filtro de dieta'), findsOneWidget);
+    expect(find.text('Vegetariano'), findsOneWidget);
     expect(find.text('Continuar'), findsOneWidget);
   });
 }

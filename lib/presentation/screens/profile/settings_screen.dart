@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_palette.dart';
-import '../../../domain/engine/government_nutrition_guidance.dart';
 import '../../../domain/engine/scoring/composite_scorer.dart';
 import '../../../domain/entities/demographics.dart';
 import '../../../domain/entities/user_profile.dart';
@@ -14,15 +13,15 @@ import '../../widgets/live_grocery_settings_card.dart';
 import '../../widgets/section_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
-  const SettingsScreen({super.key});
+  const SettingsScreen({super.key, this.embedded = false});
+
+  final bool embedded;
 
   @override
   ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  static const _guidance = GovernmentNutritionGuidance();
-
   late CompositeWeights _weights;
   bool _didInitWeights = false;
 
@@ -45,375 +44,360 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final copy = AppCopy(profile.constraints.access.language);
     final normalizedWeights = _weights.normalized();
     final controller = ref.read(profileControllerProvider.notifier);
-    final dailyTargets = _guidance.dailyTargetsFor(
-      profile.constraints.demographics,
-    );
 
-    return Scaffold(
-      body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: NihPalette.lightContentBackground,
-        ),
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 440),
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-                children: [
-                  Row(
+    final content = DecoratedBox(
+      decoration: const BoxDecoration(
+        gradient: NihPalette.lightContentBackground,
+      ),
+      child: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        copy.settingsTitle,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    _AvatarBadge(name: profile.localLogin.displayName),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                _ProfileSummaryCard(profile: profile, copy: copy),
+                const SizedBox(height: 14),
+                SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          copy.settingsTitle,
-                          style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                      Text(
+                        copy.accessLanguageTitle,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                      _AvatarBadge(name: profile.localLogin.displayName),
+                      const SizedBox(height: 8),
+                      Text(copy.accessLanguageSubtitle),
+                      const SizedBox(height: 14),
+                      Text(
+                        copy.languageSettingLabel,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: UserLanguage.values.map((language) {
+                          return ChoiceChip(
+                            selected:
+                                profile.constraints.access.language == language,
+                            label: Text(copy.languageChoiceLabel(language)),
+                            onSelected: (_) =>
+                                controller.updateLanguage(language),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 12),
+                      SwitchListTile(
+                        value: profile.constraints.access.plainLanguage,
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(copy.plainLanguageSettingTitle),
+                        subtitle: Text(copy.plainLanguageSettingSubtitle),
+                        onChanged: controller.updatePlainLanguage,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 18),
-                  _ProfileSummaryCard(profile: profile, copy: copy),
-                  const SizedBox(height: 14),
-                  _DailyMacroOverviewCard(
-                    copy: copy,
-                    demographics: profile.constraints.demographics,
-                    dailyTargets: dailyTargets,
+                ),
+                const SizedBox(height: 14),
+                SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        copy.choose('Appearance', 'Apariencia'),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        copy.choose(
+                          'Visual settings only. This does not change your food-access logic.',
+                          'Solo cambia lo visual. No cambia la logica de acceso a comida.',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: AppThemePreference.values.map((
+                          themePreference,
+                        ) {
+                          return ChoiceChip(
+                            selected:
+                                profile.themePreference == themePreference,
+                            label: Text(_labelize(themePreference.name, copy)),
+                            onSelected: (_) {
+                              controller.updateThemePreference(themePreference);
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          copy.accessLanguageTitle,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 14),
+                const LiveGrocerySettingsCard(),
+                const SizedBox(height: 14),
+                SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        copy.choose('Advanced scoring', 'Puntaje avanzado'),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
                         ),
-                        const SizedBox(height: 8),
-                        Text(copy.accessLanguageSubtitle),
-                        const SizedBox(height: 14),
-                        Text(
-                          copy.languageSettingLabel,
-                          style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        copy.choose(
+                          'These sliders rebalance how strongly the engine weighs nutrition, cost, and preference.',
+                          'Estos controles cambian cuanto pesa nutricion, costo y preferencia.',
                         ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: UserLanguage.values.map((language) {
-                            return ChoiceChip(
-                              selected:
-                                  profile.constraints.access.language ==
-                                  language,
-                              label: Text(copy.languageChoiceLabel(language)),
-                              onSelected: (_) =>
-                                  controller.updateLanguage(language),
-                            );
-                          }).toList(),
+                      ),
+                      const SizedBox(height: 14),
+                      _WeightSlider(
+                        label: copy.choose(
+                          'Macro alignment',
+                          'Ajuste de macros',
                         ),
-                        const SizedBox(height: 12),
-                        SwitchListTile(
-                          value: profile.constraints.access.plainLanguage,
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(copy.plainLanguageSettingTitle),
-                          subtitle: Text(copy.plainLanguageSettingSubtitle),
-                          onChanged: controller.updatePlainLanguage,
+                        value: _weights.macro,
+                        displayPercent: normalizedWeights.macro,
+                        onChanged: (value) => setState(() {
+                          _weights = _weights.copyWith(macro: value);
+                        }),
+                      ),
+                      _WeightSlider(
+                        label: copy.choose('Micronutrients', 'Micronutrientes'),
+                        value: _weights.micro,
+                        displayPercent: normalizedWeights.micro,
+                        onChanged: (value) => setState(() {
+                          _weights = _weights.copyWith(micro: value);
+                        }),
+                      ),
+                      _WeightSlider(
+                        label: copy.choose(
+                          'Penalty strength',
+                          'Fuerza de penalidad',
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          copy.choose('Appearance', 'Apariencia'),
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                        value: _weights.penalty,
+                        displayPercent: normalizedWeights.penalty,
+                        onChanged: (value) => setState(() {
+                          _weights = _weights.copyWith(penalty: value);
+                        }),
+                      ),
+                      _WeightSlider(
+                        label: copy.choose(
+                          'Cost pressure',
+                          'Presion por costo',
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          copy.choose(
-                            'Visual settings only. This does not change your food-access logic.',
-                            'Solo cambia lo visual. No cambia la logica de acceso a comida.',
-                          ),
+                        value: _weights.cost,
+                        displayPercent: normalizedWeights.cost,
+                        onChanged: (value) => setState(() {
+                          _weights = _weights.copyWith(cost: value);
+                        }),
+                      ),
+                      _WeightSlider(
+                        label: copy.choose(
+                          'Preference bonus',
+                          'Bono por preferencia',
                         ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: AppThemePreference.values.map((
-                            themePreference,
-                          ) {
-                            return ChoiceChip(
-                              selected:
-                                  profile.themePreference == themePreference,
-                              label: Text(
-                                _labelize(themePreference.name, copy),
+                        value: _weights.preference,
+                        displayPercent: normalizedWeights.preference,
+                        onChanged: (value) => setState(() {
+                          _weights = _weights.copyWith(preference: value);
+                        }),
+                      ),
+                      const SizedBox(height: 8),
+                      FilledButton(
+                        onPressed: () {
+                          controller.updateWeights(_weights);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                copy.choose(
+                                  'Advanced scoring saved',
+                                  'Puntaje avanzado guardado',
+                                ),
                               ),
-                              onSelected: (_) {
-                                controller.updateThemePreference(
-                                  themePreference,
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  const LiveGrocerySettingsCard(),
-                  const SizedBox(height: 14),
-                  SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          copy.choose('Advanced scoring', 'Puntaje avanzado'),
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
+                            ),
+                          );
+                        },
+                        child: Text(
                           copy.choose(
-                            'These sliders rebalance how strongly the engine weighs nutrition, cost, and preference.',
-                            'Estos controles cambian cuanto pesa nutricion, costo y preferencia.',
+                            'Save advanced scoring',
+                            'Guardar puntaje avanzado',
                           ),
                         ),
-                        const SizedBox(height: 14),
-                        _WeightSlider(
-                          label: copy.choose(
-                            'Macro alignment',
-                            'Ajuste de macros',
-                          ),
-                          value: _weights.macro,
-                          displayPercent: normalizedWeights.macro,
-                          onChanged: (value) => setState(() {
-                            _weights = _weights.copyWith(macro: value);
-                          }),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        copy.choose('Local cache', 'Cache local'),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
                         ),
-                        _WeightSlider(
-                          label: copy.choose(
-                            'Micronutrients',
-                            'Micronutrientes',
-                          ),
-                          value: _weights.micro,
-                          displayPercent: normalizedWeights.micro,
-                          onChanged: (value) => setState(() {
-                            _weights = _weights.copyWith(micro: value);
-                          }),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        copy.choose(
+                          'This app keeps foods in a local cache and cleans up entries that go unused for 90 days.',
+                          'Esta app guarda alimentos en un cache local y limpia entradas sin uso por 90 dias.',
                         ),
-                        _WeightSlider(
-                          label: copy.choose(
-                            'Penalty strength',
-                            'Fuerza de penalidad',
-                          ),
-                          value: _weights.penalty,
-                          displayPercent: normalizedWeights.penalty,
-                          onChanged: (value) => setState(() {
-                            _weights = _weights.copyWith(penalty: value);
-                          }),
+                      ),
+                      const SizedBox(height: 12),
+                      cacheStatsAsync.when(
+                        data: (stats) => Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _SummaryLine(
+                              label: copy.choose(
+                                'Cached foods',
+                                'Alimentos en cache',
+                              ),
+                              value: '${stats.cachedFoodCount}',
+                            ),
+                            const SizedBox(height: 6),
+                            _SummaryLine(
+                              label: copy.choose(
+                                'Eligible for cleanup',
+                                'Listos para limpieza',
+                              ),
+                              value: '${stats.staleFoodCount}',
+                            ),
+                            const SizedBox(height: 6),
+                            _SummaryLine(
+                              label: copy.choose(
+                                'Last cleanup',
+                                'Ultima limpieza',
+                              ),
+                              value: _formatDateTime(stats.lastCleanupAt, copy),
+                            ),
+                          ],
                         ),
-                        _WeightSlider(
-                          label: copy.choose(
-                            'Cost pressure',
-                            'Presion por costo',
+                        loading: () => const LinearProgressIndicator(),
+                        error: (error, stackTrace) => Text(
+                          copy.choose(
+                            'Cache stats unavailable: $error',
+                            'No se pudieron cargar los datos del cache: $error',
                           ),
-                          value: _weights.cost,
-                          displayPercent: normalizedWeights.cost,
-                          onChanged: (value) => setState(() {
-                            _weights = _weights.copyWith(cost: value);
-                          }),
                         ),
-                        _WeightSlider(
-                          label: copy.choose(
-                            'Preference bonus',
-                            'Bono por preferencia',
-                          ),
-                          value: _weights.preference,
-                          displayPercent: normalizedWeights.preference,
-                          onChanged: (value) => setState(() {
-                            _weights = _weights.copyWith(preference: value);
-                          }),
-                        ),
-                        const SizedBox(height: 8),
-                        FilledButton(
-                          onPressed: () {
-                            controller.updateWeights(_weights);
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton.tonal(
+                        onPressed: () async {
+                          final removed = await ref
+                              .read(cacheControllerProvider.notifier)
+                              .runCleanup();
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  copy.choose(
-                                    'Advanced scoring saved',
-                                    'Puntaje avanzado guardado',
-                                  ),
+                                  removed == 0
+                                      ? copy.choose(
+                                          'No stale cache entries were removed.',
+                                          'No se quito ninguna entrada vieja del cache.',
+                                        )
+                                      : copy.choose(
+                                          'Removed $removed stale cache entr${removed == 1 ? 'y' : 'ies'}.',
+                                          'Se quitaron $removed entradas viejas del cache.',
+                                        ),
                                 ),
                               ),
                             );
-                          },
-                          child: Text(
-                            copy.choose(
-                              'Save advanced scoring',
-                              'Guardar puntaje avanzado',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          copy.choose('Local cache', 'Cache local'),
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
+                          }
+                        },
+                        child: Text(
                           copy.choose(
-                            'This app keeps foods in a local cache and cleans up entries that go unused for 90 days.',
-                            'Esta app guarda alimentos en un cache local y limpia entradas sin uso por 90 dias.',
+                            'Run cache cleanup',
+                            'Limpiar cache ahora',
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        cacheStatsAsync.when(
-                          data: (stats) => Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _SummaryLine(
-                                label: copy.choose(
-                                  'Cached foods',
-                                  'Alimentos en cache',
-                                ),
-                                value: '${stats.cachedFoodCount}',
-                              ),
-                              const SizedBox(height: 6),
-                              _SummaryLine(
-                                label: copy.choose(
-                                  'Eligible for cleanup',
-                                  'Listos para limpieza',
-                                ),
-                                value: '${stats.staleFoodCount}',
-                              ),
-                              const SizedBox(height: 6),
-                              _SummaryLine(
-                                label: copy.choose(
-                                  'Last cleanup',
-                                  'Ultima limpieza',
-                                ),
-                                value: _formatDateTime(
-                                  stats.lastCleanupAt,
-                                  copy,
-                                ),
-                              ),
-                            ],
-                          ),
-                          loading: () => const LinearProgressIndicator(),
-                          error: (error, stackTrace) => Text(
-                            copy.choose(
-                              'Cache stats unavailable: $error',
-                              'No se pudieron cargar los datos del cache: $error',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        FilledButton.tonal(
-                          onPressed: () async {
-                            final removed = await ref
-                                .read(cacheControllerProvider.notifier)
-                                .runCleanup();
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    removed == 0
-                                        ? copy.choose(
-                                            'No stale cache entries were removed.',
-                                            'No se quito ninguna entrada vieja del cache.',
-                                          )
-                                        : copy.choose(
-                                            'Removed $removed stale cache entr${removed == 1 ? 'y' : 'ies'}.',
-                                            'Se quitaron $removed entradas viejas del cache.',
-                                          ),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          child: Text(
-                            copy.choose(
-                              'Run cache cleanup',
-                              'Limpiar cache ahora',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          copy.choose('Profile actions', 'Acciones del perfil'),
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 14),
+                SectionCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        copy.choose('Profile actions', 'Acciones del perfil'),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        copy.choose(
+                          'Use these if you want to walk through setup again or clear this device only.',
+                          'Usa esto si quieres volver a hacer la configuracion o borrar solo este dispositivo.',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton(
+                        onPressed: () async {
+                          await controller.reopenOnboarding();
+                          if (context.mounted && !widget.embedded) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: Text(
                           copy.choose(
-                            'Use these if you want to walk through setup again or clear this device only.',
-                            'Usa esto si quieres volver a hacer la configuracion o borrar solo este dispositivo.',
+                            'Reopen onboarding',
+                            'Abrir registro otra vez',
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        OutlinedButton(
-                          onPressed: () async {
-                            await controller.reopenOnboarding();
-                            if (context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: Text(
-                            copy.choose(
-                              'Reopen onboarding',
-                              'Abrir registro otra vez',
-                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      FilledButton.tonal(
+                        onPressed: () async {
+                          await controller.resetProfile();
+                          if (context.mounted && !widget.embedded) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: Text(
+                          copy.choose(
+                            'Reset local profile',
+                            'Borrar perfil local',
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        FilledButton.tonal(
-                          onPressed: () async {
-                            await controller.resetProfile();
-                            if (context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: Text(
-                            copy.choose(
-                              'Reset local profile',
-                              'Borrar perfil local',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
+
+    return widget.embedded ? content : Scaffold(body: content);
   }
 
   String _labelize(String value, AppCopy copy) {
@@ -497,9 +481,9 @@ class _ProfileSummaryCard extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               name,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
           ],
           const SizedBox(height: 12),
@@ -558,192 +542,6 @@ class _ProfileSummaryCard extends StatelessWidget {
         'Actividad muy alta',
       ),
     };
-  }
-}
-
-class _DailyMacroOverviewCard extends StatelessWidget {
-  const _DailyMacroOverviewCard({
-    required this.copy,
-    required this.demographics,
-    required this.dailyTargets,
-  });
-
-  final AppCopy copy;
-  final Demographics demographics;
-  final dynamic dailyTargets;
-
-  @override
-  Widget build(BuildContext context) {
-    final calories = dailyTargets.calories as double;
-    final proteinPercent = ((dailyTargets.proteinG * 4) / calories * 100)
-        .round();
-    final carbsPercent = ((dailyTargets.carbsG * 4) / calories * 100).round();
-    final fatPercent = ((dailyTargets.fatG * 9) / calories * 100).round();
-
-    return SectionCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            copy.choose('Total Daily Macros', 'Macros diarios'),
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              _TargetCaloriesRing(calories: calories),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  children: [
-                    _MacroLegendRow(
-                      color: NihPalette.macroProtein,
-                      label: copy.proteinLabel,
-                      value:
-                          '${dailyTargets.proteinG.toStringAsFixed(0)}g - $proteinPercent%',
-                    ),
-                    const SizedBox(height: 10),
-                    _MacroLegendRow(
-                      color: NihPalette.macroCarbs,
-                      label: copy.carbsLabel,
-                      value:
-                          '${dailyTargets.carbsG.toStringAsFixed(0)}g - $carbsPercent%',
-                    ),
-                    const SizedBox(height: 10),
-                    _MacroLegendRow(
-                      color: NihPalette.macroFat,
-                      label: copy.fatLabel,
-                      value:
-                          '${dailyTargets.fatG.toStringAsFixed(0)}g - $fatPercent%',
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            copy.choose(
-              'Targets adjust from your current profile and activity level.',
-              'Las metas se ajustan segun tu perfil y actividad.',
-            ),
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TargetCaloriesRing extends StatelessWidget {
-  const _TargetCaloriesRing({required this.calories});
-
-  final double calories;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 140,
-      height: 140,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFF232328), width: 6),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _formatCalories(calories),
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Calorie',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatCalories(double value) {
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return value.toStringAsFixed(0);
-  }
-}
-
-class _MacroLegendRow extends StatelessWidget {
-  const _MacroLegendRow({
-    required this.color,
-    required this.label,
-    required this.value,
-  });
-
-  final Color color;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 34,
-          height: 34,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 34,
-                height: 34,
-                child: CircularProgressIndicator(
-                  value: 0.72,
-                  strokeWidth: 4,
-                  backgroundColor: color.withValues(alpha: 0.15),
-                  valueColor: AlwaysStoppedAnimation<Color>(color),
-                  strokeCap: StrokeCap.round,
-                ),
-              ),
-              Container(
-                width: 18,
-                height: 18,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF0F0F4)),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 2),
-              Text(value, style: Theme.of(context).textTheme.bodyMedium),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }
 

@@ -6,6 +6,7 @@ import '../../domain/entities/explanation.dart';
 import '../../domain/entities/food.dart';
 import '../../domain/entities/recommendation.dart';
 import '../../domain/value_objects/availability_context.dart';
+import '../../domain/value_objects/meal_type.dart';
 import '../../domain/value_objects/user_language.dart';
 import '../copy/app_copy.dart';
 import 'live_store_match_widgets.dart';
@@ -66,7 +67,10 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                 final badge = _ScoreBadge(
                   score: recommendation.displayScore.round(),
                   color: accent,
-                  qualityLabel: _qualityLabel(copy, recommendation.displayScore.round()),
+                  qualityLabel: _qualityLabel(
+                    copy,
+                    recommendation.displayScore.round(),
+                  ),
                 );
 
                 if (compact) {
@@ -100,8 +104,9 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                 Expanded(
                   child: _MacroMetric(
                     label: copy.caloriesLabel,
-                    value: recommendation.nutrients.caloriesKcal.toStringAsFixed(0),
-                    unit: 'CAL',
+                    value: recommendation.nutrients.caloriesKcal
+                        .toStringAsFixed(0),
+                    unit: 'kcal',
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -302,10 +307,16 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     final primary = availability.first;
     return switch (primary) {
       AvailabilityContext.grocery => copy.choose('Grocery', 'Supermercado'),
-      AvailabilityContext.convenience => copy.choose('Convenience', 'Conveniencia'),
+      AvailabilityContext.convenience => copy.choose(
+        'Convenience',
+        'Conveniencia',
+      ),
       AvailabilityContext.fastFood => copy.choose('Fast food', 'Comida rapida'),
       AvailabilityContext.foodPantry => copy.choose('Food pantry', 'Despensa'),
-      AvailabilityContext.dollarStore => copy.choose('Dollar store', 'Tienda de dolar'),
+      AvailabilityContext.dollarStore => copy.choose(
+        'Dollar store',
+        'Tienda de dolar',
+      ),
     };
   }
 
@@ -343,6 +354,7 @@ class _CardOverview extends StatelessWidget {
     final copy = AppCopy(language);
     final theme = Theme.of(context);
     final food = recommendation.food;
+    final primaryMealType = _primaryMealType(food);
     final subtitle = explanation?.accessSummary?.isNotEmpty == true
         ? explanation!.accessSummary!
         : '${food.servingLabel} | ${_prepLabel(copy, food.prepMethod)} | ${food.costEstimate.toStringAsFixed(2)}';
@@ -379,7 +391,10 @@ class _CardOverview extends StatelessWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _InfoChip(label: copy.mealTimingLabel(food.mealTypes.firstOrNull ?? food.mealTypes.first)),
+                  _InfoChip(
+                    label: copy.mealTimingLabel(primaryMealType),
+                    icon: _mealTypeIcon(primaryMealType),
+                  ),
                   _InfoChip(label: '\$${food.costEstimate.toStringAsFixed(2)}'),
                   _InfoChip(label: '${food.prepTimeMin} min'),
                 ],
@@ -432,13 +447,7 @@ class _ArtworkTile extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          Center(
-            child: Icon(
-              _iconFor(food),
-              size: 42,
-              color: accent,
-            ),
-          ),
+          Center(child: Icon(_iconFor(food), size: 42, color: accent)),
           Positioned(
             left: 8,
             bottom: 8,
@@ -464,6 +473,10 @@ class _ArtworkTile extends StatelessWidget {
   }
 
   IconData _iconFor(Food food) {
+    final mealType = _primaryMealType(food);
+    if (mealType != MealType.any) {
+      return _mealTypeIcon(mealType);
+    }
     if (food.availability.contains(AvailabilityContext.fastFood)) {
       return Icons.lunch_dining_rounded;
     }
@@ -490,9 +503,10 @@ class _ArtworkTile extends StatelessWidget {
 }
 
 class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.label});
+  const _InfoChip({required this.label, this.icon});
 
   final String label;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -502,14 +516,39 @@ class _InfoChip extends StatelessWidget {
         color: const Color(0xFFF5F5F8),
         borderRadius: BorderRadius.circular(999),
       ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: const Color(0xFF5F5F68),
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 14, color: const Color(0xFF5F5F68)),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(color: const Color(0xFF5F5F68)),
+          ),
+        ],
       ),
     );
   }
+}
+
+MealType _primaryMealType(Food food) {
+  final mealTypes = food.mealTypes.toList()
+    ..sort((a, b) => a.index.compareTo(b.index));
+  return mealTypes.firstOrNull ?? MealType.any;
+}
+
+IconData _mealTypeIcon(MealType mealType) {
+  return switch (mealType) {
+    MealType.breakfast => Icons.wb_sunny_outlined,
+    MealType.lunch => Icons.lunch_dining_rounded,
+    MealType.dinner => Icons.dinner_dining_rounded,
+    MealType.snack => Icons.bakery_dining_rounded,
+    MealType.any => Icons.restaurant_menu_rounded,
+  };
 }
 
 class _AccessSummaryStrip extends StatelessWidget {
@@ -550,14 +589,15 @@ class _MacroMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final formattedValue = unit.isEmpty ? value : '$value $unit';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$value$unit',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
+          formattedValue,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 3),
         Text(
@@ -590,9 +630,9 @@ class _SourcePill extends StatelessWidget {
         children: [
           Text(
             label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 2),
           Text(detail, style: Theme.of(context).textTheme.bodySmall),
@@ -803,9 +843,9 @@ class _AccessBanner extends StatelessWidget {
         children: [
           Text(
             AppCopy(language).choose('Access read', 'Lectura de acceso'),
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 6),
           Text(

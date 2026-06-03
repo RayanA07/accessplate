@@ -51,9 +51,9 @@ class OnboardingBudgetStep extends ConsumerWidget {
               Slider(
                 key: const Key('budgetSlider'),
                 min: 1,
-                max: 15,
-                divisions: 14,
-                value: feasibility.maxCostPerMeal.clamp(1, 15),
+                max: 30,
+                divisions: 29,
+                value: feasibility.maxCostPerMeal.clamp(1, 30),
                 onChanged: controller.updateBudget,
               ),
               const SizedBox(height: 8),

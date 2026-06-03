@@ -82,11 +82,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     final nextConstraints = _syncedConstraints(
       current.constraints.copyWith(preference: normalizedPreference),
     );
-    return _persist(
-      current.copyWith(
-        constraints: nextConstraints,
-      ),
-    );
+    return _persist(current.copyWith(constraints: nextConstraints));
   }
 
   Future<void> updateAccess(AccessConstraints access) {
@@ -117,11 +113,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     final nextConstraints = _syncedConstraints(
       current.constraints.copyWith(demographics: demographics),
     );
-    return _persist(
-      current.copyWith(
-        constraints: nextConstraints,
-      ),
-    );
+    return _persist(current.copyWith(constraints: nextConstraints));
   }
 
   Future<void> updateDisplayName(String displayName) {
@@ -313,7 +305,9 @@ class ProfileController extends AsyncNotifier<UserProfile> {
   }
 
   UserProfile _normalizedProfile(UserProfile profile) {
-    final baseConstraints = _normalizedTracking(profile.constraints);
+    final baseConstraints = _normalizedBudget(
+      _normalizedTracking(profile.constraints),
+    );
     final normalizedPreference = _normalizedPreference(
       baseConstraints.preference,
     );
@@ -349,7 +343,8 @@ class ProfileController extends AsyncNotifier<UserProfile> {
 
   UserConstraints _normalizedTracking(UserConstraints constraints) {
     final trackingDate = constraints.todayIntakeDate;
-    if (trackingDate == null || _sameCalendarDay(trackingDate, DateTime.now())) {
+    if (trackingDate == null ||
+        _sameCalendarDay(trackingDate, DateTime.now())) {
       return constraints;
     }
     final today = DateTime.now();
@@ -359,7 +354,9 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     );
   }
 
-  PreferenceConstraints _normalizedPreference(PreferenceConstraints preference) {
+  PreferenceConstraints _normalizedPreference(
+    PreferenceConstraints preference,
+  ) {
     if (preference.cuisinePreference == null &&
         preference.dislikedIngredients.isEmpty) {
       return preference;
@@ -367,6 +364,16 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     return preference.copyWith(
       clearCuisinePreference: true,
       dislikedIngredients: const {},
+    );
+  }
+
+  UserConstraints _normalizedBudget(UserConstraints constraints) {
+    final budget = constraints.feasibility.maxCostPerMeal;
+    if (budget > 0 && budget != 5) {
+      return constraints;
+    }
+    return constraints.copyWith(
+      feasibility: constraints.feasibility.copyWith(maxCostPerMeal: 20),
     );
   }
 
@@ -383,13 +390,14 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       case OnboardingStage.availability:
       case OnboardingStage.access:
       case OnboardingStage.dietaryStyle:
-      case OnboardingStage.mealTiming:
       case OnboardingStage.pantry:
       case OnboardingStage.allergens:
       case OnboardingStage.religion:
       case OnboardingStage.medical:
       case OnboardingStage.targets:
         return stage;
+      case OnboardingStage.mealTiming:
+        return OnboardingStage.allergens;
     }
   }
 
@@ -403,7 +411,9 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     final isFreshDay =
         constraints.todayIntakeDate != null &&
         _sameCalendarDay(constraints.todayIntakeDate!, now);
-    final currentIntake = isFreshDay ? constraints.todayIntake : const <String, double>{};
+    final currentIntake = isFreshDay
+        ? constraints.todayIntake
+        : const <String, double>{};
     final merged = <String, double>{...currentIntake};
     for (final entry in nutrients.toIntakeMap().entries) {
       merged[entry.key] = (merged[entry.key] ?? 0) + entry.value;

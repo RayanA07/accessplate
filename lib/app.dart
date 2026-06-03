@@ -5,8 +5,8 @@ import 'core/theme/app_palette.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/entities/user_profile.dart';
 import 'presentation/providers/profile_controller.dart';
+import 'presentation/screens/home/home_shell_screen.dart';
 import 'presentation/screens/onboarding/onboarding_flow_screen.dart';
-import 'presentation/screens/recommendations/recommendations_screen.dart';
 import 'presentation/widgets/section_card.dart';
 
 class AccessPlateApp extends ConsumerWidget {
@@ -31,7 +31,7 @@ class AccessPlateApp extends ConsumerWidget {
       home: profileAsync.when(
         data: (profile) {
           return profile.onboardingComplete
-              ? const RecommendationsScreen()
+              ? const HomeShellScreen()
               : const OnboardingFlowScreen();
         },
         loading: () => const _BootstrapScreen(),

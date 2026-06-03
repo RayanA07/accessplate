@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
@@ -25,62 +26,107 @@ class OnboardingSplashStep extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: NihPalette.secondaryLightest,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: const Color(0xFFF0F0F3)),
+              border: Border.all(color: const Color(0xFFDCE8CF)),
             ),
             child: Text(
               copy.choose('Welcome to', 'Bienvenido a'),
               style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF74806F),
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF5D7150),
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 34,
-                height: 34,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE7F4E7),
-                  borderRadius: BorderRadius.circular(10),
+                  color: const Color(0xFFE4F3E7),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x14000000),
+                      blurRadius: 18,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: const Icon(
                   Icons.restaurant_menu_rounded,
                   color: Color(0xFF2E9B51),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Text(
                 'AccessPlate',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w900,
+                  letterSpacing: -1.1,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            copy.choose(
-              'Personalized healthy meal picks\nfor what you can actually reach',
-              'Opciones saludables personalizadas\nsegun lo que si puedes alcanzar',
+          const SizedBox(height: 16),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 310),
+            child: Text(
+              copy.choose(
+                'Personalized healthy meal picks\nfor what you can actually reach',
+                'Opciones saludables personalizadas\nsegun lo que si puedes alcanzar',
+              ),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: const Color(0xFF4E5058),
+                fontWeight: FontWeight.w600,
+                height: 1.45,
+              ),
             ),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: const Color(0xFF6E6E74),
-              fontWeight: FontWeight.w500,
-            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _FeaturePill(
+                icon: Icons.route_rounded,
+                label: copy.splashAccessTitle,
+              ),
+              _FeaturePill(
+                icon: Icons.shield_outlined,
+                label: copy.splashExplainableTitle,
+              ),
+              _FeaturePill(
+                icon: Icons.phone_iphone_rounded,
+                label: copy.splashLocalFirstTitle,
+              ),
+            ],
           ),
           const SizedBox(height: 24),
           SizedBox(
-            height: 440,
+            height: 430,
             child: Stack(
               alignment: Alignment.center,
               children: [
+                Positioned(
+                  top: 34,
+                  child: Container(
+                    width: 290,
+                    height: 290,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [Color(0x22A7D4A0), Color(0x00A7D4A0)],
+                      ),
+                    ),
+                  ),
+                ),
                 Positioned(
                   left: -50,
                   right: -50,
@@ -117,13 +163,82 @@ class OnboardingSplashStep extends ConsumerWidget {
           const SizedBox(height: 14),
           SectionCard(
             borderRadius: 26,
+            tintColor: NihPalette.secondaryLight,
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
-            child: Text(
-              copy.splashLocalDataDetail,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                height: 1.45,
-              ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.lock_outline_rounded,
+                    color: Color(0xFF5D7150),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        copy.splashLocalDataTitle,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        copy.choose(
+                          'Your profile stays on-device. Saved food data keeps recommendations usable when service is limited.',
+                          'Tu perfil se queda en el telefono. Los datos guardados ayudan a que las recomendaciones sigan sirviendo cuando hay poco servicio.',
+                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          height: 1.42,
+                          color: const Color(0xFF555761),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FeaturePill extends StatelessWidget {
+  const _FeaturePill({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFE9E9EE)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: const Color(0xFF2E9B51)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF555761),
             ),
           ),
         ],
@@ -138,8 +253,8 @@ class _PhonePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 262,
-      height: 500,
+      width: 272,
+      height: 496,
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(42),
@@ -207,22 +322,24 @@ class _PhonePreview extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: _PreviewMealCard(
-                  title: 'Protein Cut',
-                  subtitle: 'Excellent fit for your calories and protein.',
+                  title: 'Protein Bowl',
+                  subtitle:
+                      'Excellent fit for your calories and protein goals.',
                   score: 99,
                   icon: Icons.lunch_dining_rounded,
                 ),
               ),
               const SizedBox(height: 14),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 18),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: _PreviewMealCard(
-                  title: 'Build & Balance',
-                  subtitle: 'Macro-friendly and simple to reach today.',
+                  title: 'Balanced Plate',
+                  subtitle:
+                      'Simple to reach today and strong on macro balance.',
                   score: 97,
-                  icon: Icons.local_dining_rounded,
+                  icon: Icons.dinner_dining_rounded,
                 ),
               ),
               const SizedBox(height: 18),
@@ -250,7 +367,7 @@ class _PreviewMealCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
@@ -268,15 +385,15 @@ class _PreviewMealCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 78,
-                height: 78,
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF7F3EA),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(icon, size: 38, color: const Color(0xFF2A9D50)),
+                child: Icon(icon, size: 34, color: const Color(0xFF2A9D50)),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,30 +401,38 @@ class _PreviewMealCard extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 17,
                         fontWeight: FontWeight.w800,
                         color: Color(0xFF111114),
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: const TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         height: 1.3,
                         color: Color(0xFF76767E),
                         fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
-                width: 42,
-                height: 42,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF38C86C), width: 2.2),
+                  border: Border.all(
+                    color: const Color(0xFF38C86C),
+                    width: 2.2,
+                  ),
                 ),
                 child: Center(
                   child: Text(
@@ -326,10 +451,10 @@ class _PreviewMealCard extends StatelessWidget {
           const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _PreviewMacro(label: 'CAL', value: '390'),
-              _PreviewMacro(label: 'Protein', value: '30g'),
-              _PreviewMacro(label: 'Carbs', value: '10g'),
-              _PreviewMacro(label: 'Fats', value: '27g'),
+              _PreviewMacro(label: 'Calories', value: '390 kcal'),
+              _PreviewMacro(label: 'Protein', value: '30 g'),
+              _PreviewMacro(label: 'Carbs', value: '10 g'),
+              _PreviewMacro(label: 'Fat', value: '27 g'),
             ],
           ),
           const SizedBox(height: 12),
