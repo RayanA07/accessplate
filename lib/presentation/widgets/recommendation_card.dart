@@ -136,9 +136,8 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                 Expanded(
                   child: _SourcePill(
                     label: _primarySourceLabel(copy, food),
-                    detail: '
-${food.prepTimeMin} min | ${_labelizePrep(copy, food.prepMethod)}'
-                        .trim(),
+                    detail:
+                        '${food.prepTimeMin} min | ${_labelizePrep(copy, food.prepMethod)}',
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -837,6 +836,6 @@ class _AccessBanner extends StatelessWidget {
   }
 }
 
-extension on Set<Enum> {
-  T? get firstOrNull => isEmpty ? null : first as T?;
+extension FirstOrNullExtension<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }

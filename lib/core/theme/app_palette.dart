@@ -26,6 +26,9 @@ class NihPalette {
   static const Color success = Color(0xFF2FA37F);
   static const Color warning = Color(0xFFE5B45C);
   static const Color mist = Color(0xFFF7F5F0);
+  static const Color macroProtein = Color(0xFF3F7BE0);
+  static const Color macroCarbs = Color(0xFFF0A34A);
+  static const Color macroFat = Color(0xFFD96A5E);
 
   static const LinearGradient lightBackground = LinearGradient(
     colors: [Color(0xFFF8F6F1), Color(0xFFF6F4EF), Color(0xFFF3F1EC)],
