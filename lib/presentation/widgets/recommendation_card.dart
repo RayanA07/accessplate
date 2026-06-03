@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_palette.dart';
 import '../../domain/entities/explanation.dart';
+import '../../domain/entities/food.dart';
 import '../../domain/entities/recommendation.dart';
+import '../../domain/value_objects/availability_context.dart';
 import '../../domain/value_objects/user_language.dart';
 import '../copy/app_copy.dart';
 import 'live_store_match_widgets.dart';
@@ -33,67 +35,47 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final explanation = widget.recommendation.explanation;
-    final accent = _accentFor(widget.recommendation.food.id);
+    final recommendation = widget.recommendation;
+    final food = recommendation.food;
+    final explanation = recommendation.explanation;
+    final accent = _accentFor(food.id);
     final copy = AppCopy(widget.language);
 
     return Semantics(
       container: true,
-      label: _semanticSummary(copy, explanation),
+      label: _semanticSummary(copy, recommendation, explanation),
       hint: copy.choose(
-        'Expand for more detail or log this meal to daily tracking.',
-        'Abre para ver mas detalle o registra esta comida en el seguimiento diario.',
+        'Open the card for decision details or log the meal to daily tracking.',
+        'Abre la tarjeta para ver detalles o registrar la comida al seguimiento diario.',
       ),
       child: SectionCard(
-        tintColor: accent.withValues(alpha: 0.08),
+        tintColor: accent.withValues(alpha: 0.06),
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             LayoutBuilder(
               builder: (context, constraints) {
-                final textScale = MediaQuery.textScalerOf(context).scale(1);
-                final stacked = constraints.maxWidth < 330 || textScale > 1.2;
-                final details = Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        widget.recommendation.food.name,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${widget.recommendation.food.servingLabel} | ${_labelizePrep(copy, widget.recommendation.food.prepMethod)} | \$${widget.recommendation.food.costEstimate.toStringAsFixed(2)}',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    if (explanation?.accessSummary?.isNotEmpty == true) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        explanation!.accessSummary!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ],
-                );
-                final badge = _ScoreBadge(
-                  score: widget.recommendation.displayScore.round(),
-                  color: accent,
+                final compact = constraints.maxWidth < 360;
+                final overview = _CardOverview(
+                  recommendation: recommendation,
+                  explanation: explanation,
+                  accent: accent,
                   language: widget.language,
                 );
+                final badge = _ScoreBadge(
+                  score: recommendation.displayScore.round(),
+                  color: accent,
+                  qualityLabel: _qualityLabel(copy, recommendation.displayScore.round()),
+                );
 
-                if (stacked) {
+                if (compact) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      details,
+                      overview,
                       const SizedBox(height: 14),
-                      Align(alignment: Alignment.centerLeft, child: badge),
+                      Align(alignment: Alignment.centerRight, child: badge),
                     ],
                   );
                 }
@@ -101,44 +83,88 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: details),
-                    const SizedBox(width: 16),
+                    Expanded(child: overview),
+                    const SizedBox(width: 12),
                     badge,
                   ],
                 );
               },
             ),
-            const SizedBox(height: 16),
+            if (explanation?.accessSummary?.isNotEmpty == true) ...[
+              const SizedBox(height: 12),
+              _AccessSummaryStrip(summary: explanation!.accessSummary!),
+            ],
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
-                  child: _MacroStat(
+                  child: _MacroMetric(
                     label: copy.caloriesLabel,
-                    value: widget.recommendation.nutrients.caloriesKcal
-                        .toStringAsFixed(0),
+                    value: recommendation.nutrients.caloriesKcal.toStringAsFixed(0),
+                    unit: 'CAL',
                   ),
                 ),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: _MacroStat(
+                  child: _MacroMetric(
                     label: copy.proteinLabel,
-                    value:
-                        '${widget.recommendation.nutrients.proteinG.toStringAsFixed(0)}g',
+                    value: recommendation.nutrients.proteinG.toStringAsFixed(0),
+                    unit: 'g',
                   ),
                 ),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: _MacroStat(
-                    label: copy.choose('Fiber', 'Fibra'),
-                    value:
-                        '${widget.recommendation.nutrients.fiberG.toStringAsFixed(0)}g',
+                  child: _MacroMetric(
+                    label: copy.carbsLabel,
+                    value: recommendation.nutrients.carbsG.toStringAsFixed(0),
+                    unit: 'g',
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _MacroMetric(
+                    label: copy.fatLabel,
+                    value: recommendation.nutrients.fatG.toStringAsFixed(0),
+                    unit: 'g',
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
+            Row(
               children: [
+                Expanded(
+                  child: _SourcePill(
+                    label: _primarySourceLabel(copy, food),
+                    detail: '
+${food.prepTimeMin} min | ${_labelizePrep(copy, food.prepMethod)}'
+                        .trim(),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                FilledButton(
+                  onPressed: widget.onExplain,
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 46),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                  child: Text(copy.choose('Why this', 'Por que esta')),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: widget.onTrack,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 46),
+                    ),
+                    child: Text(copy.choose('Log meal', 'Registrar comida')),
+                  ),
+                ),
+                const SizedBox(width: 8),
                 TextButton.icon(
                   onPressed: () {
                     setState(() {
@@ -152,17 +178,9 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                   ),
                   label: Text(
                     _expanded
-                        ? copy.choose('Hide details', 'Ocultar detalles')
-                        : copy.choose('Show details', 'Mostrar detalles'),
+                        ? copy.choose('Less', 'Menos')
+                        : copy.choose('Details', 'Detalles'),
                   ),
-                ),
-                OutlinedButton(
-                  onPressed: widget.onExplain,
-                  child: Text(copy.choose('Why this', 'Por que esta')),
-                ),
-                FilledButton.tonal(
-                  onPressed: widget.onTrack,
-                  child: Text(copy.choose('Log meal', 'Registrar comida')),
                 ),
               ],
             ),
@@ -216,8 +234,9 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                     subdued: true,
                   ),
                 ],
+                const SizedBox(height: 14),
               ],
-              LiveStorePreview(food: widget.recommendation.food),
+              LiveStorePreview(food: recommendation.food),
             ],
           ],
         ),
@@ -232,29 +251,63 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
   Color _accentFor(int id) {
     const colors = [
       NihPalette.secondary,
-      NihPalette.primaryAltDark,
-      NihPalette.success,
+      NihPalette.primaryAlt,
       NihPalette.warning,
+      NihPalette.macroFat,
     ];
     return colors[id % colors.length];
   }
 
-  String _semanticSummary(AppCopy copy, Explanation? explanation) {
+  String _semanticSummary(
+    AppCopy copy,
+    ScoredFood recommendation,
+    Explanation? explanation,
+  ) {
     final parts = <String>[
-      widget.recommendation.food.name,
+      recommendation.food.name,
       copy.choose(
-        'Today fit ${widget.recommendation.displayScore.round()}',
-        'Ajuste hoy ${widget.recommendation.displayScore.round()}',
+        'Today fit ${recommendation.displayScore.round()}',
+        'Ajuste hoy ${recommendation.displayScore.round()}',
       ),
       copy.choose(
-        'Cost \$${widget.recommendation.food.costEstimate.toStringAsFixed(2)}',
-        'Costo \$${widget.recommendation.food.costEstimate.toStringAsFixed(2)}',
+        'Cost ${recommendation.food.costEstimate.toStringAsFixed(2)} dollars',
+        'Costo ${recommendation.food.costEstimate.toStringAsFixed(2)} dolares',
       ),
     ];
     if (explanation?.accessSummary?.isNotEmpty == true) {
       parts.add(explanation!.accessSummary!);
     }
     return parts.join('. ');
+  }
+
+  String _qualityLabel(AppCopy copy, int score) {
+    if (score >= 95) {
+      return copy.choose('Excellent', 'Excelente');
+    }
+    if (score >= 85) {
+      return copy.choose('Strong', 'Fuerte');
+    }
+    if (score >= 75) {
+      return copy.choose('Solid', 'Solida');
+    }
+    return copy.choose('Fair', 'Aceptable');
+  }
+
+  String _primarySourceLabel(AppCopy copy, Food food) {
+    final availability = food.availability.toList()
+      ..sort((a, b) => a.index.compareTo(b.index));
+    if (availability.isEmpty) {
+      return copy.choose('Bundled source', 'Fuente incluida');
+    }
+
+    final primary = availability.first;
+    return switch (primary) {
+      AvailabilityContext.grocery => copy.choose('Grocery', 'Supermercado'),
+      AvailabilityContext.convenience => copy.choose('Convenience', 'Conveniencia'),
+      AvailabilityContext.fastFood => copy.choose('Fast food', 'Comida rapida'),
+      AvailabilityContext.foodPantry => copy.choose('Food pantry', 'Despensa'),
+      AvailabilityContext.dollarStore => copy.choose('Dollar store', 'Tienda de dolar'),
+    };
   }
 
   String _labelizePrep(AppCopy copy, String value) {
@@ -273,27 +326,279 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
   }
 }
 
-class _MacroStat extends StatelessWidget {
-  const _MacroStat({required this.label, required this.value});
+class _CardOverview extends StatelessWidget {
+  const _CardOverview({
+    required this.recommendation,
+    required this.explanation,
+    required this.accent,
+    required this.language,
+  });
 
-  final String label;
-  final String value;
+  final ScoredFood recommendation;
+  final Explanation? explanation;
+  final Color accent;
+  final UserLanguage language;
 
   @override
   Widget build(BuildContext context) {
+    final copy = AppCopy(language);
     final theme = Theme.of(context);
-    return Column(
+    final food = recommendation.food;
+    final subtitle = explanation?.accessSummary?.isNotEmpty == true
+        ? explanation!.accessSummary!
+        : '${food.servingLabel} | ${_prepLabel(copy, food.prepMethod)} | ${food.costEstimate.toStringAsFixed(2)}';
+
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.labelMedium),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
+        _ArtworkTile(food: food, accent: accent),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                food.name,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1.08,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                subtitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF6E6E76),
+                  fontWeight: FontWeight.w500,
+                  height: 1.32,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _InfoChip(label: copy.mealTimingLabel(food.mealTypes.firstOrNull ?? food.mealTypes.first)),
+                  _InfoChip(label: '\$${food.costEstimate.toStringAsFixed(2)}'),
+                  _InfoChip(label: '${food.prepTimeMin} min'),
+                ],
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  String _prepLabel(AppCopy copy, String value) {
+    switch (value) {
+      case 'none':
+        return copy.choose('No prep', 'Sin preparar');
+      case 'microwave':
+        return copy.choose('Microwave', 'Microondas');
+      case 'stove':
+        return copy.choose('Stovetop', 'Estufa');
+      case 'oven':
+        return copy.choose('Oven', 'Horno');
+      default:
+        return value;
+    }
+  }
+}
+
+class _ArtworkTile extends StatelessWidget {
+  const _ArtworkTile({required this.food, required this.accent});
+
+  final Food food;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 96,
+      height: 96,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: LinearGradient(
+          colors: [
+            accent.withValues(alpha: 0.18),
+            accent.withValues(alpha: 0.06),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: accent.withValues(alpha: 0.18)),
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Icon(
+              _iconFor(food),
+              size: 42,
+              color: accent,
+            ),
+          ),
+          Positioned(
+            left: 8,
+            bottom: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.92),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                food.category.replaceAll('_', ' '),
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF54545B),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _iconFor(Food food) {
+    if (food.availability.contains(AvailabilityContext.fastFood)) {
+      return Icons.lunch_dining_rounded;
+    }
+    if (food.availability.contains(AvailabilityContext.foodPantry)) {
+      return Icons.inventory_2_rounded;
+    }
+    if (food.availability.contains(AvailabilityContext.dollarStore)) {
+      return Icons.local_offer_rounded;
+    }
+    if (food.availability.contains(AvailabilityContext.convenience)) {
+      return Icons.storefront_rounded;
+    }
+    if (food.category.contains('protein')) {
+      return Icons.egg_alt_rounded;
+    }
+    if (food.category.contains('grain')) {
+      return Icons.rice_bowl_rounded;
+    }
+    if (food.category.contains('produce')) {
+      return Icons.eco_rounded;
+    }
+    return Icons.restaurant_menu_rounded;
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F8),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: const Color(0xFF5F5F68),
+        ),
+      ),
+    );
+  }
+}
+
+class _AccessSummaryStrip extends StatelessWidget {
+  const _AccessSummaryStrip({required this.summary});
+
+  final String summary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F4F8),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text(
+        summary,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: const Color(0xFF53535B),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _MacroMetric extends StatelessWidget {
+  const _MacroMetric({
+    required this.label,
+    required this.value,
+    required this.unit,
+  });
+
+  final String label;
+  final String value;
+  final String unit;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$value$unit',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
+  }
+}
+
+class _SourcePill extends StatelessWidget {
+  const _SourcePill({required this.label, required this.detail});
+
+  final String label;
+  final String detail;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F7FA),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFEAEAEE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(detail, style: Theme.of(context).textTheme.bodySmall),
+        ],
+      ),
     );
   }
 }
@@ -302,38 +607,32 @@ class _ScoreBadge extends StatelessWidget {
   const _ScoreBadge({
     required this.score,
     required this.color,
-    required this.language,
+    required this.qualityLabel,
   });
 
   final int score;
   final Color color;
-  final UserLanguage language;
+  final String qualityLabel;
 
   @override
   Widget build(BuildContext context) {
     final progress = (score / 100).clamp(0.0, 1.0);
-    final textScale = MediaQuery.textScalerOf(context).scale(1);
-    final badgeSize = textScale > 1.2 ? 88.0 : 72.0;
-    final labelStyle =
-        (textScale > 1.2
-                ? Theme.of(context).textTheme.labelSmall
-                : Theme.of(context).textTheme.labelMedium)
-            ?.copyWith(height: 1.0);
 
     return SizedBox(
-      width: badgeSize,
-      height: badgeSize,
+      width: 70,
+      height: 70,
       child: Stack(
         alignment: Alignment.center,
         children: [
           SizedBox(
-            width: badgeSize,
-            height: badgeSize,
+            width: 70,
+            height: 70,
             child: CircularProgressIndicator(
               value: progress,
-              strokeWidth: 6,
-              backgroundColor: color.withValues(alpha: 0.12),
+              strokeWidth: 5,
+              backgroundColor: color.withValues(alpha: 0.14),
               valueColor: AlwaysStoppedAnimation<Color>(color),
+              strokeCap: StrokeCap.round,
             ),
           ),
           Column(
@@ -341,18 +640,19 @@ class _ScoreBadge extends StatelessWidget {
             children: [
               Text(
                 '$score',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  height: 1,
+                ),
               ),
               const SizedBox(height: 2),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  AppCopy(language).choose('Today fit', 'Ajuste hoy'),
-                  style: labelStyle,
-                  textAlign: TextAlign.center,
+              Text(
+                qualityLabel,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: color,
                 ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
@@ -418,10 +718,10 @@ class _FactChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 10, 10, 9),
+      padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: const Color(0xFFF5F5F8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,6 +732,7 @@ class _FactChip extends StatelessWidget {
             fact.value,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.w700,
+              color: const Color(0xFF2B2B30),
             ),
           ),
         ],
@@ -493,28 +794,27 @@ class _AccessBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.55),
+        color: const Color(0xFFF5F5F8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             AppCopy(language).choose('Access read', 'Lectura de acceso'),
-            style: Theme.of(
-              context,
-            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             summary,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF2C2C31),
+            ),
           ),
           if (tags.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -535,4 +835,8 @@ class _AccessBanner extends StatelessWidget {
       ),
     );
   }
+}
+
+extension on Set<Enum> {
+  T? get firstOrNull => isEmpty ? null : first as T?;
 }

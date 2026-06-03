@@ -56,77 +56,80 @@ class OnboardingFlowScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16, compact ? 8 : 10, 16, 0),
-          child: Column(
-            children: [
-              _MockStatusBar(meta: _statusMetaFor(stage)),
-              SizedBox(height: compact ? 10 : 14),
-              _FlowHeader(
-                progress: progress,
-                canGoBack: stage != _orderedStages.first,
-                onBack: () => _goBack(controller, stage),
-              ),
-              SizedBox(height: compact ? 18 : 24),
-              Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 180),
-                  child: KeyedSubtree(
-                    key: ValueKey(stage),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: switch (stage) {
-                        OnboardingStage.splash => const OnboardingSplashStep(),
-                        OnboardingStage.allergens =>
-                          const OnboardingAllergensStep(),
-                        OnboardingStage.religion =>
-                          const OnboardingReligionStep(),
-                        OnboardingStage.medical =>
-                          const OnboardingMedicalStep(),
-                        OnboardingStage.budget => const OnboardingBudgetStep(),
-                        OnboardingStage.environment =>
-                          const OnboardingEnvironmentStep(),
-                        OnboardingStage.availability =>
-                          const OnboardingAvailabilityStep(),
-                        OnboardingStage.access => const OnboardingAccessStep(),
-                        OnboardingStage.dietaryStyle =>
-                          const OnboardingDietaryStyleStep(),
-                        OnboardingStage.mealTiming =>
-                          const OnboardingMealTimingStep(),
-                        OnboardingStage.cuisine =>
-                          const OnboardingCuisineStep(),
-                        OnboardingStage.dislikes =>
-                          const OnboardingDislikesStep(),
-                        OnboardingStage.pantry => const OnboardingPantryStep(),
-                        OnboardingStage.profile =>
-                          const OnboardingProfileStep(),
-                        OnboardingStage.targets =>
-                          const OnboardingTargetsStep(),
-                      },
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 430),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(20, compact ? 10 : 14, 20, 20),
+              child: Column(
+                children: [
+                  _FlowHeader(
+                    progress: progress,
+                    canGoBack: stage != _orderedStages.first,
+                    onBack: () => _goBack(controller, stage),
+                  ),
+                  SizedBox(height: compact ? 24 : 32),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      child: KeyedSubtree(
+                        key: ValueKey(stage),
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: switch (stage) {
+                            OnboardingStage.splash =>
+                              const OnboardingSplashStep(),
+                            OnboardingStage.allergens =>
+                              const OnboardingAllergensStep(),
+                            OnboardingStage.religion =>
+                              const OnboardingReligionStep(),
+                            OnboardingStage.medical =>
+                              const OnboardingMedicalStep(),
+                            OnboardingStage.budget =>
+                              const OnboardingBudgetStep(),
+                            OnboardingStage.environment =>
+                              const OnboardingEnvironmentStep(),
+                            OnboardingStage.availability =>
+                              const OnboardingAvailabilityStep(),
+                            OnboardingStage.access =>
+                              const OnboardingAccessStep(),
+                            OnboardingStage.dietaryStyle =>
+                              const OnboardingDietaryStyleStep(),
+                            OnboardingStage.mealTiming =>
+                              const OnboardingMealTimingStep(),
+                            OnboardingStage.cuisine =>
+                              const OnboardingCuisineStep(),
+                            OnboardingStage.dislikes =>
+                              const OnboardingDislikesStep(),
+                            OnboardingStage.pantry =>
+                              const OnboardingPantryStep(),
+                            OnboardingStage.profile =>
+                              const OnboardingProfileStep(),
+                            OnboardingStage.targets =>
+                              const OnboardingTargetsStep(),
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              SizedBox(height: compact ? 12 : 16),
-              _ContinueButton(
-                label: switch (stage) {
-                  OnboardingStage.splash => copy.choose(
-                    'Get started',
-                    'Empezar',
+                  SizedBox(height: compact ? 12 : 18),
+                  _ContinueButton(
+                    label: switch (stage) {
+                      OnboardingStage.splash => copy.choose(
+                        'Get started',
+                        'Empezar',
+                      ),
+                      OnboardingStage.targets => copy.choose(
+                        'See recommendations',
+                        'Ver opciones',
+                      ),
+                      _ => copy.choose('Continue', 'Continuar'),
+                    },
+                    onPressed: () => _goForward(controller, stage),
                   ),
-                  OnboardingStage.targets => copy.choose(
-                    'See recommendations',
-                    'Ver opciones',
-                  ),
-                  _ => copy.choose('Continue', 'Continuar'),
-                },
-                onPressed: () => _goForward(controller, stage),
+                ],
               ),
-              SizedBox(height: compact ? 14 : 18),
-              const _HomeIndicator(),
-              SizedBox(height: compact ? 8 : 10),
-            ],
+            ),
           ),
         ),
       ),
@@ -149,138 +152,6 @@ class OnboardingFlowScreen extends ConsumerWidget {
 
     controller.setStage(_orderedStages[index + 1]);
   }
-
-  _StatusMeta _statusMetaFor(OnboardingStage stage) {
-    switch (stage) {
-      case OnboardingStage.splash:
-        return const _StatusMeta(timer: '0:08', battery: '23');
-      case OnboardingStage.allergens:
-        return const _StatusMeta(timer: '0:16', battery: '23');
-      case OnboardingStage.religion:
-        return const _StatusMeta(timer: '0:47', battery: '22');
-      case OnboardingStage.medical:
-        return const _StatusMeta(timer: '0:49', battery: '22');
-      case OnboardingStage.budget:
-        return const _StatusMeta(timer: '0:38', battery: '22');
-      case OnboardingStage.environment:
-        return const _StatusMeta(timer: '0:33', battery: '22');
-      case OnboardingStage.availability:
-        return const _StatusMeta(timer: '0:41', battery: '22');
-      case OnboardingStage.access:
-        return const _StatusMeta(timer: '0:44', battery: '22');
-      case OnboardingStage.dietaryStyle:
-        return const _StatusMeta(timer: '0:27', battery: '22');
-      case OnboardingStage.mealTiming:
-        return const _StatusMeta(timer: '0:20', battery: '22');
-      case OnboardingStage.cuisine:
-        return const _StatusMeta(timer: '0:25', battery: '22');
-      case OnboardingStage.dislikes:
-        return const _StatusMeta(timer: '0:18', battery: '22');
-      case OnboardingStage.pantry:
-        return const _StatusMeta(timer: '0:22', battery: '22');
-      case OnboardingStage.profile:
-        return const _StatusMeta(timer: '0:15', battery: '22');
-      case OnboardingStage.targets:
-        return const _StatusMeta(timer: '0:12', battery: '22');
-    }
-  }
-}
-
-class _MockStatusBar extends StatelessWidget {
-  const _MockStatusBar({required this.meta});
-
-  final _StatusMeta meta;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text(
-          '6:18',
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF111111),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Container(
-            height: 32,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              children: [
-                Container(
-                  width: 20,
-                  height: 20,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF0EA84A),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.call, size: 11, color: Colors.white),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  meta.timer,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF69FF72),
-                  ),
-                ),
-                const Spacer(),
-                Row(
-                  children: List.generate(
-                    7,
-                    (index) => Container(
-                      width: 3,
-                      height: 3,
-                      margin: const EdgeInsets.symmetric(horizontal: 1.2),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9C55E),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const DecoratedBox(
-          decoration: BoxDecoration(
-            color: Color(0xFFE39C1A),
-            shape: BoxShape.circle,
-          ),
-          child: SizedBox(width: 9, height: 9),
-        ),
-        const SizedBox(width: 8),
-        Container(
-          height: 18,
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE6E6E9),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: Text(
-              meta.battery,
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF6B6B70),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class _FlowHeader extends StatelessWidget {
@@ -299,18 +170,19 @@ class _FlowHeader extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 34,
-          height: 34,
+          width: 36,
+          height: 36,
           child: canGoBack
               ? Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7F7F9),
+                    color: const Color(0xFFF7F7FA),
                     shape: BoxShape.circle,
-                    boxShadow: [
+                    border: Border.all(color: const Color(0xFFEEEEF3)),
+                    boxShadow: const [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: Color(0x09000000),
+                        blurRadius: 18,
+                        offset: Offset(0, 8),
                       ),
                     ],
                   ),
@@ -334,7 +206,7 @@ class _FlowHeader extends StatelessWidget {
               height: 4,
               child: Stack(
                 children: [
-                  Container(color: const Color(0xFFF1F1F3)),
+                  Container(color: const Color(0xFFF1F1F4)),
                   FractionallySizedBox(
                     widthFactor: progress,
                     child: Container(color: const Color(0xFF1A1A1A)),
@@ -357,48 +229,23 @@ class _ContinueButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Container(
-        height: 46,
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(28),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton(
+        onPressed: onPressed,
+        style: FilledButton.styleFrom(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+          minimumSize: const Size.fromHeight(54),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
           ),
         ),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
-}
-
-class _HomeIndicator extends StatelessWidget {
-  const _HomeIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 132,
-      height: 5,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(999),
-      ),
-    );
-  }
-}
-
-class _StatusMeta {
-  const _StatusMeta({required this.timer, required this.battery});
-
-  final String timer;
-  final String battery;
 }

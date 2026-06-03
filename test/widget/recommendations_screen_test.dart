@@ -3,312 +3,108 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:access_plate/domain/entities/food.dart';
-import 'package:access_plate/domain/entities/grocery.dart';
-import 'package:access_plate/domain/entities/local_access.dart';
+import 'package:access_plate/domain/entities/meal_history.dart';
 import 'package:access_plate/domain/entities/nutrients.dart';
 import 'package:access_plate/domain/entities/recommendation.dart';
-import 'package:access_plate/domain/engine/score_config_provider.dart';
+import 'package:access_plate/domain/entities/explanation.dart';
+import 'package:access_plate/domain/engine/meal_history_summary.dart';
 import 'package:access_plate/domain/entities/user_constraints.dart';
 import 'package:access_plate/domain/entities/user_profile.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
-import 'package:access_plate/domain/value_objects/dietary_style.dart';
 import 'package:access_plate/domain/value_objects/meal_type.dart';
-import 'package:access_plate/presentation/providers/app_bootstrap.dart';
-import 'package:access_plate/presentation/providers/live_grocery_providers.dart';
+import 'package:access_plate/presentation/providers/meal_history_providers.dart';
 import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/providers/recommendations_provider.dart';
 import 'package:access_plate/presentation/screens/recommendations/recommendations_screen.dart';
 import 'package:access_plate/presentation/widgets/recommendation_card.dart';
 
 void main() {
-  testWidgets('recommendations screen stays balanced on a narrow viewport', (
+  testWidgets('recommendations screen opens on the discovery tab', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(360, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-
-    final profile = UserProfile.defaults().copyWith(
-      onboardingComplete: true,
-      constraints: UserConstraints.defaults().copyWith(
-        feasibility: const FeasibilityConstraints(
-          maxCostPerMeal: 11,
-          availability: {
-            AvailabilityContext.grocery,
-            AvailabilityContext.convenience,
-            AvailabilityContext.foodPantry,
-          },
-        ),
-        preference: const PreferenceConstraints(
-          dietaryStyle: DietaryStyle.vegetarian,
-          mealType: MealType.lunch,
-        ),
-      ),
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          localAccessCatalogProvider.overrideWith(
-            (ref) async => _testAccessCatalog,
-          ),
-          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
-          profileControllerProvider.overrideWith(
-            () => _TestProfileController(profile),
-          ),
-          recommendationsProvider.overrideWith((ref) async => _result),
-        ],
-        child: const MaterialApp(home: RecommendationsScreen()),
-      ),
-    );
+    await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
-    expect(tester.takeException(), isNull);
-    expect(find.text('Today snapshot'), findsOneWidget);
-    expect(
-      find.text(
-        'Vegetarian options for lunch you can realistically reach today',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('What are you in the mood for?'), findsOneWidget);
+    expect(find.text('Fast Food Restaurants'), findsOneWidget);
     await tester.scrollUntilVisible(
-      find.text('Do this first today'),
-      120,
+      find.text('Near Me'),
+      160,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
-    expect(find.text('Do this first today'), findsOneWidget);
-    expect(find.text('Why this route'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Best first stop'),
-      120,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('Best first stop'), findsOneWidget);
-    await tester.tap(find.text('Best first stop'));
-    await tester.pumpAndSettle();
-    expect(find.text('Best first stop: Food pantry'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text('Reachable food options'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('Reachable food options'), findsOneWidget);
-    expect(
-      find.text(
-        'Use from home first, then compare safe buys you can actually reach.',
-      ),
-      findsOneWidget,
-    );
+    expect(find.text('Near Me'), findsOneWidget);
   });
 
-  testWidgets('shows live grocery preview when a store is selected', (
+  testWidgets('meals tab shows meal cards and expandable details', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(430, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-
-    final profile = UserProfile.defaults().copyWith(
-      onboardingComplete: true,
-      constraints: UserConstraints.defaults().copyWith(
-        feasibility: const FeasibilityConstraints(
-          availability: {AvailabilityContext.grocery},
-          groceryStore: GroceryStore(
-            retailer: GroceryRetailer.kroger,
-            locationId: '01400477',
-            name: 'Kroger Delhi',
-            addressLine1: '5080 Delhi Pike',
-            city: 'Cincinnati',
-            state: 'OH',
-            postalCode: '45238',
-          ),
-        ),
-      ),
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          localAccessCatalogProvider.overrideWith(
-            (ref) async => _testAccessCatalog,
-          ),
-          referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
-          profileControllerProvider.overrideWith(
-            () => _TestProfileController(profile),
-          ),
-          recommendationsProvider.overrideWith((ref) async => _result),
-          liveGroceryMatchesProvider.overrideWith(
-            (ref) async => {
-              for (final id in [1, 2, 3])
-                id: GroceryProductLookup(
-                  foodId: id,
-                  foodName: 'Sweet potato with black beans',
-                  store: const GroceryStore(
-                    retailer: GroceryRetailer.kroger,
-                    locationId: '01400477',
-                    name: 'Kroger Delhi',
-                    addressLine1: '5080 Delhi Pike',
-                    city: 'Cincinnati',
-                    state: 'OH',
-                    postalCode: '45238',
-                  ),
-                  plan: const GrocerySearchPlan(
-                    term: 'black beans',
-                    displayLabel: 'black beans',
-                    rationale: 'Core staple search for this suggestion',
-                    exactMatch: false,
-                  ),
-                  products: const [
-                    GroceryProduct(
-                      retailer: GroceryRetailer.kroger,
-                      productId: '1',
-                      description: 'Simple Truth Black Beans',
-                      brand: 'Simple Truth',
-                      regularPrice: 1.19,
-                      availableInStore: true,
-                    ),
-                    GroceryProduct(
-                      retailer: GroceryRetailer.kroger,
-                      productId: '2',
-                      description: 'Kroger Black Beans',
-                      brand: 'Kroger',
-                      regularPrice: 0.99,
-                      availableInStore: true,
-                    ),
-                  ],
-                ),
-            },
-          ),
-        ],
-        child: const MaterialApp(home: RecommendationsScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.text('Reachable food options'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-    final firstCard = find.byType(RecommendationCard).first;
-    await tester.scrollUntilVisible(
-      firstCard,
-      120,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.descendant(of: firstCard, matching: find.text('Show details')),
-    );
+    await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
+    await tester.tap(find.bySemanticsLabel('Meals'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Suggested Meals'), findsOneWidget);
+    for (var attempt = 0; attempt < 4; attempt++) {
+      if (find.byType(RecommendationCard).evaluate().isNotEmpty) {
+        break;
+      }
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -220));
+      await tester.pumpAndSettle();
+    }
+    expect(find.byType(RecommendationCard), findsWidgets);
+
+    await tester.ensureVisible(find.text('Show details').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Show details').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Decision snapshot'), findsWidgets);
     expect(
-      find.descendant(
-        of: firstCard,
-        matching: find.textContaining('black beans brands at Kroger Delhi'),
-      ),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(
-        of: firstCard,
-        matching: find.text('Simple Truth | \$1.19'),
-      ),
-      findsOneWidget,
+      find.textContaining('Short trip with pantry-friendly staples.'),
+      findsWidgets,
     );
   });
 
   testWidgets(
-    'recommendations screen surfaces first-action labels and fallback evidence copy',
+    'history and profile tabs expose progress and settings summaries',
     (tester) async {
-      tester.view.physicalSize = const Size(390, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-
-      final profile = UserProfile.defaults().copyWith(
-        onboardingComplete: true,
-        constraints: UserConstraints.defaults().copyWith(
-          feasibility: const FeasibilityConstraints(
-            maxCostPerMeal: 9,
-            availability: {
-              AvailabilityContext.grocery,
-              AvailabilityContext.convenience,
-              AvailabilityContext.foodPantry,
-            },
-          ),
-          access: const AccessConstraints(
-            postalCode: '99999',
-            plainLanguage: true,
-          ),
-        ),
-      );
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            localAccessCatalogProvider.overrideWith(
-              (ref) async => _testAccessCatalog,
-            ),
-            referenceTablesProvider.overrideWith((ref) async => _testReferenceTables),
-            profileControllerProvider.overrideWith(
-              () => _TestProfileController(profile),
-            ),
-            recommendationsProvider.overrideWith((ref) async => _result),
-          ],
-          child: const MaterialApp(home: RecommendationsScreen()),
-        ),
-      );
+      await tester.pumpWidget(_buildHarness());
       await tester.pumpAndSettle();
 
-      await tester.scrollUntilVisible(
-        find.text('Do this first today'),
-        120,
-        scrollable: find.byType(Scrollable).first,
-      );
+      await tester.tap(find.bySemanticsLabel('History'));
       await tester.pumpAndSettle();
+      expect(find.text('Weekly Snapshot'), findsOneWidget);
+      expect(find.text('Recent Days'), findsOneWidget);
 
-      expect(find.text('Go first'), findsOneWidget);
-      expect(find.text('Use from home'), findsOneWidget);
-      expect(find.text('Buy first'), findsOneWidget);
-      expect(find.text('Skip first'), findsOneWidget);
-      expect(find.text('Why this route'), findsOneWidget);
-      expect(find.text('Backup'), findsOneWidget);
-
-      await tester.scrollUntilVisible(
-        find.text('Decision evidence'),
-        120,
-        scrollable: find.byType(Scrollable).first,
-      );
+      await tester.tap(find.bySemanticsLabel('Profile'));
       await tester.pumpAndSettle();
-
-      expect(find.text('Decision evidence'), findsOneWidget);
-      await tester.tap(find.text('Decision evidence'));
-      await tester.pumpAndSettle();
-      expect(
-        find.text(
-          'Confidence is lower here because this falls back to a general low-resource model.',
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.text(
-          'No live grocery store is attached right now. Grocery access is still ranked with bundled modeled data.',
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('Profile'), findsOneWidget);
+      expect(find.text('Total Daily Macros'), findsOneWidget);
     },
+  );
+}
+
+Widget _buildHarness() {
+  final profile = UserProfile.defaults().copyWith(onboardingComplete: true);
+
+  return ProviderScope(
+    overrides: [
+      profileControllerProvider.overrideWith(
+        () => _TestProfileController(profile),
+      ),
+      recommendationsProvider.overrideWith((ref) async => _result),
+      discoverCatalogProvider.overrideWith((ref) async => _catalog),
+      mealEntriesForDayProvider.overrideWith((ref, day) async => _todayLog),
+      recentMealDaySummariesProvider.overrideWith(
+        (ref, count) async => _recentDays,
+      ),
+      weeklyNutritionOverviewProvider.overrideWith(
+        (ref, endDate) async => _weeklyOverview,
+      ),
+    ],
+    child: const MaterialApp(home: RecommendationsScreen()),
   );
 }
 
@@ -339,234 +135,201 @@ class _TestProfileController extends ProfileController {
   }
 }
 
+final _catalog = List<FoodRecord>.generate(8, (index) {
+  return FoodRecord(
+    food: _buildFood(index + 1).food,
+    nutrients: _buildFood(index + 1).nutrients,
+  );
+});
+
 final _result = RecommendationResult(
-  recommendations: List.generate(10, (index) => _buildFood(index + 1)),
+  recommendations: List.generate(4, (index) => _buildFood(index + 1)),
   preferenceRelaxed: false,
-  candidatePoolSize: 17,
-  elapsedMs: 32,
-  sourceTripPlan: const SourceTripPlan(
-    mission: SourceTripMission.pantryStretch,
-    primarySource: AvailabilityContext.foodPantry,
-    backupSource: AvailabilityContext.grocery,
-    title: 'Best first stop: Food pantry',
-    summary:
-        'Your ZIP snapshot makes a food pantry the best first stop for stretching pantry staples.',
-    reasons: [
-      '12 min typical travel with 2 nearby options.',
-      'Shorter trip than the bundled grocery route in this snapshot.',
-      'Works better for topping off what is already in the kitchen.',
-    ],
-    highlights: ['Food pantry', 'Pantry stretch', '12 min'],
-    bestFor: ['Staples', 'Pantry stretch'],
-    communityLabel: 'Fallback',
-    travelMinutes: 12,
-    routeReason:
-        'More realistic than the grocery route because this pantry stop is shorter and still covers the top staples.',
-    benefitSummary: 'Best when you need food first with no purchase.',
-    confidenceSummary:
-        'Lower-confidence access read because this falls back to the general bundled low-resource model.',
-    dataSourceSummary:
-        'First-stop ranking uses bundled ZIP access data only, not live store inventory.',
-  ),
-  todayPlan: TodayPlan(
-    type: TodayPlanType.pantryFirst,
-    title: 'Today plan: pantry-first',
-    summary: 'Stretch pantry food before spending on a larger run.',
-    steps: [
-      'Use black beans from home first.',
-      'Add one fresh item only if you still need it.',
-      'Keep the total low before a full grocery trip.',
-    ],
-    highlights: ['Pantry-first', 'Food pantry'],
-    routeReason:
-        'This is more realistic because it uses food from home first, then asks for only a few add-ons.',
-    benefitSummary:
-        'Using food from home first lowers the amount you still need to buy.',
-    confidenceSummary:
-        'Lower-confidence access read because this plan falls back to the general bundled low-resource model.',
-    dataSourceSummary:
-        'Access burden here uses bundled ZIP access data, not live store inventory.',
-    purchases: const [
-      PlannedPurchase(
-        label: 'Bananas',
-        priority: PlannedPurchasePriority.buyFirst,
-        detail: 'Lower-risk staple if stock is limited.',
-        estimatedCost: 0.60,
-      ),
-      PlannedPurchase(
-        label: 'Yogurt cup',
-        priority: PlannedPurchasePriority.ifBudgetLeft,
-        estimatedCost: 1.25,
-      ),
-    ],
-    leadRecommendation: ScoredFood(
-      food: Food(
-        id: 999,
-        name: 'Sweet potato with black beans',
-        category: 'vegetable_starchy',
-        servingG: 320,
-        servingLabel: '1 medium + 1/2 cup',
-        costEstimate: 1.8,
-        costConfidence: 'medium',
-        prepMethod: 'microwave',
-        prepTimeMin: 7,
-        cuisine: 'american',
-        mealTypes: const {MealType.lunch, MealType.dinner},
-        availability: const {
-          AvailabilityContext.grocery,
-          AvailabilityContext.foodPantry,
-        },
-        allergens: const {},
-        religionExcluded: const [],
-        medicalRules: const [],
-        ingredients: const {'sweet', 'potato', 'black', 'beans'},
-        source: 'bundled_reference',
-      ),
-      nutrients: const Nutrients(
-        caloriesKcal: 340,
-        proteinG: 13,
-        carbsG: 70,
-        fatG: 1.5,
-        saturatedFatG: 0.2,
-        fiberG: 14,
-        sugarG: 14,
-        addedSugarG: 0,
-        sodiumMg: 240,
-        potassiumMg: 1040,
-        calciumMg: 100,
-        ironMg: 3.6,
-        magnesiumMg: 90,
-        zincMg: 1.6,
-        vitAMcgRae: 1800,
-        vitCMg: 36,
-        vitDMcg: 0,
-        vitB12Mcg: 0,
-        folateMcgDfe: 180,
-      ),
-      composite: 0.76,
-      displayScore: 100,
-      breakdown: const ScoreBreakdown(
-        macro: 0.8,
-        micro: 0.75,
-        penalty: 0.05,
-        cost: 0.16,
-        preference: 0.7,
-      ),
+  candidatePoolSize: 8,
+  elapsedMs: 28,
+);
+
+final _todayLog = <MealLogEntry>[
+  MealLogEntry(
+    id: 1,
+    foodId: 1,
+    foodName: 'McDonald\'s Oatmeal Cup',
+    servingLabel: '1 cup',
+    quantity: 1,
+    loggedAt: DateTime(2026, 6, 2, 8, 0),
+    nutrients: const Nutrients(
+      caloriesKcal: 220,
+      proteinG: 6,
+      carbsG: 39,
+      fatG: 4,
+      saturatedFatG: 1,
+      fiberG: 5,
+      sugarG: 7,
+      addedSugarG: 4,
+      sodiumMg: 180,
+      potassiumMg: 160,
+      calciumMg: 40,
+      ironMg: 1.6,
+      magnesiumMg: 38,
+      zincMg: 1.2,
+      vitAMcgRae: 0,
+      vitCMg: 0,
+      vitDMcg: 0,
+      vitB12Mcg: 0,
+      folateMcgDfe: 18,
     ),
+    source: MealLogSource.manual,
   ),
-);
+];
 
-const _testReferenceTables = ReferenceTables(
-  rdaTable: {
-    'female_19_50': {
-      'iron_mg': 18,
-      'calcium_mg': 1000,
-      'potassium_mg': 2600,
-      'magnesium_mg': 310,
-      'zinc_mg': 8,
-      'vit_a_mcg_rae': 700,
-      'vit_c_mg': 75,
-      'vit_d_mcg': 15,
-      'vit_b12_mcg': 2.4,
-      'folate_mcg_dfe': 400,
-    },
-  },
-  medicalModifiers: {},
-  microPriorityElevations: {
-    'anemia': {'iron_mg': 2.0},
-  },
-  basePenaltyThresholds: {
-    'sodium_mg': 750,
-    'added_sugar_g': 12,
-    'saturated_fat_g': 7,
-  },
-  basePenaltyWeights: {
-    'sodium_mg': 0.4,
-    'added_sugar_g': 0.3,
-    'saturated_fat_g': 0.3,
-  },
-);
+final _recentDays = List.generate(7, (index) {
+  final date = DateTime(2026, 6, 2).subtract(Duration(days: index));
+  return MealLogDaySummary(
+    date: date,
+    entries: index.isEven ? _todayLog : const [],
+    totalNutrients: index.isEven
+        ? const Nutrients(
+            caloriesKcal: 1560,
+            proteinG: 76,
+            carbsG: 164,
+            fatG: 48,
+            saturatedFatG: 13,
+            fiberG: 22,
+            sugarG: 31,
+            addedSugarG: 12,
+            sodiumMg: 2100,
+            potassiumMg: 2600,
+            calciumMg: 640,
+            ironMg: 11,
+            magnesiumMg: 250,
+            zincMg: 6,
+            vitAMcgRae: 780,
+            vitCMg: 46,
+            vitDMcg: 4,
+            vitB12Mcg: 1.2,
+            folateMcgDfe: 210,
+          )
+        : Nutrients.zero,
+  );
+});
 
-const _testAccessCatalog = LocalAccessCatalog(
-  exactZipProfiles: {},
-  prefixProfiles: {},
-  fallbackProfile: LocalAccessProfile(
-    profileId: 'fallback',
-    label: 'Fallback',
-    communityLabel: 'Fallback',
-    lowAccessArea: true,
-    communityType: CommunityAccessType.innerNeighborhood,
-    walkSupport: 0.72,
-    transitSupport: 0.64,
-    groceryGapSeverity: 0.72,
-    sources: {
-      AvailabilityContext.foodPantry: SourceAccessSnapshot(
-        nearbyOptions: 2,
-        typicalTravelMinutes: 12,
-        sameDayConfidence: 0.75,
-      ),
-      AvailabilityContext.grocery: SourceAccessSnapshot(
-        nearbyOptions: 1,
-        typicalTravelMinutes: 20,
-        sameDayConfidence: 0.6,
-      ),
-    },
+final _weeklyOverview = WeeklyNutritionOverview(
+  startDate: DateTime(2026, 5, 27),
+  endDate: DateTime(2026, 6, 2),
+  days: _recentDays,
+  totalNutrients: const Nutrients(
+    caloriesKcal: 4680,
+    proteinG: 228,
+    carbsG: 492,
+    fatG: 144,
+    saturatedFatG: 39,
+    fiberG: 66,
+    sugarG: 93,
+    addedSugarG: 36,
+    sodiumMg: 6300,
+    potassiumMg: 7800,
+    calciumMg: 1920,
+    ironMg: 33,
+    magnesiumMg: 750,
+    zincMg: 18,
+    vitAMcgRae: 2340,
+    vitCMg: 138,
+    vitDMcg: 12,
+    vitB12Mcg: 3.6,
+    folateMcgDfe: 630,
   ),
 );
 
 ScoredFood _buildFood(int id) {
+  final names = [
+    'McDonald\'s Oatmeal Cup',
+    'Chipotle Chicken Bowl',
+    'Taco Bell Bean Taco',
+    'In-N-Out Protein Style Burger',
+  ];
+  final name = names[(id - 1) % names.length];
   return ScoredFood(
     food: Food(
       id: id,
-      name: 'Sweet potato with black beans',
-      category: 'vegetable_starchy',
-      servingG: 320,
-      servingLabel: '1 medium + 1/2 cup',
-      costEstimate: 1.8,
+      name: name,
+      category: 'prepared_meal',
+      servingG: 240,
+      servingLabel: '1 serving',
+      costEstimate: 6.5,
       costConfidence: 'medium',
-      prepMethod: 'microwave',
-      prepTimeMin: 7,
-      cuisine: 'american',
+      prepMethod: 'none',
+      prepTimeMin: 0,
       mealTypes: const {MealType.lunch, MealType.dinner},
       availability: const {
+        AvailabilityContext.fastFood,
         AvailabilityContext.grocery,
-        AvailabilityContext.foodPantry,
+        AvailabilityContext.convenience,
       },
       allergens: const {},
       religionExcluded: const [],
       medicalRules: const [],
-      ingredients: const {'sweet', 'potato', 'black', 'beans'},
+      ingredients: const {'beans', 'oats', 'chicken', 'burger'},
       source: 'bundled_reference',
     ),
     nutrients: const Nutrients(
-      caloriesKcal: 340,
-      proteinG: 13,
-      carbsG: 70,
-      fatG: 1.5,
-      saturatedFatG: 0.2,
-      fiberG: 14,
-      sugarG: 14,
-      addedSugarG: 0,
-      sodiumMg: 240,
-      potassiumMg: 1040,
-      calciumMg: 100,
-      ironMg: 3.6,
-      magnesiumMg: 90,
-      zincMg: 1.6,
-      vitAMcgRae: 1800,
-      vitCMg: 36,
+      caloriesKcal: 390,
+      proteinG: 30,
+      carbsG: 35,
+      fatG: 12,
+      saturatedFatG: 3,
+      fiberG: 7,
+      sugarG: 5,
+      addedSugarG: 1,
+      sodiumMg: 540,
+      potassiumMg: 480,
+      calciumMg: 110,
+      ironMg: 3.2,
+      magnesiumMg: 72,
+      zincMg: 2.4,
+      vitAMcgRae: 120,
+      vitCMg: 10,
       vitDMcg: 0,
-      vitB12Mcg: 0,
-      folateMcgDfe: 180,
+      vitB12Mcg: 0.6,
+      folateMcgDfe: 76,
     ),
-    composite: 0.76,
-    displayScore: 100,
+    composite: 0.78,
+    displayScore: 96,
     breakdown: const ScoreBreakdown(
-      macro: 0.8,
-      micro: 0.75,
-      penalty: 0.05,
-      cost: 0.16,
-      preference: 0.7,
+      macro: 0.82,
+      micro: 0.56,
+      penalty: 0.08,
+      cost: 0.12,
+      preference: 0.48,
+    ),
+    explanation: const Explanation(
+      satisfied: [
+        SatisfiedConstraint(
+          category: 'access',
+          description: 'Fast pickup and easy portion control.',
+        ),
+      ],
+      positives: [
+        ScoreFactor(
+          label: 'Protein fit',
+          weight: 0.5,
+          detail: 'Keeps the meal aligned with your target.',
+        ),
+      ],
+      tradeoffs: [
+        ScoreFactor(
+          label: 'Moderate sodium',
+          weight: 0.2,
+          detail: 'Balance the rest of the day accordingly.',
+        ),
+      ],
+      compareWithIds: [],
+      accessSummary: 'Short trip with pantry-friendly staples.',
+      accessTags: ['Fast food', 'Quick pickup'],
+      decisionFacts: [
+        DecisionFact(label: 'Trip', value: 'Short'),
+        DecisionFact(label: 'Protein', value: '30g'),
+        DecisionFact(label: 'Cost', value: '\$6.50'),
+      ],
     ),
   );
 }
