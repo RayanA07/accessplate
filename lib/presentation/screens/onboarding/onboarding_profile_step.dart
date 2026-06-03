@@ -8,7 +8,7 @@ import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
 
-class OnboardingProfileStep extends ConsumerStatefulWidget {
+class OnboardingProfileStep extends ConsumerWidget {
   const OnboardingProfileStep({super.key});
 
   static const visibleConcerns = <HealthConcern>[
@@ -21,242 +21,93 @@ class OnboardingProfileStep extends ConsumerStatefulWidget {
   ];
 
   @override
-  ConsumerState<OnboardingProfileStep> createState() =>
-      _OnboardingProfileStepState();
-}
-
-class _OnboardingProfileStepState extends ConsumerState<OnboardingProfileStep> {
-  final _heightController = TextEditingController();
-  final _weightController = TextEditingController();
-  bool _seeded = false;
-
-  @override
-  void dispose() {
-    _heightController.dispose();
-    _weightController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final profile =
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final demographics = profile.constraints.demographics;
     final controller = ref.read(profileControllerProvider.notifier);
-    final age = demographics.ageYears.clamp(14, 75);
     final copy = AppCopy(profile.constraints.access.language);
-    if (!_seeded) {
-      _seedControllers(demographics);
-    }
 
     return OnboardingStepLayout(
-      title: copy.profileTitle,
-      subtitle: copy.choose(
-        'Set your health context so AccessPlate can build daily targets and watch nutrients without ignoring food access.',
-        'Configura tu contexto de salud para que AccessPlate arme metas diarias y vigile nutrientes sin ignorar el acceso a comida.',
+      title: copy.choose(
+        'A few more\ndetails',
+        'Algunos detalles\nmas',
       ),
+      subtitle: copy.choose(
+        'We use these to personalize daily targets and nutrient priorities.',
+        'Usamos esto para personalizar metas diarias y prioridades de nutrientes.',
+      ),
+      topSpacing: 38,
       children: [
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OnboardingMetaLabel(copy.profileSexLabel),
-              const SizedBox(height: 10),
-              OnboardingSegmentedControl<Sex>(
-                value: demographics.sex,
-                options: Sex.values,
-                labelBuilder: copy.sexLabel,
-                onChanged: (sex) {
+        _DetailSection(
+          label: copy.profileSexLabel,
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: Sex.values.map((sex) {
+              final selected = demographics.sex == sex;
+              return _ChoicePill(
+                selected: selected,
+                label: copy.sexLabel(sex),
+                onTap: () {
+                  controller.updateDemographics(demographics.copyWith(sex: sex));
+                },
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 14),
+        _DetailSection(
+          label: copy.choose('Activity level', 'Nivel de actividad'),
+          helper: copy.choose(
+            'Pick the closest fit for most weeks.',
+            'Elige la opcion mas cercana para la mayoria de tus semanas.',
+          ),
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: ActivityLevel.values.map((level) {
+              final selected = demographics.activityLevel == level;
+              return _ChoicePill(
+                selected: selected,
+                label: _activityLabel(copy, level),
+                onTap: () {
                   controller.updateDemographics(
-                    demographics.copyWith(sex: sex),
+                    demographics.copyWith(activityLevel: level),
                   );
                 },
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ),
         const SizedBox(height: 14),
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OnboardingMetaLabel(copy.ageLabel(age)),
-              Slider(
-                min: 14,
-                max: 75,
-                divisions: 61,
-                value: age.toDouble(),
-                onChanged: (value) {
+        _DetailSection(
+          label: copy.healthPrioritiesLabel,
+          helper: copy.choose(
+            'Only select concerns that really apply right now.',
+            'Solo selecciona prioridades que de verdad apliquen ahora.',
+          ),
+          child: Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: visibleConcerns.map((concern) {
+              final selected = demographics.concerns.contains(concern);
+              return _ChoicePill(
+                selected: selected,
+                label: copy.healthConcernLabel(concern),
+                onTap: () {
+                  final next = {...demographics.concerns};
+                  selected ? next.remove(concern) : next.add(concern);
                   controller.updateDemographics(
-                    demographics.copyWith(ageYears: value.round()),
+                    demographics.copyWith(concerns: next),
                   );
                 },
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OnboardingMetaLabel(
-                copy.choose('Height and weight', 'Altura y peso'),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                copy.choose(
-                  'Used only for daily target estimates based on U.S. nutrition guidance.',
-                  'Se usa solo para estimar metas diarias basadas en guias de nutricion de EE. UU.',
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _heightController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: copy.choose(
-                          'Height (inches)',
-                          'Altura (pulgadas)',
-                        ),
-                      ),
-                      onChanged: (value) =>
-                          _updateHeightIfValid(value, demographics, controller),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _weightController,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: copy.choose(
-                          'Weight (lb)',
-                          'Peso (lb)',
-                        ),
-                      ),
-                      onChanged: (value) =>
-                          _updateWeightIfValid(value, demographics, controller),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OnboardingMetaLabel(
-                copy.choose('Activity level', 'Nivel de actividad'),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                copy.choose(
-                  'Match the closest level from the USDA DRI calculator categories.',
-                  'Elige el nivel mas cercano a las categorias de la calculadora DRI del USDA.',
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: ActivityLevel.values.map((level) {
-                  final selected = demographics.activityLevel == level;
-                  return ChoiceChip(
-                    selected: selected,
-                    label: Text(_activityLabel(copy, level)),
-                    onSelected: (_) {
-                      controller.updateDemographics(
-                        demographics.copyWith(activityLevel: level),
-                      );
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        SectionCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              OnboardingMetaLabel(copy.healthPrioritiesLabel),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: OnboardingProfileStep.visibleConcerns.map((concern) {
-                  final selected = demographics.concerns.contains(concern);
-                  return FilterChip(
-                    selected: selected,
-                    label: Text(copy.healthConcernLabel(concern)),
-                    onSelected: (value) {
-                      final next = {...demographics.concerns};
-                      value ? next.add(concern) : next.remove(concern);
-                      controller.updateDemographics(
-                        demographics.copyWith(concerns: next),
-                      );
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ),
       ],
-    );
-  }
-
-  void _seedControllers(Demographics demographics) {
-    _seeded = true;
-    if (demographics.heightCm != null) {
-      _heightController.text = (demographics.heightCm! / 2.54).toStringAsFixed(0);
-    }
-    if (demographics.weightKg != null) {
-      _weightController.text = (demographics.weightKg! * 2.20462)
-          .toStringAsFixed(0);
-    }
-  }
-
-  void _updateHeightIfValid(
-    String value,
-    Demographics demographics,
-    ProfileController controller,
-  ) {
-    final inches = double.tryParse(value);
-    if (inches == null || inches < 48 || inches > 84) {
-      return;
-    }
-    controller.updateDemographics(
-      demographics.copyWith(heightCm: inches * 2.54),
-    );
-  }
-
-  void _updateWeightIfValid(
-    String value,
-    Demographics demographics,
-    ProfileController controller,
-  ) {
-    final pounds = double.tryParse(value);
-    if (pounds == null || pounds < 80 || pounds > 450) {
-      return;
-    }
-    controller.updateDemographics(
-      demographics.copyWith(weightKg: pounds / 2.20462),
     );
   }
 
@@ -271,5 +122,79 @@ class _OnboardingProfileStepState extends ConsumerState<OnboardingProfileStep> {
         'Actividad muy alta',
       ),
     };
+  }
+}
+
+class _DetailSection extends StatelessWidget {
+  const _DetailSection({
+    required this.label,
+    required this.child,
+    this.helper,
+  });
+
+  final String label;
+  final String? helper;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      borderRadius: 30,
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          OnboardingMetaLabel(label),
+          if (helper != null) ...[
+            const SizedBox(height: 8),
+            Text(helper!, style: Theme.of(context).textTheme.bodyMedium),
+          ],
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _ChoicePill extends StatelessWidget {
+  const _ChoicePill({
+    required this.selected,
+    required this.label,
+    required this.onTap,
+  });
+
+  final bool selected;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? Colors.black : Colors.white,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            color: selected ? Colors.black : Colors.white,
+            border: Border.all(
+              color: selected ? Colors.black : const Color(0xFFE7E7EB),
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: selected ? Colors.white : const Color(0xFF1C1C20),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

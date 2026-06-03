@@ -11,7 +11,7 @@ import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/screens/onboarding/onboarding_flow_screen.dart';
 
 void main() {
-  testWidgets('cuisine step keeps next action visible on a small viewport', (
+  testWidgets('meal timing step keeps next action visible on a small viewport', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(360, 640);
@@ -22,7 +22,7 @@ void main() {
     });
 
     final profile = UserProfile.defaults().copyWith(
-      onboardingStage: OnboardingStage.cuisine,
+      onboardingStage: OnboardingStage.mealTiming,
     );
 
     await tester.pumpWidget(
@@ -43,7 +43,7 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Disliked\ningredients'), findsOneWidget);
+    expect(find.text('Allergens'), findsOneWidget);
   });
 
   testWidgets('final onboarding step shows recommendations CTA', (
@@ -66,7 +66,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('See recommendations'), findsOneWidget);
+    expect(find.text('See suggested meals'), findsOneWidget);
   });
 
   testWidgets('access step shows Spanish onboarding copy when selected', (

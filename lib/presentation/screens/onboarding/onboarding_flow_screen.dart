@@ -4,37 +4,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
+import 'onboarding_age_step.dart';
 import 'onboarding_allergens_step.dart';
 import 'onboarding_access_step.dart';
 import 'onboarding_availability_step.dart';
 import 'onboarding_budget_step.dart';
-import 'onboarding_cuisine_step.dart';
 import 'onboarding_dietary_style_step.dart';
-import 'onboarding_dislikes_step.dart';
 import 'onboarding_environment_step.dart';
+import 'onboarding_height_step.dart';
 import 'onboarding_meal_timing_step.dart';
 import 'onboarding_medical_step.dart';
+import 'onboarding_name_step.dart';
 import 'onboarding_pantry_step.dart';
 import 'onboarding_profile_step.dart';
 import 'onboarding_religion_step.dart';
 import 'onboarding_splash_step.dart';
 import 'onboarding_targets_step.dart';
+import 'onboarding_weight_step.dart';
 
 const _orderedStages = <OnboardingStage>[
   OnboardingStage.splash,
-  OnboardingStage.allergens,
-  OnboardingStage.religion,
-  OnboardingStage.medical,
+  OnboardingStage.name,
+  OnboardingStage.age,
+  OnboardingStage.height,
+  OnboardingStage.weight,
+  OnboardingStage.profile,
   OnboardingStage.budget,
   OnboardingStage.environment,
   OnboardingStage.availability,
   OnboardingStage.access,
   OnboardingStage.dietaryStyle,
   OnboardingStage.mealTiming,
-  OnboardingStage.cuisine,
-  OnboardingStage.dislikes,
+  OnboardingStage.allergens,
+  OnboardingStage.religion,
+  OnboardingStage.medical,
   OnboardingStage.pantry,
-  OnboardingStage.profile,
   OnboardingStage.targets,
 ];
 
@@ -43,15 +47,22 @@ class OnboardingFlowScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile =
-        ref.watch(profileControllerProvider).valueOrNull ??
-        UserProfile.defaults();
+    final profileAsync = ref.watch(profileControllerProvider);
+    final profile = profileAsync.valueOrNull;
+    if (profile == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     final controller = ref.read(profileControllerProvider.notifier);
     final stage = profile.onboardingStage;
     final copy = AppCopy(profile.constraints.access.language);
-    final progress =
-        (_orderedStages.indexOf(stage) + 1) / _orderedStages.length;
+    final progress = stage == OnboardingStage.splash
+        ? 0.0
+        : _orderedStages.indexOf(stage) / (_orderedStages.length - 1);
     final compact = MediaQuery.sizeOf(context).height < 760;
+    final canContinue = _canContinue(profile, stage);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -63,12 +74,15 @@ class OnboardingFlowScreen extends ConsumerWidget {
               padding: EdgeInsets.fromLTRB(20, compact ? 10 : 14, 20, 20),
               child: Column(
                 children: [
-                  _FlowHeader(
-                    progress: progress,
-                    canGoBack: stage != _orderedStages.first,
-                    onBack: () => _goBack(controller, stage),
-                  ),
-                  SizedBox(height: compact ? 24 : 32),
+                  if (stage != OnboardingStage.splash) ...[
+                    _FlowHeader(
+                      progress: progress,
+                      canGoBack: stage != _orderedStages.first,
+                      onBack: () => _goBack(controller, stage),
+                    ),
+                    SizedBox(height: compact ? 24 : 32),
+                  ] else
+                    SizedBox(height: compact ? 10 : 16),
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 180),
@@ -79,6 +93,16 @@ class OnboardingFlowScreen extends ConsumerWidget {
                           child: switch (stage) {
                             OnboardingStage.splash =>
                               const OnboardingSplashStep(),
+                            OnboardingStage.name =>
+                              const OnboardingNameStep(),
+                            OnboardingStage.age =>
+                              const OnboardingAgeStep(),
+                            OnboardingStage.height =>
+                              const OnboardingHeightStep(),
+                            OnboardingStage.weight =>
+                              const OnboardingWeightStep(),
+                            OnboardingStage.profile =>
+                              const OnboardingProfileStep(),
                             OnboardingStage.allergens =>
                               const OnboardingAllergensStep(),
                             OnboardingStage.religion =>
@@ -97,14 +121,8 @@ class OnboardingFlowScreen extends ConsumerWidget {
                               const OnboardingDietaryStyleStep(),
                             OnboardingStage.mealTiming =>
                               const OnboardingMealTimingStep(),
-                            OnboardingStage.cuisine =>
-                              const OnboardingCuisineStep(),
-                            OnboardingStage.dislikes =>
-                              const OnboardingDislikesStep(),
                             OnboardingStage.pantry =>
                               const OnboardingPantryStep(),
-                            OnboardingStage.profile =>
-                              const OnboardingProfileStep(),
                             OnboardingStage.targets =>
                               const OnboardingTargetsStep(),
                           },
@@ -120,12 +138,14 @@ class OnboardingFlowScreen extends ConsumerWidget {
                         'Empezar',
                       ),
                       OnboardingStage.targets => copy.choose(
-                        'See recommendations',
-                        'Ver opciones',
+                        'See suggested meals',
+                        'Ver comidas sugeridas',
                       ),
                       _ => copy.choose('Continue', 'Continuar'),
                     },
-                    onPressed: () => _goForward(controller, stage),
+                    onPressed: canContinue
+                        ? () => _goForward(controller, stage)
+                        : null,
                   ),
                 ],
               ),
@@ -151,6 +171,15 @@ class OnboardingFlowScreen extends ConsumerWidget {
     }
 
     controller.setStage(_orderedStages[index + 1]);
+  }
+
+  bool _canContinue(UserProfile profile, OnboardingStage stage) {
+    switch (stage) {
+      case OnboardingStage.name:
+        return profile.localLogin.displayName.trim().isNotEmpty;
+      default:
+        return true;
+    }
   }
 }
 
@@ -225,7 +254,7 @@ class _ContinueButton extends StatelessWidget {
   const _ContinueButton({required this.label, required this.onPressed});
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -235,6 +264,8 @@ class _ContinueButton extends StatelessWidget {
         onPressed: onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: Colors.black,
+          disabledBackgroundColor: const Color(0xFFE0E0E3),
+          disabledForegroundColor: Colors.white,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(54),
           shape: RoundedRectangleBorder(

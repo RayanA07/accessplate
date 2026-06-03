@@ -5,8 +5,6 @@ import 'core/theme/app_palette.dart';
 import 'core/theme/app_theme.dart';
 import 'domain/entities/user_profile.dart';
 import 'presentation/providers/profile_controller.dart';
-import 'presentation/providers/session_controller.dart';
-import 'presentation/screens/auth/local_login_screen.dart';
 import 'presentation/screens/onboarding/onboarding_flow_screen.dart';
 import 'presentation/screens/recommendations/recommendations_screen.dart';
 import 'presentation/widgets/section_card.dart';
@@ -17,7 +15,6 @@ class AccessPlateApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileControllerProvider);
-    final session = ref.watch(sessionControllerProvider);
     final themePreference =
         profileAsync.valueOrNull?.themePreference ?? AppThemePreference.system;
 
@@ -33,12 +30,6 @@ class AccessPlateApp extends ConsumerWidget {
       darkTheme: AccessPlateTheme.dark(),
       home: profileAsync.when(
         data: (profile) {
-          if (!profile.localLogin.isConfigured) {
-            return const LocalLoginScreen(setupMode: true);
-          }
-          if (!session.unlocked) {
-            return const LocalLoginScreen(setupMode: false);
-          }
           return profile.onboardingComplete
               ? const RecommendationsScreen()
               : const OnboardingFlowScreen();

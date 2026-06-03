@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,16 +12,11 @@ import '../../../domain/value_objects/availability_context.dart';
 import '../../../domain/value_objects/benefit_program.dart';
 import '../../../domain/value_objects/dietary_style.dart';
 import '../../copy/app_copy.dart';
-import '../../providers/app_bootstrap.dart' show localAccessCatalogProvider;
 import '../../providers/profile_controller.dart';
 import '../../providers/recommendations_provider.dart';
-import '../../widgets/daily_nutrition_card.dart';
-import '../../widgets/meal_basket_card.dart';
 import '../../widgets/quick_adjust_sheet.dart';
 import '../../widgets/recommendation_card.dart';
 import '../../widgets/section_card.dart';
-import '../../widgets/source_trip_card.dart';
-import '../../widgets/today_plan_card.dart';
 import '../explain/explain_detail_screen.dart';
 import '../profile/settings_screen.dart';
 
@@ -40,12 +37,6 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final copy = AppCopy(profile.constraints.access.language);
-    final localAccessCatalog = ref
-        .watch(localAccessCatalogProvider)
-        .valueOrNull;
-    final accessResolution = localAccessCatalog?.resolve(
-      profile.constraints.access.postalCode,
-    );
     final recommendationsAsync = ref.watch(recommendationsProvider);
     final result = recommendationsAsync.valueOrNull;
     final error = recommendationsAsync.hasError
@@ -58,18 +49,6 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
         : result.recommendations.take(3).toList();
 
     return Scaffold(
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: _QuickStrip(
-            profile: profile,
-            result: result,
-            onAdjust: () => _showQuickAdjustSheet(context),
-            copy: copy,
-          ),
-        ),
-      ),
       body: DecoratedBox(
         decoration: const BoxDecoration(
           gradient: NihPalette.lightContentBackground,
@@ -79,7 +58,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
             children: [
               _TopBar(
-                copy: copy,
+                name: profile.localLogin.displayName,
                 onSettings: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -87,129 +66,18 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
                 },
               ),
               const SizedBox(height: 18),
-              _SummaryHero(
-                profile: profile,
-                result: result,
-                accessResolution: accessResolution,
-                copy: copy,
-                plainLanguage: profile.constraints.access.plainLanguage,
-              ),
-              const SizedBox(height: 14),
-              if (result?.todayPlan != null ||
-                  result?.sourceTripPlan != null) ...[
-                _ActionSummaryCard(
-                  copy: copy,
-                  result: result,
-                  emergencyMode: profile.constraints.access.emergencyMode,
-                ),
-                const SizedBox(height: 14),
-              ],
-              DailyNutritionCard(profile: profile),
-              const SizedBox(height: 14),
-              if (result?.sourceTripPlan != null) ...[
-                _ExpandableSummarySection(
-                  title: copy.sourceTripTitle,
-                  subtitle: copy.sourceTripSubtitle,
-                  child: SourceTripCard(
-                    plan: result!.sourceTripPlan!,
-                    language: profile.constraints.access.language,
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
-              if (result?.todayPlan != null) ...[
-                _ExpandableSummarySection(
-                  title: copy.todayPlanTitle,
-                  subtitle: copy.todayPlanSubtitle,
-                  child: TodayPlanCard(
-                    plan: result!.todayPlan!,
-                    language: profile.constraints.access.language,
-                  ),
-                ),
-                const SizedBox(height: 14),
-              ],
-              _ExpandableSummarySection(
-                title: copy.choose('Quick context', 'Contexto rapido'),
-                subtitle: copy.choose(
-                  'See your current prep, pantry, benefits, and travel setup.',
-                  'Mira tu preparacion, despensa, beneficios y viaje actuales.',
-                ),
-                child: _PinnedOverview(profile: profile, result: result, copy: copy),
-              ),
-              if ((result?.recommendations.length ?? 0) > 1) ...[
-                const SizedBox(height: 14),
-                _ExpandableSummarySection(
-                  title: copy.choose('Compare top picks', 'Compara opciones'),
-                  subtitle: copy.choose(
-                    'Open this to compare the top choice and backups.',
-                    'Abre esto para comparar la mejor opcion y los respaldos.',
-                  ),
-                  child: _CompareChoicesCard(
-                    recommendations: result!.recommendations.take(3).toList(),
-                    copy: copy,
-                    emergencyMode: profile.constraints.access.emergencyMode,
-                  ),
-                ),
-              ],
-              if (result?.baskets.isNotEmpty == true) ...[
-                const SizedBox(height: 20),
-                _ExpandableSummarySection(
-                  title: copy.basketTitle,
-                  subtitle: copy.basketSubtitle,
-                  child: Column(
-                    children: [
-                      for (final basket in result!.baskets) ...[
-                        MealBasketCard(
-                          plan: basket,
-                          language: profile.constraints.access.language,
-                          onTrack: () async {
-                            await ref
-                                .read(profileControllerProvider.notifier)
-                                .logBasket(basket);
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    copy.choose(
-                                      'Basket added to daily tracking',
-                                      'Canasta agregada al seguimiento diario',
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                        if (basket != result.baskets.last)
-                          const SizedBox(height: 12),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 14),
-              _ExpandableSummarySection(
-                title: copy.choose('Decision evidence', 'Evidencia de decision'),
-                subtitle: copy.choose(
-                  'See what is modeled, what is live, and how confident the access read is.',
-                  'Mira que es modelado, que es en vivo y cuanta confianza tiene la lectura de acceso.',
-                ),
-                child: _EvidenceStatusCard(
-                  copy: copy,
-                  profile: profile,
-                  accessResolution: accessResolution,
-                ),
-              ),
-              const SizedBox(height: 24),
               Text(
-                copy.recommendationsTitle,
+                copy.choose('Suggested Meals', 'Comidas sugeridas'),
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                copy.recommendationsSubtitle,
+                copy.choose(
+                  'High-fit meals ranked from your existing decision system.',
+                  'Comidas con mejor ajuste segun tu sistema actual de decisiones.',
+                ),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               if (recommendationsAsync.isLoading)
@@ -356,28 +224,40 @@ class _ExpandableSummarySection extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.copy, required this.onSettings});
+  const _TopBar({required this.name, required this.onSettings});
 
-  final AppCopy copy;
+  final String name;
   final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: const Color(0xFFE7F4E7),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(
+            Icons.restaurant_menu_rounded,
+            color: Color(0xFF219653),
+          ),
+        ),
+        const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                copy.summaryTitle,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
+                'AccessPlate',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 4),
               Text(
-                copy.summarySubtitle,
+                name.trim().isEmpty ? 'Healthy meal suggestions' : 'For $name',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -385,18 +265,14 @@ class _TopBar extends StatelessWidget {
         ),
         DecoratedBox(
           decoration: BoxDecoration(
-            color: Theme.of(
-              context,
-            ).colorScheme.surface.withValues(alpha: 0.72),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outlineVariant,
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFEAEAF0)),
           ),
           child: IconButton(
-            tooltip: copy.settingsTitle,
+            tooltip: 'Settings',
             onPressed: onSettings,
-            icon: const Icon(Icons.tune_rounded),
+            icon: const Icon(Icons.menu_rounded),
           ),
         ),
       ],
@@ -1501,140 +1377,6 @@ class _BulletLine extends StatelessWidget {
           Expanded(child: Text(text)),
         ],
       ),
-    );
-  }
-}
-
-class _QuickStrip extends StatelessWidget {
-  const _QuickStrip({
-    required this.profile,
-    required this.result,
-    required this.onAdjust,
-    required this.copy,
-  });
-
-  final UserProfile profile;
-  final RecommendationResult? result;
-  final VoidCallback onAdjust;
-  final AppCopy copy;
-
-  @override
-  Widget build(BuildContext context) {
-    final feasibility = profile.constraints.feasibility;
-    final preference = profile.constraints.preference;
-
-    return SectionCard(
-      borderRadius: 28,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 420) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DockItem(
-                        label: copy.choose('Budget', 'Presupuesto'),
-                        value:
-                            '\$${feasibility.maxCostPerMeal.toStringAsFixed(0)}',
-                        centered: true,
-                      ),
-                    ),
-                    Expanded(
-                      child: _DockItem(
-                        label: copy.choose('Meal', 'Comida'),
-                        value: copy.mealTimingLabel(preference.mealType),
-                        centered: true,
-                      ),
-                    ),
-                    Expanded(
-                      child: _DockItem(
-                        label: copy.choose('Shown', 'Visibles'),
-                        value: result == null
-                            ? '--'
-                            : '${result!.recommendations.length}',
-                        centered: true,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                FilledButton.tonalIcon(
-                  onPressed: onAdjust,
-                  icon: const Icon(Icons.swap_horiz_rounded),
-                  label: Text(copy.choose('Adjust', 'Ajustar')),
-                ),
-              ],
-            );
-          }
-
-          return Row(
-            children: [
-              Expanded(
-                child: _DockItem(
-                  label: copy.choose('Budget', 'Presupuesto'),
-                  value: '\$${feasibility.maxCostPerMeal.toStringAsFixed(0)}',
-                ),
-              ),
-              Expanded(
-                child: _DockItem(
-                  label: copy.choose('Meal', 'Comida'),
-                  value: copy.mealTimingLabel(preference.mealType),
-                ),
-              ),
-              Expanded(
-                child: _DockItem(
-                  label: copy.choose('Shown', 'Visibles'),
-                  value: result == null
-                      ? '--'
-                      : '${result!.recommendations.length}',
-                ),
-              ),
-              const SizedBox(width: 10),
-              FilledButton.tonalIcon(
-                onPressed: onAdjust,
-                icon: const Icon(Icons.swap_horiz_rounded),
-                label: Text(copy.choose('Adjust', 'Ajustar')),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _DockItem extends StatelessWidget {
-  const _DockItem({
-    required this.label,
-    required this.value,
-    this.centered = false,
-  });
-
-  final String label;
-  final String value;
-  final bool centered;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: centered
-          ? CrossAxisAlignment.center
-          : CrossAxisAlignment.start,
-      children: [
-        Text(label, style: theme.textTheme.labelMedium),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ],
     );
   }
 }

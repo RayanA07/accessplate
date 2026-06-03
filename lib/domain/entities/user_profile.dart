@@ -4,25 +4,37 @@ import 'user_constraints.dart';
 
 enum OnboardingStage {
   splash,
-  allergens,
-  religion,
-  medical,
+  name,
+  age,
+  height,
+  weight,
+  profile,
   budget,
   environment,
   availability,
   access,
   dietaryStyle,
   mealTiming,
-  cuisine,
-  dislikes,
   pantry,
-  profile,
+  allergens,
+  religion,
+  medical,
   targets;
 
   static OnboardingStage fromName(String? name) {
     switch (name) {
       case 'splash':
         return OnboardingStage.splash;
+      case 'name':
+        return OnboardingStage.name;
+      case 'age':
+        return OnboardingStage.age;
+      case 'height':
+        return OnboardingStage.height;
+      case 'weight':
+        return OnboardingStage.weight;
+      case 'profile':
+        return OnboardingStage.profile;
       case 'allergens':
         return OnboardingStage.allergens;
       case 'religion':
@@ -42,13 +54,10 @@ enum OnboardingStage {
       case 'mealTiming':
         return OnboardingStage.mealTiming;
       case 'cuisine':
-        return OnboardingStage.cuisine;
       case 'dislikes':
-        return OnboardingStage.dislikes;
+        return OnboardingStage.pantry;
       case 'pantry':
         return OnboardingStage.pantry;
-      case 'profile':
-        return OnboardingStage.profile;
       case 'targets':
         return OnboardingStage.targets;
       // Legacy stage names from the earlier bundled-screen flow.

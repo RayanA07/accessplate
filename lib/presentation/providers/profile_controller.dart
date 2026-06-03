@@ -54,7 +54,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
   }
 
   Future<void> reopenOnboarding({
-    OnboardingStage stage = OnboardingStage.allergens,
+    OnboardingStage stage = OnboardingStage.splash,
   }) {
     return _persist(
       current.copyWith(onboardingComplete: false, onboardingStage: stage),
@@ -78,8 +78,9 @@ class ProfileController extends AsyncNotifier<UserProfile> {
   }
 
   Future<void> updatePreference(PreferenceConstraints preference) {
+    final normalizedPreference = _normalizedPreference(preference);
     final nextConstraints = _syncedConstraints(
-      current.constraints.copyWith(preference: preference),
+      current.constraints.copyWith(preference: normalizedPreference),
     );
     return _persist(
       current.copyWith(
@@ -119,6 +120,16 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     return _persist(
       current.copyWith(
         constraints: nextConstraints,
+      ),
+    );
+  }
+
+  Future<void> updateDisplayName(String displayName) {
+    return _persist(
+      current.copyWith(
+        localLogin: current.localLogin.copyWith(
+          displayName: displayName.trim(),
+        ),
       ),
     );
   }
@@ -302,13 +313,24 @@ class ProfileController extends AsyncNotifier<UserProfile> {
   }
 
   UserProfile _normalizedProfile(UserProfile profile) {
-    final normalizedConstraints = _syncedConstraints(
-      _normalizedTracking(profile.constraints),
+    final baseConstraints = _normalizedTracking(profile.constraints);
+    final normalizedPreference = _normalizedPreference(
+      baseConstraints.preference,
     );
-    if (normalizedConstraints == profile.constraints) {
+    final normalizedConstraints = _syncedConstraints(
+      normalizedPreference == baseConstraints.preference
+          ? baseConstraints
+          : baseConstraints.copyWith(preference: normalizedPreference),
+    );
+    final normalizedStage = _normalizedOnboardingStage(profile.onboardingStage);
+    if (normalizedConstraints == profile.constraints &&
+        normalizedStage == profile.onboardingStage) {
       return profile;
     }
-    return profile.copyWith(constraints: normalizedConstraints);
+    return profile.copyWith(
+      constraints: normalizedConstraints,
+      onboardingStage: normalizedStage,
+    );
   }
 
   UserConstraints _syncedConstraints(UserConstraints constraints) {
@@ -335,6 +357,40 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       todayIntake: const {},
       todayIntakeDate: DateTime(today.year, today.month, today.day),
     );
+  }
+
+  PreferenceConstraints _normalizedPreference(PreferenceConstraints preference) {
+    if (preference.cuisinePreference == null &&
+        preference.dislikedIngredients.isEmpty) {
+      return preference;
+    }
+    return preference.copyWith(
+      clearCuisinePreference: true,
+      dislikedIngredients: const {},
+    );
+  }
+
+  OnboardingStage _normalizedOnboardingStage(OnboardingStage stage) {
+    switch (stage) {
+      case OnboardingStage.splash:
+      case OnboardingStage.name:
+      case OnboardingStage.age:
+      case OnboardingStage.height:
+      case OnboardingStage.weight:
+      case OnboardingStage.profile:
+      case OnboardingStage.budget:
+      case OnboardingStage.environment:
+      case OnboardingStage.availability:
+      case OnboardingStage.access:
+      case OnboardingStage.dietaryStyle:
+      case OnboardingStage.mealTiming:
+      case OnboardingStage.pantry:
+      case OnboardingStage.allergens:
+      case OnboardingStage.religion:
+      case OnboardingStage.medical:
+      case OnboardingStage.targets:
+        return stage;
+    }
   }
 
   UserConstraints _withLoggedNutrients(

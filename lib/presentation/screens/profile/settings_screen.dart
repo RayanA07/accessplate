@@ -10,7 +10,6 @@ import '../../../domain/value_objects/user_language.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/cache_controller.dart';
 import '../../providers/profile_controller.dart';
-import '../../providers/session_controller.dart';
 import '../../widgets/live_grocery_settings_card.dart';
 import '../../widgets/section_card.dart';
 
@@ -71,7 +70,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
                       ),
-                      const _AvatarBadge(),
+                      _AvatarBadge(name: profile.localLogin.displayName),
                     ],
                   ),
                   const SizedBox(height: 18),
@@ -82,40 +81,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     demographics: profile.constraints.demographics,
                     dailyTargets: dailyTargets,
                   ),
-                  if (profile.localLogin.isConfigured) ...[
-                    const SizedBox(height: 14),
-                    SectionCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            copy.choose('Local login', 'Acceso local'),
-                            style: Theme.of(context).textTheme.titleLarge
-                                ?.copyWith(fontWeight: FontWeight.w800),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            copy.choose(
-                              'Saved on this device for ${profile.localLogin.displayName}.',
-                              'Guardado en este dispositivo para ${profile.localLogin.displayName}.',
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          OutlinedButton(
-                            onPressed: () {
-                              ref
-                                  .read(sessionControllerProvider.notifier)
-                                  .lock();
-                              Navigator.of(context).pop();
-                            },
-                            child: Text(
-                              copy.choose('Lock app now', 'Bloquear ahora'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                   const SizedBox(height: 14),
                   SectionCard(
                     child: Column(
@@ -475,10 +440,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 }
 
 class _AvatarBadge extends StatelessWidget {
-  const _AvatarBadge();
+  const _AvatarBadge({required this.name});
+
+  final String name;
 
   @override
   Widget build(BuildContext context) {
+    final initial = name.trim().isEmpty ? 'A' : name.trim()[0].toUpperCase();
     return Container(
       width: 62,
       height: 62,
@@ -490,7 +458,16 @@ class _AvatarBadge extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Icon(Icons.person_rounded, color: Colors.white, size: 30),
+      child: Center(
+        child: Text(
+          initial,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -504,6 +481,7 @@ class _ProfileSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final demographics = profile.constraints.demographics;
+    final name = profile.localLogin.displayName.trim();
 
     return SectionCard(
       child: Column(
@@ -515,7 +493,21 @@ class _ProfileSummaryCard extends StatelessWidget {
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
+          if (name.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              name,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
+          _SummaryLine(
+            label: copy.choose('Age', 'Edad'),
+            value: '${demographics.ageYears}',
+          ),
+          const SizedBox(height: 10),
           _SummaryLine(
             label: copy.choose('Height', 'Altura'),
             value: _formatHeight(demographics),
