@@ -31,14 +31,15 @@ void main() {
     await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
-    final detailsButton = find.widgetWithText(TextButton, 'Details').first;
-    await tester.ensureVisible(detailsButton);
+    final planButton = find.widgetWithText(TextButton, 'Plan').first;
+    await tester.ensureVisible(planButton);
     await tester.pumpAndSettle();
-    await tester.tap(detailsButton, warnIfMissed: false);
+    await tester.tap(planButton, warnIfMissed: false);
     await tester.pumpAndSettle();
 
-    expect(find.text('Buy list'), findsWidgets);
-    expect(find.text('Open full details'), findsOneWidget);
+    expect(find.text('Go to'), findsWidgets);
+    expect(find.textContaining('Buy at Kroger 1'), findsOneWidget);
+    expect(find.textContaining('Store Brand'), findsWidgets);
   });
 
   testWidgets('logging a meal shows daily tracking feedback', (tester) async {

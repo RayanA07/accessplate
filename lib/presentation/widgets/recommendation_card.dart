@@ -139,8 +139,8 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                   ),
                   label: Text(
                     _expanded
-                        ? copy.choose('Less', 'Menos')
-                        : copy.choose('Details', 'Detalles'),
+                        ? copy.choose('Hide plan', 'Ocultar plan')
+                        : copy.choose('Plan', 'Plan'),
                   ),
                 ),
                 const Spacer(),
@@ -160,10 +160,9 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
             ),
             if (_expanded) ...[
               const Divider(height: 20),
-              _ExpandedDetails(
+              _ExpandedPlan(
                 plan: displayedPlan,
                 copy: copy,
-                onExplain: widget.onExplain,
                 shoppingLoading: livePlanAsync?.isLoading ?? false,
               ),
             ],
@@ -183,14 +182,14 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     }
     if (!locationState.apiConfigured) {
       return copy.choose(
-        'Nearby store verification is unavailable in this build.',
-        'La verificacion de tiendas cercanas no esta disponible en esta version.',
+        'Nearby store search is unavailable right now.',
+        'La busqueda de tiendas cercanas no esta disponible ahora.',
       );
     }
     if (locationState.location == null) {
       return copy.choose(
-        'Add a location to verify nearby stores and travel time.',
-        'Agrega una ubicacion para verificar tiendas cercanas y tiempo de viaje.',
+        'Add a location to verify nearby stores and approximate distance.',
+        'Agrega una ubicacion para verificar tiendas cercanas y distancia aproximada.',
       );
     }
     if (plan?.storeStatusNote case final note?) {
@@ -252,22 +251,21 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
   }
 }
 
-class _ExpandedDetails extends StatelessWidget {
-  const _ExpandedDetails({
+class _ExpandedPlan extends StatelessWidget {
+  const _ExpandedPlan({
     required this.plan,
     required this.copy,
-    required this.onExplain,
     required this.shoppingLoading,
   });
 
   final MealShoppingPlan? plan;
   final AppCopy copy;
-  final VoidCallback onExplain;
   final bool shoppingLoading;
 
   @override
   Widget build(BuildContext context) {
     final ingredientPlan = plan?.ingredients;
+    final verifiedTotal = plan?.liveProductMatch?.lookup.verifiedTotalCost;
     final structuredToBuy = ingredientPlan?.toBuy
             .where((item) => item.isStructured || item.isMenuItem)
             .toList(growable: false) ??
@@ -284,56 +282,80 @@ class _ExpandedDetails extends StatelessWidget {
           padding: EdgeInsets.only(bottom: 12),
           child: LinearProgressIndicator(),
         ),
-        if (ingredientPlan?.atHome.isNotEmpty == true) ...[
-          _LabelBlock(
-            title: copy.choose('Already at home', 'Ya en casa'),
-            child: _IngredientChipWrap(items: ingredientPlan!.atHome),
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (structuredToBuy.isNotEmpty) ...[
-          _LabelBlock(
-            title: ingredientPlan?.isOrderOnly == true
-                ? copy.choose('Order item', 'Articulo para pedir')
-                : copy.choose('Buy list', 'Lista de compra'),
-            child: _IngredientChipWrap(items: structuredToBuy),
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (estimatedToBuy.isNotEmpty) ...[
-          _LabelBlock(
-            title: copy.choose(
-              'Estimated fallback items',
-              'Articulos estimados',
-            ),
-            child: _IngredientChipWrap(items: estimatedToBuy),
-          ),
-          const SizedBox(height: 12),
-        ],
         if (plan?.chosenStore case final store?) ...[
           _LabelBlock(
-            title: copy.choose('Chosen store', 'Tienda elegida'),
+            title: copy.choose('Go to', 'Ve a'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  store.name,
+                  '${store.name} | ${_travelLabel(store.travelMetric)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(store.address),
-                const SizedBox(height: 4),
-                Text(_travelLabel(store.travelMetric)),
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
+        ],
+        if (structuredToBuy.isNotEmpty) ...[
+          _LabelBlock(
+            title: ingredientPlan?.isOrderOnly == true
+                ? copy.choose(
+                    'Order from ${_storeName(plan)}',
+                    'Pide en ${_storeName(plan)}',
+                  )
+                : copy.choose(
+                    'Buy at ${_storeName(plan)}',
+                    'Compra en ${_storeName(plan)}',
+                  ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final item in structuredToBuy) ...[
+                  _PlanLine(text: _plannedItemLine(item)),
+                  const SizedBox(height: 8),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (estimatedToBuy.isNotEmpty) ...[
+          _LabelBlock(
+            title: copy.choose(
+              'If still needed',
+              'Si todavia hace falta',
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final item in estimatedToBuy) ...[
+                  _PlanLine(text: _estimatedItemLine(item)),
+                  const SizedBox(height: 8),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (ingredientPlan?.atHome.isNotEmpty == true) ...[
+          _LabelBlock(
+            title: copy.choose('Use from home', 'Usa de casa'),
+            child: Text(
+              ingredientPlan!.atHome
+                  .map(_displayIngredient)
+                  .join(' | '),
+            ),
+          ),
+          const SizedBox(height: 12),
         ],
         if (plan?.backupStores.isNotEmpty == true) ...[
           _LabelBlock(
-            title: copy.choose('Backup stores', 'Tiendas de respaldo'),
+            title: copy.choose('Backup store', 'Tienda de respaldo'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: plan!.backupStores
@@ -348,46 +370,7 @@ class _ExpandedDetails extends StatelessWidget {
                   .toList(),
             ),
           ),
-          const SizedBox(height: 14),
-        ],
-        if (plan?.hasLiveProducts == true) ...[
-          _LabelBlock(
-            title: copy.choose('Verified live products', 'Productos verificados'),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  plan!.liveProductMatch!.store.name,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ...plan!.liveProductMatch!.lookup.matches.map(
-                  (match) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(_expandedProductLine(match)),
-                  ),
-                ),
-                if (plan!.liveProductMatch!.lookup.verifiedTotalCost case final total?)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Verified total for matched items: \$${total.toStringAsFixed(2)}',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  )
-                else
-                  Text(
-                    'Only matched items have verified prices. Full verified total unavailable.',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
         ],
         if (plan?.storeStatusNote case final note?) ...[
           Text(
@@ -396,31 +379,97 @@ class _ExpandedDetails extends StatelessWidget {
               color: NihPalette.grayDark,
             ),
           ),
-          const SizedBox(height: 14),
         ],
-        OutlinedButton.icon(
-          onPressed: onExplain,
-          icon: const Icon(Icons.open_in_new_rounded),
-          label: Text(copy.choose('Open full details', 'Abrir detalles')),
-        ),
+        if (verifiedTotal != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            copy.choose(
+              'Matched total: \$${verifiedTotal.toStringAsFixed(2)}',
+              'Total verificado: \$${verifiedTotal.toStringAsFixed(2)}',
+            ),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ],
     );
   }
 
-  String _expandedProductLine(IngredientProductMatch match) {
-    final product = match.cheapestProduct;
-    if (product == null) {
-      return match.ingredient.label;
+  String _storeName(MealShoppingPlan? plan) {
+    return plan?.chosenStore?.name ??
+        copy.choose('this store', 'esta tienda');
+  }
+
+  String _plannedItemLine(IngredientRequirement item) {
+    final match = _matchFor(item);
+    if (match != null) {
+      final product = match.cheapestProduct;
+      if (product != null) {
+        final parts = <String>[
+          item.label,
+          product.brandLabel,
+          if (product.size?.isNotEmpty == true) product.size!,
+          if (product.effectivePrice != null)
+            '\$${product.effectivePrice!.toStringAsFixed(2)}',
+        ];
+        return parts.join(' | ');
+      }
     }
-    final parts = <String>[
-      match.ingredient.label,
-      product.brandLabel,
-      product.description,
-      if (product.size?.isNotEmpty == true) product.size!,
-      if (product.effectivePrice != null)
-        '\$${product.effectivePrice!.toStringAsFixed(2)}',
-    ];
-    return parts.join(' | ');
+    return _displayIngredient(item);
+  }
+
+  String _estimatedItemLine(IngredientRequirement item) {
+    return copy.choose(
+      '${_displayIngredient(item)} | brand not verified',
+      '${_displayIngredient(item)} | marca no verificada',
+    );
+  }
+
+  IngredientProductMatch? _matchFor(IngredientRequirement item) {
+    final matches = plan?.liveProductMatch?.lookup.matches ?? const [];
+    for (final match in matches) {
+      if (match.ingredient.key == item.key) {
+        return match;
+      }
+    }
+    return null;
+  }
+
+  String _displayIngredient(IngredientRequirement item) {
+    if (item.quantityLabel == null || item.quantityLabel!.trim().isEmpty) {
+      return item.label;
+    }
+    return '${item.label} | ${item.quantityLabel}';
+  }
+}
+
+class _PlanLine extends StatelessWidget {
+  const _PlanLine({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 6),
+          child: Icon(Icons.circle, size: 6, color: NihPalette.primaryDarker),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: NihPalette.primaryDarkest,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

@@ -7,6 +7,7 @@ import '../../../domain/value_objects/benefit_program.dart';
 import '../../../domain/value_objects/transportation_mode.dart';
 import '../../../domain/value_objects/user_language.dart';
 import '../../copy/app_copy.dart';
+import '../../providers/nearby_store_providers.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/onboarding_ui.dart';
 import '../../widgets/section_card.dart';
@@ -20,23 +21,6 @@ class OnboardingAccessStep extends ConsumerStatefulWidget {
 }
 
 class _OnboardingAccessStepState extends ConsumerState<OnboardingAccessStep> {
-  late final TextEditingController _postalCodeController;
-
-  @override
-  void initState() {
-    super.initState();
-    final profile = ref.read(profileControllerProvider).valueOrNull;
-    _postalCodeController = TextEditingController(
-      text: profile?.constraints.access.postalCode ?? '',
-    );
-  }
-
-  @override
-  void dispose() {
-    _postalCodeController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final profile =
@@ -45,6 +29,8 @@ class _OnboardingAccessStepState extends ConsumerState<OnboardingAccessStep> {
     final access = profile.constraints.access;
     final copy = AppCopy(access.language);
     final controller = ref.read(profileControllerProvider.notifier);
+    final locationState = ref.watch(shoppingLocationStateProvider);
+    final location = locationState.location;
 
     return OnboardingStepLayout(
       title: copy.accessSetupTitle,
@@ -56,30 +42,87 @@ class _OnboardingAccessStepState extends ConsumerState<OnboardingAccessStep> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                OnboardingMetaLabel(copy.accessZipCodeLabel),
+                OnboardingMetaLabel(
+                  copy.choose('Current location', 'Ubicacion actual'),
+                ),
                 const SizedBox(height: 10),
-                TextField(
-                  controller: _postalCodeController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: '45211',
-                    labelText: copy.accessZipFieldLabel,
+                Text(
+                  copy.choose(
+                    'Use your current location so nearby-store results are based on where you actually are.',
+                    'Usa tu ubicacion actual para que las tiendas cercanas salgan segun donde si estas.',
                   ),
-                  onChanged: (value) {
-                    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
-                    if (digits != value) {
-                      _postalCodeController.value = TextEditingValue(
-                        text: digits,
-                        selection: TextSelection.collapsed(
-                          offset: digits.length,
-                        ),
-                      );
-                    }
-                    controller.updatePostalCode(digits);
-                  },
                 ),
                 const SizedBox(height: 12),
-                Text(copy.accessZipHelp),
+                FilledButton.icon(
+                  onPressed: locationState.loading
+                      ? null
+                      : () {
+                          ref
+                              .read(shoppingLocationControllerProvider.notifier)
+                              .useDeviceLocation();
+                        },
+                  icon: const Icon(Icons.my_location_rounded),
+                  label: Text(
+                    copy.choose(
+                      'Use current location',
+                      'Usar ubicacion actual',
+                    ),
+                  ),
+                ),
+                if (locationState.loading) ...[
+                  const SizedBox(height: 12),
+                  const LinearProgressIndicator(),
+                ],
+                if (location != null) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: NihPalette.secondaryLightest,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: NihPalette.secondaryLight),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          copy.choose(
+                            'Location saved',
+                            'Ubicacion guardada',
+                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(location.label),
+                        if (location.postalCode?.isNotEmpty == true) ...[
+                          const SizedBox(height: 6),
+                          Text(
+                            'ZIP ${location.postalCode!}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+                if (locationState.error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    locationState.error!,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Text(
+                  copy.choose(
+                    'If you skip this, nearby-store verification will stay limited until you allow location access.',
+                    'Si omites esto, la verificacion de tiendas cercanas seguira limitada hasta que permitas la ubicacion.',
+                  ),
+                ),
               ],
             ),
           ),

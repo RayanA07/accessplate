@@ -102,7 +102,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Continuar'), findsOneWidget);
-    expect(find.text('Codigo postal'), findsOneWidget);
+    expect(find.text('Ubicacion actual'), findsOneWidget);
+    expect(find.text('Usar ubicacion actual'), findsOneWidget);
     expect(find.text('Bus o tren'), findsOneWidget);
     expect(find.text('Ingles'), findsOneWidget);
     expect(find.text('Espanol'), findsOneWidget);

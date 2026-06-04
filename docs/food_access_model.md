@@ -51,15 +51,38 @@ AccessPlate now makes the distinction explicit in code and UI.
   - source burden for pantry, dollar store, convenience store, grocery, and fast food
   - offline access weighting used by the deterministic ranking engine
 - Live store-specific data:
-  - Google Maps APIs for address / ZIP geocoding, reverse geocoding, nearby-store discovery, and route distance / travel metrics
+  - OpenStreetMap Nominatim for address / ZIP geocoding and reverse geocoding
+  - OpenStreetMap Overpass for nearby-store discovery
+  - straight-line distance from the chosen search origin to the discovered store
   - optional Kroger APIs for store-linked product names, package sizes, and prices
 
 Important boundary:
 
 - The bundled model is not live neighborhood inventory and must not be presented as nearby-store proof.
-- A ZIP-only search origin is an approximate centroid fallback and must be labeled approximate.
+- A ZIP-only search origin is an approximate ZIP-area fallback and must be labeled approximate.
+- Straight-line distance is not route time and must not be presented as minutes away.
 - The live grocery layer does not provide live pantry, convenience-store, dollar-store, or unsupported-retailer inventory.
 - A nearby store result does not guarantee item-level inventory unless a live product API confirms the item.
+
+## Current live prototype behavior
+
+- `Live`
+  - device GPS coordinates from `geolocator`
+  - Nominatim reverse geocoding for device-location labels
+  - Nominatim address search
+  - Overpass nearby-store discovery
+- `Approximate`
+  - ZIP-based origin search
+  - straight-line distance to nearby stores
+- `Still retailer-specific`
+  - Kroger product, brand, size, and price matching when a nearby Kroger-family store can be linked
+
+## OSM limitations
+
+- Public OSM services are suitable for prototype demos but can rate-limit or fail under heavier load.
+- Nearby-store tags can be incomplete or inconsistent, especially for food pantries and discount stores.
+- The current app does not compute driving or walking time because it does not yet use a routing service.
+- Unsupported retailers still fall back to generic ingredient requirements instead of invented inventory.
 
 ## Benefits-aware logic
 

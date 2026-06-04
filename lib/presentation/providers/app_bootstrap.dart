@@ -16,12 +16,11 @@ import '../../data/local/app_database.dart';
 import '../../data/local/cache_dao.dart';
 import '../../data/local/food_dao.dart';
 import '../../data/local/profile_dao.dart';
-import '../../data/remote/disabled_store_locator_repository.dart';
-import '../../data/remote/google_maps_api_config.dart';
-import '../../data/remote/google_maps_store_locator_repository.dart';
 import '../../data/remote/disabled_grocery_catalog_repository.dart';
 import '../../data/remote/grocery_api_config.dart';
 import '../../data/remote/kroger_catalog_repository.dart';
+import '../../data/remote/open_street_map_api_config.dart';
+import '../../data/remote/open_street_map_store_locator_repository.dart';
 import '../../data/seed_loader.dart';
 import '../../domain/entities/local_access.dart';
 import '../../domain/engine/access_advisor.dart';
@@ -92,10 +91,10 @@ final appBootstrapProvider = FutureProvider<AppBootstrap>((ref) async {
   final groceryCatalogRepository = groceryConfig.isConfigured
       ? KrogerCatalogRepository(config: groceryConfig)
       : const DisabledGroceryCatalogRepository();
-  final mapsConfig = GoogleMapsApiConfig.fromEnvironment();
-  final storeLocatorRepository = mapsConfig.isConfigured
-      ? GoogleMapsStoreLocatorRepository(config: mapsConfig)
-      : const DisabledStoreLocatorRepository();
+  final osmConfig = OpenStreetMapApiConfig.fromEnvironment();
+  final storeLocatorRepository = OpenStreetMapStoreLocatorRepository(
+    config: osmConfig,
+  );
   final liveIngredientLookupUseCase = LookupLiveIngredientProductsUseCase(
     groceryCatalogRepository,
   );

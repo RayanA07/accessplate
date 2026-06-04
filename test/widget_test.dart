@@ -248,15 +248,67 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final detailsButton = find.widgetWithText(TextButton, 'Details');
-    await tester.scrollUntilVisible(detailsButton, 200);
-    await tester.tap(detailsButton);
+    final planButton = find.widgetWithText(TextButton, 'Plan');
+    await tester.scrollUntilVisible(planButton, 200);
+    await tester.tap(planButton);
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.text('Oatmeal cup'), findsWidgets);
-    expect(find.text('Buy list'), findsWidgets);
-    expect(find.textContaining('Oatmeal'), findsWidgets);
+    expect(find.text('Go to'), findsWidgets);
+    expect(find.textContaining('Store Brand'), findsWidgets);
+  });
+
+  testWidgets('recommendation card shows approximate distance when only straight-line data exists', (
+    tester,
+  ) async {
+    final recommendation = _sampleFood(2);
+    final approximatePlan = _shoppingPlanFor(
+      recommendation.food,
+      metric: const TravelMetric(
+        source: TravelMetricSource.straightLineApproximate,
+        distanceMiles: 0.8,
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          shoppingLocationStateProvider.overrideWith(
+            (ref) => const ShoppingLocationState(
+              apiConfigured: true,
+              location: SearchLocation(
+                kind: SearchLocationKind.address,
+                label: '123 Main St',
+                latitude: 39.10,
+                longitude: -84.51,
+                verification: DataVerification.live,
+              ),
+            ),
+          ),
+          mealShoppingSummariesProvider.overrideWith(
+            (ref) async => {recommendation.food.id: approximatePlan},
+          ),
+          prefetchedLiveMealShoppingPlansProvider.overrideWith(
+            (ref) async => {recommendation.food.id: approximatePlan},
+          ),
+        ],
+        child: MaterialApp(
+          theme: AccessPlateTheme.light(),
+          home: Scaffold(
+            body: RecommendationCard(
+              recommendation: recommendation,
+              onExplain: () {},
+              onTrack: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Approx. 0.8 mi'), findsOneWidget);
+    expect(find.textContaining('min'), findsNothing);
   });
 }
 
@@ -316,7 +368,14 @@ ScoredFood _sampleFood(int id) {
   );
 }
 
-MealShoppingPlan _shoppingPlanFor(Food food) {
+MealShoppingPlan _shoppingPlanFor(
+  Food food, {
+  TravelMetric metric = const TravelMetric(
+    source: TravelMetricSource.liveRoute,
+    distanceMiles: 1.4,
+    durationMinutes: 7,
+  ),
+}) {
   final groceryStore = GroceryStore(
     retailer: GroceryRetailer.kroger,
     locationId: 'store-${food.id}',
@@ -335,11 +394,7 @@ MealShoppingPlan _shoppingPlanFor(Food food) {
     categories: const {AvailabilityContext.grocery},
     primaryCategory: AvailabilityContext.grocery,
     discoveryVerification: DataVerification.live,
-    travelMetric: const TravelMetric(
-      source: TravelMetricSource.liveRoute,
-      distanceMiles: 1.4,
-      durationMinutes: 7,
-    ),
+    travelMetric: metric,
     linkedGroceryStore: groceryStore,
   );
   final ingredient = IngredientRequirement(

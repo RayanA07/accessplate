@@ -6,33 +6,11 @@ import '../../domain/entities/store_search.dart';
 import '../providers/nearby_store_providers.dart';
 import 'section_card.dart';
 
-class ShoppingLocationCard extends ConsumerStatefulWidget {
+class ShoppingLocationCard extends ConsumerWidget {
   const ShoppingLocationCard({super.key});
 
   @override
-  ConsumerState<ShoppingLocationCard> createState() =>
-      _ShoppingLocationCardState();
-}
-
-class _ShoppingLocationCardState extends ConsumerState<ShoppingLocationCard> {
-  Future<void> _openManualSearch() async {
-    final initialValue =
-        ref.read(shoppingLocationControllerProvider).lastQuery ?? '';
-    final query = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => _ManualLocationSheet(initialValue: initialValue),
-    );
-    if (!mounted || query == null || query.trim().isEmpty) {
-      return;
-    }
-    await ref
-        .read(shoppingLocationControllerProvider.notifier)
-        .search(query.trim());
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(shoppingLocationStateProvider);
     final nearbyAsync = ref.watch(nearbyStoresProvider);
     final nearbyCount = nearbyAsync.valueOrNull?.length ?? 0;
@@ -53,9 +31,9 @@ class _ShoppingLocationCardState extends ConsumerState<ShoppingLocationCard> {
           const SizedBox(height: 8),
           Text(
             !state.apiConfigured
-                ? 'This build has no live map key. Nearby store search is unavailable until GOOGLE_MAPS_API_KEY is configured.'
+                ? 'Nearby store search is unavailable right now.'
                 : location == null
-                ? 'Use your device location or enter an address or ZIP to verify what is actually nearby.'
+                ? 'Location is set during onboarding. Nearby store verification will appear here after that setup is complete.'
                 : _summaryLine(location, nearbyCount),
             style: theme.textTheme.bodyMedium,
           ),
@@ -93,42 +71,22 @@ class _ShoppingLocationCardState extends ConsumerState<ShoppingLocationCard> {
             const SizedBox(height: 12),
             const LinearProgressIndicator(),
           ],
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              FilledButton.icon(
-                onPressed: !state.apiConfigured || state.loading
+          if (location != null) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: state.loading
                     ? null
                     : () {
                         ref
                             .read(shoppingLocationControllerProvider.notifier)
-                            .useDeviceLocation();
+                            .clear();
                       },
-                icon: const Icon(Icons.my_location_rounded),
-                label: const Text('Use current location'),
+                child: const Text('Clear'),
               ),
-              OutlinedButton.icon(
-                onPressed: !state.apiConfigured || state.loading
-                    ? null
-                    : _openManualSearch,
-                icon: const Icon(Icons.place_rounded),
-                label: const Text('Address or ZIP'),
-              ),
-              if (location != null)
-                TextButton(
-                  onPressed: state.loading
-                      ? null
-                      : () {
-                          ref
-                              .read(shoppingLocationControllerProvider.notifier)
-                              .clear();
-                        },
-                  child: const Text('Clear'),
-                ),
-            ],
-          ),
+            ),
+          ],
         ],
       ),
     );
@@ -142,82 +100,6 @@ class _ShoppingLocationCardState extends ConsumerState<ShoppingLocationCard> {
       return '${location.label} is being used as an approximate search origin. $countText';
     }
     return '${location.label} is the live search origin. $countText';
-  }
-}
-
-class _ManualLocationSheet extends StatefulWidget {
-  const _ManualLocationSheet({required this.initialValue});
-
-  final String initialValue;
-
-  @override
-  State<_ManualLocationSheet> createState() => _ManualLocationSheetState();
-}
-
-class _ManualLocationSheetState extends State<_ManualLocationSheet> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialValue);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 16, 16, bottomInset + 20),
-        child: SectionCard(
-          borderRadius: 28,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Search from address or ZIP',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Street addresses use live geocoding. A 5-digit ZIP uses an approximate ZIP centroid fallback.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _controller,
-                decoration: const InputDecoration(
-                  labelText: 'Address or ZIP',
-                  hintText: '45211 or 123 Main St, Cincinnati, OH',
-                ),
-                keyboardType: TextInputType.streetAddress,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (value) => Navigator.of(context).pop(value.trim()),
-              ),
-              const SizedBox(height: 14),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(_controller.text.trim());
-                  },
-                  child: const Text('Search'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 

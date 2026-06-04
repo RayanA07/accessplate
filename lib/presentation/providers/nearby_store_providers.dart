@@ -58,7 +58,7 @@ final shoppingLocationStateProvider = Provider<ShoppingLocationState>((ref) {
 
 class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
   ShoppingLocationController(this._ref)
-    : super(const ShoppingLocationState(apiConfigured: false)) {
+    : super(const ShoppingLocationState(apiConfigured: true)) {
     _hydrate();
   }
 
@@ -85,7 +85,7 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
   Future<void> useDeviceLocation() async {
     if (!state.apiConfigured) {
       state = state.copyWith(
-        error: 'Live nearby-store search is not configured in this build.',
+        error: 'Nearby store search is unavailable right now.',
       );
       return;
     }
@@ -98,13 +98,17 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
       final bootstrap = await _ref.read(appBootstrapProvider.future);
       final location = await bootstrap.storeLocatorRepository
           .reverseGeocodeDeviceLocation(fix);
+      if (location.postalCode?.length == 5) {
+        await _ref
+            .read(profileControllerProvider.notifier)
+            .updatePostalCode(location.postalCode!);
+      }
       state = state.copyWith(
         loading: false,
         location: location,
         lastQuery: location.postalCode ?? location.label,
         clearError: true,
       );
-      _invalidateShoppingProviders();
     } on StoreSearchException catch (error) {
       state = state.copyWith(loading: false, error: error.message);
     } catch (error) {
@@ -118,7 +122,7 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
   Future<void> search(String query, {bool persistZip = true}) async {
     if (!state.apiConfigured) {
       state = state.copyWith(
-        error: 'Live nearby-store search is not configured in this build.',
+        error: 'Nearby store search is unavailable right now.',
       );
       return;
     }
@@ -141,7 +145,6 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
             .read(profileControllerProvider.notifier)
             .updatePostalCode(location.postalCode!);
       }
-      _invalidateShoppingProviders();
     } on StoreSearchException catch (error) {
       state = state.copyWith(loading: false, error: error.message);
     } catch (error) {
@@ -158,13 +161,6 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
       clearError: true,
       loading: false,
     );
-    _invalidateShoppingProviders();
-  }
-
-  void _invalidateShoppingProviders() {
-    _ref.invalidate(nearbyStoresProvider);
-    _ref.invalidate(mealShoppingSummariesProvider);
-    _ref.invalidate(prefetchedLiveMealShoppingPlansProvider);
   }
 }
 

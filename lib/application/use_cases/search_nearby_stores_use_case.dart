@@ -50,7 +50,10 @@ class SearchNearbyStoresUseCase {
         )
         .toList(growable: false);
 
-    final linked = await _linkKrogerStores(withRoutes);
+    final linked = await _linkKrogerStores(
+      withRoutes,
+      fallbackPostalCode: origin.postalCode,
+    );
     linked.sort((left, right) {
       final leftMetric = left.travelMetric;
       final rightMetric = right.travelMetric;
@@ -73,7 +76,10 @@ class SearchNearbyStoresUseCase {
     return linked;
   }
 
-  Future<List<NearbyStore>> _linkKrogerStores(List<NearbyStore> stores) async {
+  Future<List<NearbyStore>> _linkKrogerStores(
+    List<NearbyStore> stores, {
+    String? fallbackPostalCode,
+  }) async {
     final repository = _groceryCatalogRepository;
     if (repository == null || !repository.isConfigured) {
       return stores;
@@ -87,7 +93,7 @@ class SearchNearbyStoresUseCase {
         continue;
       }
 
-      final postalCode = _postalCodeFromAddress(store.address);
+      final postalCode = _postalCodeFromAddress(store.address) ?? fallbackPostalCode;
       if (postalCode == null) {
         result.add(store);
         continue;

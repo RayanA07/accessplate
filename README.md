@@ -36,17 +36,20 @@ The app keeps a deterministic, explainable engine at the center. It does not rel
 
 - Most food-access reasoning is bundled with the app and works offline.
 - Bundled ZIP-based access snapshots still exist for offline ranking and explainability.
-- Live nearby-store discovery is a separate mechanism powered by device location or an entered address / ZIP when Google Maps APIs are configured.
-- A 5-digit ZIP is treated as an approximate centroid fallback and is labeled that way in the UI.
+- Live nearby-store discovery is a separate mechanism powered by device GPS or an entered address / ZIP through OpenStreetMap services.
+- A 5-digit ZIP is treated as an approximate ZIP-area fallback and is labeled that way in the UI.
+- Nearby-store distances are straight-line approximations unless a separate routing service is added later.
 - Optional Kroger APIs add live product names, sizes, and prices when a nearby Kroger-family store can be matched.
 - Live product coverage does **not** imply verified inventory at unsupported retailers.
 
 ## Live API setup
 
-AccessPlate now has two optional live data layers:
+AccessPlate now has one required no-key live store layer and one optional retail layer:
 
-- `GOOGLE_MAPS_API_KEY`
-  - enables live address geocoding, reverse geocoding, nearby-store search, and route distance / travel-time lookups
+- OpenStreetMap public services
+  - Nominatim is used for address / ZIP lookup and reverse geocoding
+  - Overpass is used for nearby-store discovery
+  - no API key is required for the prototype path
 - `KROGER_CLIENT_ID`
 - `KROGER_CLIENT_SECRET`
 - `KROGER_SCOPES`
@@ -56,10 +59,18 @@ Example:
 
 ```bash
 flutter run \
-  --dart-define=GOOGLE_MAPS_API_KEY=your_maps_key \
   --dart-define=KROGER_CLIENT_ID=your_kroger_client_id \
   --dart-define=KROGER_CLIENT_SECRET=your_kroger_client_secret \
   --dart-define=KROGER_SCOPES=product.compact
+```
+
+Optional endpoint overrides for demos:
+
+```bash
+flutter run \
+  --dart-define=OSM_NOMINATIM_BASE_URL=https://nominatim.openstreetmap.org \
+  --dart-define=OSM_OVERPASS_BASE_URL=https://overpass-api.de/api/interpreter \
+  --dart-define=OSM_HTTP_USER_AGENT="AccessPlate prototype demo"
 ```
 
 ## Why this matters
@@ -88,5 +99,7 @@ flutter test
 ## Notes
 
 - The bundled dataset is seeded into SQLite on first launch from local JSON assets.
-- The bundled access model is intentionally transparent: recommendation ranking can still use modeled local access, but nearby stores and route labels should only come from the live store-discovery layer or be marked approximate / unavailable.
+- The bundled access model is intentionally transparent: recommendation ranking can still use modeled local access, but nearby stores should only come from the live OSM store-discovery layer or be marked approximate / unavailable.
+- The current OSM prototype does not compute driving or walking time. Meal cards should show approximate distance, not travel minutes.
+- Public OSM services are practical for a prototype, but they have rate limits and availability limits. A production deployment should use a managed proxy or hosted geospatial backend.
 - Android and iOS project folders are included, but signing, store metadata, icons, and release certificates still need to be finalized before shipping to the App Store or Play Store.
