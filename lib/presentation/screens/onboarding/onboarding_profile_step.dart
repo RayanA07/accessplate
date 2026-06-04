@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/demographics.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
@@ -30,10 +31,7 @@ class OnboardingProfileStep extends ConsumerWidget {
     final copy = AppCopy(profile.constraints.access.language);
 
     return OnboardingStepLayout(
-      title: copy.choose(
-        'A few more\ndetails',
-        'Algunos detalles\nmas',
-      ),
+      title: copy.choose('A few more\ndetails', 'Algunos detalles\nmas'),
       subtitle: copy.choose(
         'We use these to personalize daily targets and nutrient priorities.',
         'Usamos esto para personalizar metas diarias y prioridades de nutrientes.',
@@ -51,7 +49,9 @@ class OnboardingProfileStep extends ConsumerWidget {
                 selected: selected,
                 label: copy.sexLabel(sex),
                 onTap: () {
-                  controller.updateDemographics(demographics.copyWith(sex: sex));
+                  controller.updateDemographics(
+                    demographics.copyWith(sex: sex),
+                  );
                 },
               );
             }).toList(),
@@ -126,11 +126,7 @@ class OnboardingProfileStep extends ConsumerWidget {
 }
 
 class _DetailSection extends StatelessWidget {
-  const _DetailSection({
-    required this.label,
-    required this.child,
-    this.helper,
-  });
+  const _DetailSection({required this.label, required this.child, this.helper});
 
   final String label;
   final String? helper;
@@ -170,8 +166,11 @@ class _ChoicePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fillColor = selected
+        ? NihPalette.primary
+        : Theme.of(context).colorScheme.surface;
     return Material(
-      color: selected ? Colors.black : Colors.white,
+      color: fillColor,
       borderRadius: BorderRadius.circular(999),
       child: InkWell(
         onTap: onTap,
@@ -180,9 +179,9 @@ class _ChoicePill extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(999),
-            color: selected ? Colors.black : Colors.white,
+            color: fillColor,
             border: Border.all(
-              color: selected ? Colors.black : const Color(0xFFE7E7EB),
+              color: selected ? NihPalette.primary : NihPalette.borderSoft,
             ),
           ),
           child: Text(
@@ -190,7 +189,7 @@ class _ChoicePill extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: selected ? Colors.white : const Color(0xFF1C1C20),
+              color: selected ? Colors.white : NihPalette.base,
             ),
           ),
         ),

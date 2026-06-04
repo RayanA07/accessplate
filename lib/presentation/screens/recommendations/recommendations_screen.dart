@@ -17,6 +17,7 @@ import '../../providers/recommendations_provider.dart';
 import '../../widgets/quick_adjust_sheet.dart';
 import '../../widgets/recommendation_card.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/shopping_location_card.dart';
 import '../explain/explain_detail_screen.dart';
 import '../profile/settings_screen.dart';
 
@@ -78,7 +79,10 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
             ),
             const SizedBox(height: 18),
             Text(
-              copy.choose('Suggested Meals', 'Comidas sugeridas'),
+              copy.choose(
+                'Meals you can get today',
+                'Comidas que puedes conseguir hoy',
+              ),
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
@@ -86,11 +90,13 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
             const SizedBox(height: 4),
             Text(
               copy.choose(
-                'High-fit meals ranked from your existing decision system.',
-                'Comidas con mejor ajuste segun tu sistema actual de decisiones.',
+                'Practical meal options with verified nearby store lookup when live data is available.',
+                'Opciones practicas con busqueda verificada de tiendas cercanas cuando hay datos en vivo.',
               ),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            const SizedBox(height: 14),
+            const ShoppingLocationCard(),
             if (recommendationsAsync.isLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 14),
@@ -269,7 +275,7 @@ class _TopBar extends StatelessWidget {
                 ),
               ),
               Text(
-                name.trim().isEmpty ? 'Healthy meal suggestions' : 'For $name',
+                name.trim().isEmpty ? 'Practical food help' : 'Meals for $name',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -277,9 +283,9 @@ class _TopBar extends StatelessWidget {
         ),
         DecoratedBox(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: NihPalette.warmSurface,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFEAEAF0)),
+            border: Border.all(color: NihPalette.borderSoft),
           ),
           child: IconButton(
             tooltip: 'Profile',

@@ -7,7 +7,6 @@ import '../../../domain/entities/recommendation.dart';
 import '../../../domain/value_objects/user_language.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
-import '../../widgets/live_store_match_widgets.dart';
 import '../../widgets/section_card.dart';
 
 class ExplainDetailScreen extends ConsumerWidget {
@@ -28,6 +27,10 @@ class ExplainDetailScreen extends ConsumerWidget {
     final plainLanguage = profile?.constraints.access.plainLanguage ?? true;
     final copy = AppCopy(language);
     final explanation = recommendation.explanation;
+    final visibleDecisionFacts = _visibleDecisionFacts(explanation);
+    final visibleAccessTags = explanation == null
+        ? const <String>[]
+        : _visibleAccessTags(explanation);
     final comparables = <ScoredFood>[
       for (final id in explanation?.compareWithIds ?? const <int>[])
         ...allRecommendations.where((item) => item.food.id == id).take(1),
@@ -70,7 +73,7 @@ class ExplainDetailScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            if (explanation.decisionFacts.isNotEmpty) ...[
+            if (visibleDecisionFacts.isNotEmpty) ...[
               SectionCard(
                 child: _ExplanationSection(
                   title: plainLanguage
@@ -79,7 +82,7 @@ class ExplainDetailScreen extends ConsumerWidget {
                           'Detalles de la decision',
                         )
                       : copy.choose('Decision snapshot', 'Resumen de decision'),
-                  children: explanation.decisionFacts
+                  children: visibleDecisionFacts
                       .map(
                         (fact) => _BulletText('${fact.label}: ${fact.value}'),
                       )
@@ -96,8 +99,8 @@ class ExplainDetailScreen extends ConsumerWidget {
                       : copy.choose('Access snapshot', 'Panorama de acceso'),
                   children: [
                     _BulletText(explanation.accessSummary!),
-                    if (explanation.accessTags.isNotEmpty)
-                      _BulletText(explanation.accessTags.join(' | ')),
+                    if (visibleAccessTags.isNotEmpty)
+                      _BulletText(visibleAccessTags.join(' | ')),
                   ],
                 ),
               ),
@@ -163,6 +166,20 @@ class ExplainDetailScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           SectionCard(
             child: _ExplanationSection(
+              title: copy.choose('Store verification', 'Verificacion de tienda'),
+              children: [
+                _BulletText(
+                  copy.choose(
+                    'Nearby store, travel, and brand checks live on the meal card. This page only explains ranking support.',
+                    'La tienda cercana, el viaje y las marcas se verifican en la tarjeta de comida. Esta pagina solo explica el puntaje.',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          SectionCard(
+            child: _ExplanationSection(
               title: plainLanguage
                   ? copy.choose('Nutrition facts', 'Datos de nutricion')
                   : copy.choose('Nutrition snapshot', 'Panorama nutricional'),
@@ -200,10 +217,6 @@ class ExplainDetailScreen extends ConsumerWidget {
               ],
             ),
           ),
-          LiveStoreProductsSection(
-            food: recommendation.food,
-            emptyFallback: false,
-          ),
           if (comparables.isNotEmpty) ...[
             const SizedBox(height: 12),
             SectionCard(
@@ -226,6 +239,7 @@ class ExplainDetailScreen extends ConsumerWidget {
   }
 
   List<Widget> _quickReadChildren(AppCopy copy, Explanation explanation) {
+    final facts = _visibleDecisionFacts(explanation);
     final children = <Widget>[
       _BulletText(
         explanation.accessSummary ??
@@ -236,7 +250,7 @@ class ExplainDetailScreen extends ConsumerWidget {
       ),
     ];
 
-    for (final fact in explanation.decisionFacts.take(4)) {
+    for (final fact in facts.take(4)) {
       children.add(_BulletText('${fact.label}: ${fact.value}'));
     }
 
@@ -251,6 +265,35 @@ class ExplainDetailScreen extends ConsumerWidget {
     }
 
     return children;
+  }
+
+  List<DecisionFact> _visibleDecisionFacts(Explanation? explanation) {
+    final facts = explanation?.decisionFacts ?? const <DecisionFact>[];
+    const blockedLabels = {
+      'Trip',
+      'Viaje',
+      'Source',
+      'Fuente',
+      'Evidence',
+      'Evidencia',
+      'Data used',
+      'Datos usados',
+    };
+    return facts
+        .where((fact) => !blockedLabels.contains(fact.label))
+        .toList(growable: false);
+  }
+
+  List<String> _visibleAccessTags(Explanation explanation) {
+    return explanation.accessTags
+        .where((tag) {
+          final normalized = tag.toLowerCase();
+          return !normalized.contains('zip') &&
+              !normalized.contains('fallback') &&
+              !normalized.contains('respaldo') &&
+              !normalized.contains('area');
+        })
+        .toList(growable: false);
   }
 }
 

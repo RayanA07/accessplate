@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/benefit_program.dart';
 import '../../../domain/value_objects/transportation_mode.dart';
@@ -214,11 +215,13 @@ class _InlineChoiceTile extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
-            color: selected ? const Color(0xFFF0F0F3) : const Color(0xFFF9F9FB),
+            color: selected
+                ? NihPalette.secondaryLightest
+                : Theme.of(context).colorScheme.surface,
             border: Border.all(
               color: selected
-                  ? const Color(0xFFD1D1D8)
-                  : const Color(0xFFE8E8EE),
+                  ? NihPalette.secondaryLight
+                  : NihPalette.borderSoft,
             ),
           ),
           child: Row(
@@ -243,9 +246,7 @@ class _InlineChoiceTile extends StatelessWidget {
                 selected
                     ? Icons.check_circle_rounded
                     : Icons.radio_button_unchecked_rounded,
-                color: selected
-                    ? const Color(0xFF2E2E33)
-                    : const Color(0xFF9C9CA3),
+                color: selected ? NihPalette.primary : NihPalette.grayDark,
               ),
             ],
           ),

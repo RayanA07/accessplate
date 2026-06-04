@@ -6,6 +6,8 @@ import '../../../domain/engine/government_nutrition_guidance.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
+import '../../widgets/daily_nutrition_card.dart';
+import '../../widgets/home_tab_header.dart';
 import '../../widgets/section_card.dart';
 
 class MacroTargetsScreen extends ConsumerWidget {
@@ -32,20 +34,18 @@ class MacroTargetsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
           children: [
-            Text(
-              copy.choose('Macro targets', 'Metas de macros'),
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              copy.choose(
-                'These are the nutrition targets your current recommendation scoring is using.',
-                'Estas son las metas nutricionales que esta usando tu puntaje actual de recomendaciones.',
+            HomeTabHeader(
+              eyebrow: copy.choose('Live tracker', 'Seguimiento en vivo'),
+              title: copy.choose('Daily progress', 'Progreso diario'),
+              subtitle: copy.choose(
+                'This chart updates when you log meals so you can see what is left before the day is done.',
+                'Este grafico cambia cuando registras comidas para que veas lo que falta antes de terminar el dia.',
               ),
-              style: Theme.of(context).textTheme.bodyMedium,
+              icon: Icons.donut_large_rounded,
+              tintColor: NihPalette.success,
             ),
+            const SizedBox(height: 14),
+            DailyNutritionCard(profile: profile),
             const SizedBox(height: 14),
             SectionCard(
               tintColor: NihPalette.secondaryLight,
@@ -53,16 +53,16 @@ class MacroTargetsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    copy.choose('Current meal target', 'Meta de esta comida'),
+                    copy.choose('Per-meal target', 'Meta por comida'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     copy.choose(
-                      'These are the per-meal targets driving the recommendation ranking right now.',
-                      'Estas son las metas por comida que estan guiando el ranking de recomendaciones ahora.',
+                      'The recommendation list uses these meal targets when it ranks what to show you next.',
+                      'La lista de recomendaciones usa estas metas por comida para decidir que mostrarte despues.',
                     ),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
@@ -88,7 +88,7 @@ class MacroTargetsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 10),
                   _TargetSummaryLine(
-                    label: copy.fiberTargetLabel,
+                    label: copy.choose('Fiber', 'Fibra'),
                     value: '${mealTargets.fiberG.toStringAsFixed(0)} g',
                   ),
                 ],
@@ -100,190 +100,50 @@ class MacroTargetsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    copy.choose('Daily target', 'Meta diaria'),
+                    copy.choose('Daily target reference', 'Referencia diaria'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final macroColumn = Column(
-                        children: [
-                          _MacroLegendRow(
-                            color: NihPalette.macroProtein,
-                            label: copy.proteinLabel,
-                            value:
-                                '${dailyTargets.proteinG.toStringAsFixed(0)}g',
-                          ),
-                          const SizedBox(height: 10),
-                          _MacroLegendRow(
-                            color: NihPalette.macroCarbs,
-                            label: copy.carbsLabel,
-                            value: '${dailyTargets.carbsG.toStringAsFixed(0)}g',
-                          ),
-                          const SizedBox(height: 10),
-                          _MacroLegendRow(
-                            color: NihPalette.macroFat,
-                            label: copy.fatLabel,
-                            value: '${dailyTargets.fatG.toStringAsFixed(0)}g',
-                          ),
-                          const SizedBox(height: 10),
-                          _MacroLegendRow(
-                            color: NihPalette.secondary,
-                            label: copy.choose('Fiber', 'Fibra'),
-                            value: '${dailyTargets.fiberG.toStringAsFixed(0)}g',
-                          ),
-                        ],
-                      );
-
-                      if (constraints.maxWidth < 360) {
-                        return Column(
-                          children: [
-                            _DailyCaloriesRing(calories: dailyTargets.calories),
-                            const SizedBox(height: 18),
-                            macroColumn,
-                          ],
-                        );
-                      }
-
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _DailyCaloriesRing(calories: dailyTargets.calories),
-                          const SizedBox(width: 18),
-                          Expanded(child: macroColumn),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 14),
-            SectionCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    copy.choose('Daily limits', 'Limites diarios'),
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _TargetSummaryLine(
-                    label: copy.choose('Saturated fat', 'Grasa saturada'),
-                    value:
-                        '${dailyTargets.saturatedFatLimitG.toStringAsFixed(0)} g max',
-                  ),
-                  const SizedBox(height: 10),
-                  _TargetSummaryLine(
-                    label: copy.choose('Added sugar', 'Azucar agregada'),
-                    value:
-                        '${dailyTargets.addedSugarLimitG.toStringAsFixed(0)} g max',
-                  ),
-                  const SizedBox(height: 10),
-                  _TargetSummaryLine(
-                    label: copy.choose('Sodium', 'Sodio'),
-                    value:
-                        '${dailyTargets.sodiumLimitMg.toStringAsFixed(0)} mg max',
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
                     copy.choose(
-                      'These targets update automatically when your profile, activity level, or meal timing changes.',
-                      'Estas metas cambian automaticamente cuando cambia tu perfil, actividad o momento de comida.',
+                      'Use this as the full-day goal while you log meals from the recommendations tab.',
+                      'Usa esto como tu meta del dia mientras registras comidas desde la pantalla de recomendaciones.',
                     ),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
+                  const SizedBox(height: 14),
+                  _TargetSummaryLine(
+                    label: copy.caloriesLabel,
+                    value: '${dailyTargets.calories.toStringAsFixed(0)} kcal',
+                  ),
+                  const SizedBox(height: 10),
+                  _TargetSummaryLine(
+                    label: copy.proteinLabel,
+                    value: '${dailyTargets.proteinG.toStringAsFixed(0)} g',
+                  ),
+                  const SizedBox(height: 10),
+                  _TargetSummaryLine(
+                    label: copy.carbsLabel,
+                    value: '${dailyTargets.carbsG.toStringAsFixed(0)} g',
+                  ),
+                  const SizedBox(height: 10),
+                  _TargetSummaryLine(
+                    label: copy.fatLabel,
+                    value: '${dailyTargets.fatG.toStringAsFixed(0)} g',
+                  ),
+                  const SizedBox(height: 10),
+                  _TargetSummaryLine(
+                    label: copy.choose('Fiber', 'Fibra'),
+                    value: '${dailyTargets.fiberG.toStringAsFixed(0)} g',
+                  ),
                 ],
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _DailyCaloriesRing extends StatelessWidget {
-  const _DailyCaloriesRing({required this.calories});
-
-  final double calories;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 132,
-      height: 132,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFF232328), width: 6),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              _formatCalories(calories),
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'kcal',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _formatCalories(double value) {
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return value.toStringAsFixed(0);
-  }
-}
-
-class _MacroLegendRow extends StatelessWidget {
-  const _MacroLegendRow({
-    required this.color,
-    required this.label,
-    required this.value,
-  });
-
-  final Color color;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 14,
-          height: 14,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(value, style: Theme.of(context).textTheme.bodyLarge),
-      ],
     );
   }
 }

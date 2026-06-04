@@ -5,7 +5,6 @@ import '../../core/theme/app_palette.dart';
 import '../../domain/engine/government_nutrition_guidance.dart';
 import '../../domain/entities/user_profile.dart';
 import '../copy/app_copy.dart';
-import '../providers/app_bootstrap.dart';
 import '../providers/profile_controller.dart';
 import 'section_card.dart';
 
@@ -24,18 +23,31 @@ class DailyNutritionCard extends ConsumerWidget {
     );
     final todayIntake = _effectiveIntake(profile);
     final controller = ref.read(profileControllerProvider.notifier);
-    final referenceTablesAsync = ref.watch(referenceTablesProvider);
+    final currentCalories = todayIntake['calories_kcal'] ?? 0;
+    final caloriesRemaining = (todayTargets.calories - currentCalories).clamp(
+      0,
+      todayTargets.calories,
+    );
 
     return SectionCard(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      tintColor: NihPalette.primary.withValues(alpha: 0.08),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            copy.choose('Daily tracking', 'Seguimiento diario'),
+            copy.choose('Daily tracker', 'Seguimiento diario'),
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            copy.choose(
+              'Log meals from the recommendations tab and this card will update here.',
+              'Registra comidas desde recomendaciones y esta tarjeta cambiara aqui.',
+            ),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
           LayoutBuilder(
@@ -95,68 +107,31 @@ class DailyNutritionCard extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 16),
-          Text(
-            copy.choose(
-              'Tracks what you have logged today against your daily nutrition targets.',
-              'Sigue lo que has registrado hoy contra tus metas diarias.',
-            ),
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 12),
-          referenceTablesAsync.when(
-            data: (tables) {
-              final micros = _guidance.prioritizedMicronutrients(
-                demographics: profile.constraints.demographics,
-                dietaryStyle: profile.constraints.preference.dietaryStyle,
-                rdaTable: tables.rdaTable,
-                microPriorityElevations: tables.microPriorityElevations,
-              );
-              if (micros.isEmpty) {
-                return const SizedBox.shrink();
-              }
-
-              return ExpansionTile(
-                title: Text(
-                  copy.choose(
-                    'Priority micronutrients',
-                    'Micronutrientes prioritarios',
-                  ),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                children: [
-                  const SizedBox(height: 8),
-                  for (final entry in micros.entries) ...[
-                    _MicroLine(
-                      label: _micronutrientLabel(copy, entry.key),
-                      current: todayIntake[entry.key] ?? 0,
-                      target: entry.value,
-                      unit: entry.key.contains('_mcg') ? 'mcg' : 'mg',
-                    ),
-                    if (entry.key != micros.keys.last)
-                      const SizedBox(height: 8),
-                  ],
-                ],
-              );
-            },
-            loading: () => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Text(
-                copy.choose(
-                  'Loading micronutrient targets...',
-                  'Cargando metas de micronutrientes...',
-                ),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              _SummaryBadge(
+                label: copy.choose('Logged', 'Registrado'),
+                value: '${currentCalories.toStringAsFixed(0)} kcal',
               ),
-            ),
-            error: (error, stackTrace) => const SizedBox.shrink(),
+              _SummaryBadge(
+                label: copy.choose('Target', 'Meta'),
+                value: '${todayTargets.calories.toStringAsFixed(0)} kcal',
+              ),
+              _SummaryBadge(
+                label: copy.choose('Left today', 'Falta hoy'),
+                value: '${caloriesRemaining.toStringAsFixed(0)} kcal',
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
           Align(
             alignment: Alignment.centerLeft,
-            child: OutlinedButton(
+            child: OutlinedButton.icon(
               onPressed: controller.resetDailyTracking,
-              child: Text(copy.choose('Reset today', 'Reiniciar hoy')),
+              icon: const Icon(Icons.restart_alt_rounded),
+              label: Text(copy.choose('Reset today', 'Reiniciar hoy')),
             ),
           ),
         ],
@@ -177,22 +152,6 @@ class DailyNutritionCard extends ConsumerWidget {
     }
     return profile.constraints.todayIntake;
   }
-
-  String _micronutrientLabel(AppCopy copy, String key) {
-    return switch (key) {
-      'iron_mg' => copy.choose('Iron', 'Hierro'),
-      'calcium_mg' => copy.choose('Calcium', 'Calcio'),
-      'potassium_mg' => copy.choose('Potassium', 'Potasio'),
-      'magnesium_mg' => copy.choose('Magnesium', 'Magnesio'),
-      'zinc_mg' => copy.choose('Zinc', 'Zinc'),
-      'vit_a_mcg_rae' => copy.choose('Vitamin A', 'Vitamina A'),
-      'vit_c_mg' => copy.choose('Vitamin C', 'Vitamina C'),
-      'vit_d_mcg' => copy.choose('Vitamin D', 'Vitamina D'),
-      'vit_b12_mcg' => copy.choose('Vitamin B12', 'Vitamina B12'),
-      'folate_mcg_dfe' => copy.choose('Folate', 'Folato'),
-      _ => key,
-    };
-  }
 }
 
 class _CalorieRing extends StatelessWidget {
@@ -209,6 +168,7 @@ class _CalorieRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = target <= 0 ? 0.0 : (current / target).clamp(0.0, 1.0);
+    final theme = Theme.of(context);
 
     return SizedBox(
       width: 148,
@@ -226,9 +186,9 @@ class _CalorieRing extends StatelessWidget {
                   child: CircularProgressIndicator(
                     value: progress,
                     strokeWidth: 8,
-                    backgroundColor: const Color(0xFFE9E9EE),
+                    backgroundColor: theme.colorScheme.outlineVariant,
                     valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF1E1E22),
+                      NihPalette.primary,
                     ),
                     strokeCap: StrokeCap.round,
                   ),
@@ -245,7 +205,7 @@ class _CalorieRing extends StatelessWidget {
                     Text(
                       label,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -335,9 +295,11 @@ class _MacroRingRow extends StatelessWidget {
                 width: 20,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFF0F0F4)),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                 ),
               ),
             ],
@@ -367,47 +329,35 @@ class _MacroRingRow extends StatelessWidget {
   }
 }
 
-class _MicroLine extends StatelessWidget {
-  const _MicroLine({
-    required this.label,
-    required this.current,
-    required this.target,
-    required this.unit,
-  });
+class _SummaryBadge extends StatelessWidget {
+  const _SummaryBadge({required this.label, required this.value});
 
   final String label;
-  final double current;
-  final double target;
-  final String unit;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    final progress = target <= 0 ? 0.0 : (current / target).clamp(0.0, 1.0);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF2D2D31),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(
-              '${current.toStringAsFixed(0)} / ${target.toStringAsFixed(0)} $unit',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        LinearProgressIndicator(value: progress, minHeight: 7),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 4),
+          Text(label, style: Theme.of(context).textTheme.labelMedium),
+        ],
+      ),
     );
   }
 }

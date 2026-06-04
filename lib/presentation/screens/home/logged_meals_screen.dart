@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_palette.dart';
+import '../../../domain/engine/government_nutrition_guidance.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
+import '../../widgets/home_tab_header.dart';
 import '../../widgets/section_card.dart';
 
 class LoggedMealsScreen extends ConsumerWidget {
   const LoggedMealsScreen({super.key});
+
+  static const _guidance = GovernmentNutritionGuidance();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,11 +22,18 @@ class LoggedMealsScreen extends ConsumerWidget {
     final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
     final todayIntake = _effectiveIntake(profile);
+    final dailyTargets = _guidance.dailyTargetsFor(
+      profile.constraints.demographics,
+    );
     final loggedTimes =
         profile.constraints.recentlyActed.values.where(_isToday).toList()
           ..sort((a, b) => b.compareTo(a));
-    final loggedCount = loggedTimes.length;
     final lastLogged = loggedTimes.isEmpty ? null : loggedTimes.first;
+    final remainingCalories =
+        (dailyTargets.calories - (todayIntake['calories_kcal'] ?? 0)).clamp(
+          0,
+          dailyTargets.calories,
+        );
 
     return DecoratedBox(
       decoration: const BoxDecoration(
@@ -32,37 +43,38 @@ class LoggedMealsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
           children: [
-            Text(
-              copy.choose('Logged today', 'Registrado hoy'),
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              copy.choose(
-                'This tab is for today only: what you tracked, when you tracked it, and whether you want to reset the day.',
-                'Esta pantalla es solo para hoy: que registraste, cuando lo registraste y si quieres reiniciar el dia.',
+            HomeTabHeader(
+              eyebrow: copy.choose('Today only', 'Solo hoy'),
+              title: copy.choose('Today\'s log', 'Registro de hoy'),
+              subtitle: copy.choose(
+                'See what you already tracked today and how much room is left before your daily target.',
+                'Mira lo que ya registraste hoy y cuanto espacio queda antes de tu meta diaria.',
               ),
-              style: Theme.of(context).textTheme.bodyMedium,
+              icon: Icons.receipt_long_rounded,
+              tintColor: NihPalette.primary,
             ),
             const SizedBox(height: 14),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
+            Row(
               children: [
-                _LoggedStatCard(
-                  label: copy.choose('Meals tracked', 'Comidas guardadas'),
-                  value: '$loggedCount',
+                Expanded(
+                  child: _LoggedStatCard(
+                    label: copy.choose('Meals logged', 'Comidas guardadas'),
+                    value: '${loggedTimes.length}',
+                  ),
                 ),
-                _LoggedStatCard(
-                  label: copy.choose('Calories logged', 'Calorias guardadas'),
-                  value:
-                      '${(todayIntake['calories_kcal'] ?? 0).toStringAsFixed(0)} kcal',
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _LoggedStatCard(
+                    label: copy.choose('Calories left', 'Calorias restantes'),
+                    value: '${remainingCalories.toStringAsFixed(0)} kcal',
+                  ),
                 ),
-                _LoggedStatCard(
-                  label: copy.choose('Last added', 'Ultima vez'),
-                  value: _formatTime(lastLogged, copy),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _LoggedStatCard(
+                    label: copy.choose('Last added', 'Ultima vez'),
+                    value: _formatTime(lastLogged, copy),
+                  ),
                 ),
               ],
             ),
@@ -78,11 +90,24 @@ class LoggedMealsScreen extends ConsumerWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    copy.choose(
+                      'These numbers update every time you log a recommended meal.',
+                      'Estos numeros cambian cada vez que registras una comida recomendada.',
+                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                   const SizedBox(height: 14),
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
                     children: [
+                      _TotalPill(
+                        label: copy.caloriesLabel,
+                        value:
+                            '${(todayIntake['calories_kcal'] ?? 0).toStringAsFixed(0)} kcal',
+                      ),
                       _TotalPill(
                         label: copy.proteinLabel,
                         value:
@@ -114,25 +139,40 @@ class LoggedMealsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    copy.choose('Daily log controls', 'Controles del dia'),
+                    copy.choose('Log times', 'Horas del registro'),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    copy.choose(
-                      'Use this when you want to clear today\'s tracked meals and start the day over.',
-                      'Usa esto cuando quieras borrar lo registrado hoy y empezar otra vez.',
+                  if (loggedTimes.isEmpty)
+                    Text(
+                      copy.choose(
+                        'Nothing has been logged yet today. Use Log meal on a meal card to start your daily totals.',
+                        'Todavia no se ha registrado nada hoy. Usa Registrar comida en una tarjeta para empezar tus totales diarios.',
+                      ),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    )
+                  else
+                    Column(
+                      children: [
+                        for (
+                          var index = 0;
+                          index < loggedTimes.length;
+                          index++
+                        ) ...[
+                          _TimelineEntry(
+                            label: copy.choose(
+                              'Meal logged',
+                              'Comida guardada',
+                            ),
+                            value: _formatTime(loggedTimes[index], copy),
+                          ),
+                          if (index < loggedTimes.length - 1)
+                            const SizedBox(height: 10),
+                        ],
+                      ],
                     ),
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 14),
-                  OutlinedButton.icon(
-                    onPressed: controller.resetDailyTracking,
-                    icon: const Icon(Icons.restart_alt_rounded),
-                    label: Text(copy.choose('Reset today', 'Reiniciar hoy')),
-                  ),
                 ],
               ),
             ),
@@ -142,7 +182,10 @@ class LoggedMealsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    copy.choose('How logging works', 'Como funciona'),
+                    copy.choose(
+                      'Need a fresh start?',
+                      'Necesitas empezar otra vez?',
+                    ),
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
@@ -150,10 +193,16 @@ class LoggedMealsScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     copy.choose(
-                      'Use "Log meal" on a recommendation card to update this screen. AccessPlate stores nutrition totals for the day here, not a full long-term meal journal.',
-                      'Usa "Registrar comida" en una recomendacion para actualizar esta pantalla. Aqui AccessPlate guarda los totales del dia, no un historial largo de comidas.',
+                      'Reset today if you want to clear the current daily totals and log the day again from zero.',
+                      'Reinicia hoy si quieres borrar los totales del dia y registrar todo otra vez desde cero.',
                     ),
                     style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 14),
+                  OutlinedButton.icon(
+                    onPressed: controller.resetDailyTracking,
+                    icon: const Icon(Icons.restart_alt_rounded),
+                    label: Text(copy.choose('Reset today', 'Reiniciar hoy')),
                   ),
                 ],
               ),
@@ -201,28 +250,25 @@ class _LoggedStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 118,
-      child: SectionCard(
-        padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-            ),
-          ],
-        ),
+    return SectionCard(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+          ),
+        ],
       ),
     );
   }
@@ -239,9 +285,9 @@ class _TotalPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white.withValues(alpha: 0.86),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8E8ED)),
+        border: Border.all(color: NihPalette.borderSoft),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,6 +301,55 @@ class _TotalPill extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(label, style: Theme.of(context).textTheme.labelMedium),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimelineEntry extends StatelessWidget {
+  const _TimelineEntry({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.42),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: NihPalette.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.schedule_rounded,
+              color: NihPalette.primary,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Text(value, style: Theme.of(context).textTheme.bodyLarge),
         ],
       ),
     );

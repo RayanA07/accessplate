@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_palette.dart';
+
 class OnboardingStepLayout extends StatelessWidget {
   const OnboardingStepLayout({
     super.key,
@@ -16,28 +18,24 @@ class OnboardingStepLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 31,
-            height: 1.08,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -1,
-            color: Color(0xFF121212),
+          style: theme.textTheme.headlineMedium?.copyWith(
+            height: 1.06,
+            letterSpacing: -0.9,
+            color: NihPalette.base,
           ),
         ),
         const SizedBox(height: 12),
         Text(
           subtitle,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 16,
-            height: 1.32,
-            color: Color(0xFF8F8F95),
+          style: theme.textTheme.bodyLarge?.copyWith(
+            height: 1.46,
+            color: NihPalette.grayDark,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -71,36 +69,34 @@ class OnboardingSearchField extends StatelessWidget {
         onSubmitted: onSubmitted,
         onChanged: onChanged,
         decoration: InputDecoration(
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.search_rounded,
-            color: Color(0xFF98989D),
+            color: NihPalette.grayDark,
             size: 24,
           ),
           hintText: hintText,
-          hintStyle: const TextStyle(
-            fontSize: 16,
-            color: Color(0xFF8E8E93),
+          hintStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: NihPalette.grayDark,
             fontWeight: FontWeight.w500,
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: NihPalette.warmSurface,
           contentPadding: const EdgeInsets.symmetric(vertical: 0),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(26),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: NihPalette.borderSoft),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(26),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: NihPalette.borderSoft),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(26),
-            borderSide: const BorderSide(color: Color(0xFFF1F1F3)),
+            borderSide: const BorderSide(color: NihPalette.primary, width: 1.3),
           ),
         ),
-        style: const TextStyle(
-          fontSize: 16,
-          color: Color(0xFF1A1A1A),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: NihPalette.base,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -136,9 +132,14 @@ class OnboardingSegmentedControl<T> extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: option == value
-                    ? const Color(0xFF111111)
-                    : const Color(0xFFF5F5F7),
+                    ? NihPalette.primary
+                    : NihPalette.secondaryLightest,
                 borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: option == value
+                      ? NihPalette.primary
+                      : NihPalette.secondaryLight,
+                ),
               ),
               child: Text(
                 labelBuilder(option),
@@ -147,7 +148,7 @@ class OnboardingSegmentedControl<T> extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: option == value
                       ? Colors.white
-                      : const Color(0xFF5E5E64),
+                      : NihPalette.primaryDarker,
                 ),
               ),
             ),
@@ -166,11 +167,11 @@ class OnboardingMetaLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(
         fontSize: 13,
-        fontWeight: FontWeight.w700,
-        letterSpacing: 0.1,
-        color: Color(0xFF8E8E93),
+        fontWeight: FontWeight.w800,
+        letterSpacing: 0.14,
+        color: NihPalette.grayDark,
       ),
     );
   }

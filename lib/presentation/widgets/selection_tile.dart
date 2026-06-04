@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_palette.dart';
+
 enum SelectionTileIndicatorStyle { radio, check }
 
 class SelectionTile extends StatelessWidget {
@@ -23,19 +25,17 @@ class SelectionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final tileColor = selected ? const Color(0xFFE3E3E8) : Colors.white;
+    final tileColor = selected
+        ? NihPalette.secondaryLightest
+        : Theme.of(context).colorScheme.surface;
     final borderColor = selected
-        ? const Color(0xFFC8C8D0)
-        : const Color(0xFFF0F0F3);
-    final iconColor = selected
-        ? const Color(0xFF16161A)
-        : const Color(0xFF111111);
-    final titleColor = selected
-        ? const Color(0xFF17171B)
-        : const Color(0xFF232326);
+        ? NihPalette.secondaryLight
+        : Theme.of(context).colorScheme.outlineVariant;
+    final iconColor = selected ? NihPalette.primary : NihPalette.base;
+    final titleColor = selected ? NihPalette.primaryDarker : NihPalette.base;
     final subtitleColor = selected
-        ? const Color(0xFF66666E)
-        : const Color(0xFF919197);
+        ? NihPalette.grayDark
+        : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Material(
       color: tileColor,
@@ -50,13 +50,13 @@ class SelectionTile extends StatelessWidget {
             border: Border.all(color: borderColor, width: selected ? 1.4 : 1),
             boxShadow: [
               BoxShadow(
-                color: Color(0x0F000000),
+                color: theme.colorScheme.shadow.withValues(alpha: 0.06),
                 blurRadius: 24,
                 offset: Offset(0, 10),
               ),
               if (selected)
-                const BoxShadow(
-                  color: Color(0x14000000),
+                BoxShadow(
+                  color: NihPalette.primary.withValues(alpha: 0.08),
                   blurRadius: 28,
                   offset: Offset(0, 12),
                 ),
@@ -101,12 +101,12 @@ class SelectionTile extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: selected
-                        ? const Color(0xFFEDEDEF)
-                        : const Color(0xFFF3F3F5),
+                        ? NihPalette.primary.withValues(alpha: 0.10)
+                        : NihPalette.sand,
                     border: Border.all(
                       color: selected
-                          ? const Color(0xFFD7D7DC)
-                          : const Color(0xFFEAEAF0),
+                          ? NihPalette.primary.withValues(alpha: 0.22)
+                          : Theme.of(context).colorScheme.outlineVariant,
                     ),
                   ),
                   child: Center(
@@ -117,16 +117,16 @@ class SelectionTile extends StatelessWidget {
                             height: selected ? 8 : 10,
                             decoration: BoxDecoration(
                               color: selected
-                                  ? const Color(0xFFB0B0B7)
-                                  : const Color(0xFFD2D2D8),
+                                  ? NihPalette.primary
+                                  : NihPalette.grayDark.withValues(alpha: 0.45),
                               shape: BoxShape.circle,
                             ),
                           )
                         : Icon(
                             Icons.check_rounded,
                             color: selected
-                                ? const Color(0xFFB0B0B7)
-                                : const Color(0xFFD2D2D8),
+                                ? NihPalette.primary
+                                : NihPalette.grayDark.withValues(alpha: 0.45),
                             size: 16,
                           ),
                   ),

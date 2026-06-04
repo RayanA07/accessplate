@@ -35,9 +35,32 @@ The app keeps a deterministic, explainable engine at the center. It does not rel
 ## Modeled vs live data
 
 - Most food-access reasoning is bundled with the app and works offline.
-- ZIP-based source access uses bundled modeled snapshots in `assets/reference/local_access_profiles.json`.
-- Optional live grocery support adds Kroger-specific product names, aisle hints, and local prices for a selected grocery store.
-- Live grocery lookup does **not** mean live pantry, dollar-store, convenience-store, or full neighborhood inventory coverage.
+- Bundled ZIP-based access snapshots still exist for offline ranking and explainability.
+- Live nearby-store discovery is a separate mechanism powered by device location or an entered address / ZIP when Google Maps APIs are configured.
+- A 5-digit ZIP is treated as an approximate centroid fallback and is labeled that way in the UI.
+- Optional Kroger APIs add live product names, sizes, and prices when a nearby Kroger-family store can be matched.
+- Live product coverage does **not** imply verified inventory at unsupported retailers.
+
+## Live API setup
+
+AccessPlate now has two optional live data layers:
+
+- `GOOGLE_MAPS_API_KEY`
+  - enables live address geocoding, reverse geocoding, nearby-store search, and route distance / travel-time lookups
+- `KROGER_CLIENT_ID`
+- `KROGER_CLIENT_SECRET`
+- `KROGER_SCOPES`
+  - enables live Kroger product / brand / price matching when a nearby store can be linked to Kroger APIs
+
+Example:
+
+```bash
+flutter run \
+  --dart-define=GOOGLE_MAPS_API_KEY=your_maps_key \
+  --dart-define=KROGER_CLIENT_ID=your_kroger_client_id \
+  --dart-define=KROGER_CLIENT_SECRET=your_kroger_client_secret \
+  --dart-define=KROGER_SCOPES=product.compact
+```
 
 ## Why this matters
 
@@ -65,5 +88,5 @@ flutter test
 ## Notes
 
 - The bundled dataset is seeded into SQLite on first launch from local JSON assets.
-- The bundled access model is intentionally transparent: some recommendations are based on modeled local access rather than live store inventory.
+- The bundled access model is intentionally transparent: recommendation ranking can still use modeled local access, but nearby stores and route labels should only come from the live store-discovery layer or be marked approximate / unavailable.
 - Android and iOS project folders are included, but signing, store metadata, icons, and release certificates still need to be finalized before shipping to the App Store or Play Store.

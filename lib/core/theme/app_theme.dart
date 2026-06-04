@@ -16,32 +16,32 @@ class AccessPlateTheme {
           seedColor: NihPalette.primary,
           brightness: brightness,
         ).copyWith(
-          primary: isDark ? const Color(0xFFF6F6F6) : NihPalette.base,
-          onPrimary: isDark ? NihPalette.base : NihPalette.white,
+          primary: isDark ? const Color(0xFFBFD9B6) : NihPalette.primary,
+          onPrimary: NihPalette.white,
           primaryContainer: isDark
-              ? const Color(0xFF252525)
-              : const Color(0xFF181818),
+              ? const Color(0xFF233729)
+              : NihPalette.primaryDarker,
           onPrimaryContainer: NihPalette.white,
           secondary: isDark ? const Color(0xFFB5DC87) : NihPalette.secondary,
-          onSecondary: isDark ? NihPalette.base : NihPalette.base,
+          onSecondary: NihPalette.base,
           secondaryContainer: isDark
               ? const Color(0xFF21301A)
               : NihPalette.secondaryLightest,
           onSecondaryContainer: isDark
               ? NihPalette.white
               : NihPalette.secondaryDarkest,
-          surface: isDark ? const Color(0xFF171717) : NihPalette.white,
-          onSurface: isDark ? const Color(0xFFF7F7F7) : NihPalette.base,
+          surface: isDark ? const Color(0xFF162118) : NihPalette.warmSurface,
+          onSurface: isDark ? const Color(0xFFF5F2E9) : NihPalette.base,
           surfaceContainerHighest: isDark
-              ? const Color(0xFF222222)
-              : const Color(0xFFF3F0EA),
+              ? const Color(0xFF223027)
+              : NihPalette.sand,
           onSurfaceVariant: isDark
-              ? const Color(0xFFC9C9CE)
+              ? const Color(0xFFD2D0C7)
               : NihPalette.grayDark,
-          outline: isDark ? const Color(0xFF363636) : const Color(0xFFE6E2DB),
+          outline: isDark ? const Color(0xFF395242) : NihPalette.borderSoft,
           outlineVariant: isDark
-              ? const Color(0xFF2B2B2B)
-              : const Color(0xFFEEEAE4),
+              ? const Color(0xFF2B4033)
+              : const Color(0xFFF0E8D9),
           error: const Color(0xFFC95C4B),
           onError: NihPalette.white,
           shadow: Colors.black,
@@ -58,7 +58,7 @@ class AccessPlateTheme {
 
     return baseTheme.copyWith(
       scaffoldBackgroundColor: isDark
-          ? const Color(0xFF101010)
+          ? const Color(0xFF0F1811)
           : NihPalette.mist,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
@@ -128,7 +128,7 @@ class AccessPlateTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: isDark ? const Color(0xFF171717) : NihPalette.white,
+        color: isDark ? const Color(0xFF171717) : NihPalette.warmSurface,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

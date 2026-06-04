@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:access_plate/core/theme/app_theme.dart';
 import 'package:access_plate/domain/entities/explanation.dart';
 import 'package:access_plate/domain/entities/food.dart';
+import 'package:access_plate/domain/entities/grocery.dart';
+import 'package:access_plate/domain/entities/meal_shopping.dart';
 import 'package:access_plate/domain/entities/nutrients.dart';
 import 'package:access_plate/domain/entities/recommendation.dart';
+import 'package:access_plate/domain/entities/store_search.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:access_plate/domain/value_objects/meal_type.dart';
+import 'package:access_plate/presentation/providers/nearby_store_providers.dart';
 import 'package:access_plate/presentation/widgets/meal_basket_card.dart';
 import 'package:access_plate/presentation/widgets/recommendation_card.dart';
 import 'package:access_plate/presentation/widgets/section_card.dart';
@@ -17,7 +22,8 @@ import 'package:access_plate/presentation/widgets/today_plan_card.dart';
 void main() {
   testWidgets('section card renders child content', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
+      MaterialApp(
+        theme: AccessPlateTheme.light(),
         home: Scaffold(body: SectionCard(child: Text('AccessPlate'))),
       ),
     );
@@ -30,6 +36,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
+        theme: AccessPlateTheme.light(),
         home: Scaffold(
           body: Column(
             children: [
@@ -45,13 +52,14 @@ void main() {
     final selectedDecoration = inks.first.decoration! as BoxDecoration;
     final unselectedDecoration = inks.last.decoration! as BoxDecoration;
 
-    expect(selectedDecoration.color, const Color(0xFFE3E3E8));
-    expect(unselectedDecoration.color, Colors.white);
+    expect(selectedDecoration.color, const Color(0xFFF5F8EE));
+    expect(unselectedDecoration.color, const Color(0xFFFEFBF5));
   });
 
   testWidgets('today plan card renders summary and steps', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        theme: AccessPlateTheme.light(),
         home: Scaffold(
           body: SingleChildScrollView(
             child: TodayPlanCard(
@@ -125,6 +133,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       MaterialApp(
+        theme: AccessPlateTheme.light(),
         home: Scaffold(
           body: MealBasketCard(
             plan: MealBasketPlan(
@@ -206,9 +215,25 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          shoppingLocationStateProvider.overrideWith(
+            (ref) => const ShoppingLocationState(apiConfigured: true),
+          ),
+          mealShoppingSummariesProvider.overrideWith(
+            (ref) async => {
+              recommendation.food.id: _shoppingPlanFor(recommendation.food),
+            },
+          ),
+          prefetchedLiveMealShoppingPlansProvider.overrideWith(
+            (ref) async => {
+              recommendation.food.id: _shoppingPlanFor(recommendation.food),
+            },
+          ),
+        ],
         child: MediaQuery(
           data: const MediaQueryData(textScaler: TextScaler.linear(1.5)),
           child: MaterialApp(
+            theme: AccessPlateTheme.light(),
             home: Scaffold(
               body: SingleChildScrollView(
                 child: RecommendationCard(
@@ -223,13 +248,15 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Show details'));
+    final detailsButton = find.widgetWithText(TextButton, 'Details');
+    await tester.scrollUntilVisible(detailsButton, 200);
+    await tester.tap(detailsButton);
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('Oatmeal cup'), findsOneWidget);
-    expect(find.text('Decision snapshot'), findsOneWidget);
-    expect(find.text('Short trip with pantry-friendly staples.'), findsWidgets);
+    expect(find.text('Oatmeal cup'), findsWidgets);
+    expect(find.text('Buy list'), findsWidgets);
+    expect(find.textContaining('Oatmeal'), findsWidgets);
   });
 }
 
@@ -286,5 +313,76 @@ ScoredFood _sampleFood(int id) {
       cost: 0.12,
       preference: 0.5,
     ),
+  );
+}
+
+MealShoppingPlan _shoppingPlanFor(Food food) {
+  final groceryStore = GroceryStore(
+    retailer: GroceryRetailer.kroger,
+    locationId: 'store-${food.id}',
+    name: 'Kroger',
+    addressLine1: '123 Market St',
+    city: 'Demo',
+    state: 'OH',
+    postalCode: '45202',
+  );
+  final chosenStore = NearbyStore(
+    placeId: 'near-${food.id}',
+    name: groceryStore.name,
+    address: groceryStore.addressLabel,
+    latitude: 39.10,
+    longitude: -84.51,
+    categories: const {AvailabilityContext.grocery},
+    primaryCategory: AvailabilityContext.grocery,
+    discoveryVerification: DataVerification.live,
+    travelMetric: const TravelMetric(
+      source: TravelMetricSource.liveRoute,
+      distanceMiles: 1.4,
+      durationMinutes: 7,
+    ),
+    linkedGroceryStore: groceryStore,
+  );
+  final ingredient = IngredientRequirement(
+    key: 'oatmeal',
+    label: 'Oatmeal cup',
+    searchTerms: const ['oatmeal'],
+    pantryAliases: const ['oatmeal'],
+    evidence: IngredientEvidence.structured,
+    quantityLabel: food.servingLabel,
+  );
+  return MealShoppingPlan(
+    food: food,
+    ingredients: IngredientPlan(
+      atHome: const [],
+      toBuy: [ingredient],
+      buySummary: ingredient.label,
+    ),
+    chosenStore: chosenStore,
+    backupStores: const [],
+    candidateStores: [chosenStore],
+    liveProductMatch: LiveStoreMatch(
+      store: chosenStore,
+      lookup: LiveIngredientLookupResult(
+        store: groceryStore,
+        matches: [
+          IngredientProductMatch(
+            ingredient: ingredient,
+            products: const [
+              GroceryProduct(
+                retailer: GroceryRetailer.kroger,
+                productId: 'p-1',
+                description: 'Oatmeal cup',
+                brand: 'Store Brand',
+                size: '1 cup',
+                regularPrice: 1.25,
+              ),
+            ],
+          ),
+        ],
+        unmatchedIngredients: const [],
+      ),
+    ),
+    liveLookupAttempted: true,
+    storeStatusNote: null,
   );
 }

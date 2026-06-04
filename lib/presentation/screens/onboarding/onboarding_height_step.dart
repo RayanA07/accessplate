@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
@@ -32,16 +33,14 @@ class _OnboardingHeightStepState extends ConsumerState<OnboardingHeightStep> {
     final demographics = profile.constraints.demographics;
     final controller = ref.read(profileControllerProvider.notifier);
     final copy = AppCopy(profile.constraints.access.language);
-    final inches = ((demographics.heightCm ?? 66 * 2.54) / 2.54)
-        .round()
-        .clamp(48, 84);
+    final inches = ((demographics.heightCm ?? 66 * 2.54) / 2.54).round().clamp(
+      48,
+      84,
+    );
     _seedController(inches);
 
     return OnboardingStepLayout(
-      title: copy.choose(
-        'What is your\nheight?',
-        'Cual es tu\naltura?',
-      ),
+      title: copy.choose('What is your\nheight?', 'Cual es tu\naltura?'),
       subtitle: copy.choose(
         'Used with age and weight to estimate daily targets.',
         'Se usa con edad y peso para estimar tus metas diarias.',
@@ -55,7 +54,7 @@ class _OnboardingHeightStepState extends ConsumerState<OnboardingHeightStep> {
             fontSize: 48,
             fontWeight: FontWeight.w800,
             letterSpacing: -1.6,
-            color: Color(0xFF121212),
+            color: NihPalette.primaryDarker,
           ),
         ),
         const SizedBox(height: 28),
@@ -69,8 +68,8 @@ class _OnboardingHeightStepState extends ConsumerState<OnboardingHeightStep> {
             selectionOverlay: Container(
               decoration: const BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Color(0xFFE8E8EC)),
-                  bottom: BorderSide(color: Color(0xFFE8E8EC)),
+                  top: BorderSide(color: NihPalette.borderSoft),
+                  bottom: BorderSide(color: NihPalette.borderSoft),
                 ),
               ),
             ),
@@ -79,22 +78,19 @@ class _OnboardingHeightStepState extends ConsumerState<OnboardingHeightStep> {
                 demographics.copyWith(heightCm: (index + 48) * 2.54),
               );
             },
-            children: List.generate(
-              37,
-              (index) {
-                final current = index + 48;
-                return Center(
-                  child: Text(
-                    _formatHeight(current),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF222226),
-                    ),
+            children: List.generate(37, (index) {
+              final current = index + 48;
+              return Center(
+                child: Text(
+                  _formatHeight(current),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                    color: NihPalette.base,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }),
           ),
         ),
       ],

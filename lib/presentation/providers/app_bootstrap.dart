@@ -2,9 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../application/use_cases/evict_stale_cache_use_case.dart';
+import '../../application/use_cases/build_meal_shopping_plan_use_case.dart';
 import '../../application/use_cases/lookup_live_grocery_products_use_case.dart';
+import '../../application/use_cases/lookup_live_ingredient_products_use_case.dart';
 import '../../application/use_cases/recommend_foods_use_case.dart';
 import '../../application/use_cases/search_grocery_stores_use_case.dart';
+import '../../application/use_cases/search_nearby_stores_use_case.dart';
 import '../../application/use_cases/update_profile_use_case.dart';
 import '../../data/repositories/food_repository_impl.dart';
 import '../../data/repositories/cache_repository_impl.dart';
@@ -13,6 +16,9 @@ import '../../data/local/app_database.dart';
 import '../../data/local/cache_dao.dart';
 import '../../data/local/food_dao.dart';
 import '../../data/local/profile_dao.dart';
+import '../../data/remote/disabled_store_locator_repository.dart';
+import '../../data/remote/google_maps_api_config.dart';
+import '../../data/remote/google_maps_store_locator_repository.dart';
 import '../../data/remote/disabled_grocery_catalog_repository.dart';
 import '../../data/remote/grocery_api_config.dart';
 import '../../data/remote/kroger_catalog_repository.dart';
@@ -25,6 +31,7 @@ import '../../domain/repositories/grocery_catalog_repository.dart';
 import '../../domain/repositories/cache_repository.dart';
 import '../../domain/repositories/food_repository.dart';
 import '../../domain/repositories/profile_repository.dart';
+import '../../domain/repositories/store_locator_repository.dart';
 
 class AppBootstrap {
   AppBootstrap({
@@ -35,11 +42,15 @@ class AppBootstrap {
     required this.profileRepository,
     required this.cacheRepository,
     required this.groceryCatalogRepository,
+    required this.storeLocatorRepository,
     required this.recommendUseCase,
     required this.updateProfileUseCase,
     required this.evictStaleCacheUseCase,
     required this.searchGroceryStoresUseCase,
+    required this.searchNearbyStoresUseCase,
     required this.lookupLiveGroceryProductsUseCase,
+    required this.lookupLiveIngredientProductsUseCase,
+    required this.buildMealShoppingPlanUseCase,
   });
 
   final Database database;
@@ -49,11 +60,15 @@ class AppBootstrap {
   final ProfileRepository profileRepository;
   final CacheRepository cacheRepository;
   final GroceryCatalogRepository groceryCatalogRepository;
+  final StoreLocatorRepository storeLocatorRepository;
   final RecommendFoodsUseCase recommendUseCase;
   final UpdateProfileUseCase updateProfileUseCase;
   final EvictStaleCacheUseCase evictStaleCacheUseCase;
   final SearchGroceryStoresUseCase searchGroceryStoresUseCase;
+  final SearchNearbyStoresUseCase searchNearbyStoresUseCase;
   final LookupLiveGroceryProductsUseCase lookupLiveGroceryProductsUseCase;
+  final LookupLiveIngredientProductsUseCase lookupLiveIngredientProductsUseCase;
+  final BuildMealShoppingPlanUseCase buildMealShoppingPlanUseCase;
 }
 
 final appBootstrapProvider = FutureProvider<AppBootstrap>((ref) async {
@@ -77,6 +92,13 @@ final appBootstrapProvider = FutureProvider<AppBootstrap>((ref) async {
   final groceryCatalogRepository = groceryConfig.isConfigured
       ? KrogerCatalogRepository(config: groceryConfig)
       : const DisabledGroceryCatalogRepository();
+  final mapsConfig = GoogleMapsApiConfig.fromEnvironment();
+  final storeLocatorRepository = mapsConfig.isConfigured
+      ? GoogleMapsStoreLocatorRepository(config: mapsConfig)
+      : const DisabledStoreLocatorRepository();
+  final liveIngredientLookupUseCase = LookupLiveIngredientProductsUseCase(
+    groceryCatalogRepository,
+  );
   final engine = DecisionEngine(
     repo: foodRepository,
     scoreConfigProvider: ScoreConfigProvider(referenceTables),
@@ -93,14 +115,23 @@ final appBootstrapProvider = FutureProvider<AppBootstrap>((ref) async {
     profileRepository: profileRepository,
     cacheRepository: cacheRepository,
     groceryCatalogRepository: groceryCatalogRepository,
+    storeLocatorRepository: storeLocatorRepository,
     recommendUseCase: RecommendFoodsUseCase(engine),
     updateProfileUseCase: UpdateProfileUseCase(profileRepository),
     evictStaleCacheUseCase: evictStaleCacheUseCase,
     searchGroceryStoresUseCase: SearchGroceryStoresUseCase(
       groceryCatalogRepository,
     ),
+    searchNearbyStoresUseCase: SearchNearbyStoresUseCase(
+      storeLocatorRepository,
+      groceryCatalogRepository: groceryCatalogRepository,
+    ),
     lookupLiveGroceryProductsUseCase: LookupLiveGroceryProductsUseCase(
       groceryCatalogRepository,
+    ),
+    lookupLiveIngredientProductsUseCase: liveIngredientLookupUseCase,
+    buildMealShoppingPlanUseCase: BuildMealShoppingPlanUseCase(
+      liveProductLookupUseCase: liveIngredientLookupUseCase,
     ),
   );
 });

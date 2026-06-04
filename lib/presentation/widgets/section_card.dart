@@ -18,19 +18,23 @@ class SectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final tint = tintColor;
+    final baseFill = scheme.surface;
     final fill = tint == null
-        ? Colors.white
-        : Color.lerp(Colors.white, tint, 0.08) ?? Colors.white;
+        ? baseFill
+        : Color.lerp(baseFill, tint, 0.16) ?? baseFill;
 
     return DecoratedBox(
       decoration: BoxDecoration(
         color: fill,
         borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: scheme.outlineVariant.withValues(alpha: 0.92),
+        ),
         boxShadow: [
           BoxShadow(
-            color: scheme.shadow.withValues(alpha: 0.06),
-            blurRadius: 26,
-            offset: const Offset(0, 10),
+            color: scheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 28,
+            offset: const Offset(0, 12),
           ),
         ],
       ),

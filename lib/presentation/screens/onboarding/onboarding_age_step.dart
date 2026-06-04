@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
@@ -45,11 +46,11 @@ class _OnboardingAgeStepState extends ConsumerState<OnboardingAgeStep> {
         Text(
           '$age',
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 54,
             fontWeight: FontWeight.w800,
             letterSpacing: -2,
-            color: Color(0xFF121212),
+            color: NihPalette.primaryDarker,
           ),
         ),
         const SizedBox(height: 28),
@@ -63,8 +64,8 @@ class _OnboardingAgeStepState extends ConsumerState<OnboardingAgeStep> {
             selectionOverlay: Container(
               decoration: const BoxDecoration(
                 border: Border(
-                  top: BorderSide(color: Color(0xFFE8E8EC)),
-                  bottom: BorderSide(color: Color(0xFFE8E8EC)),
+                  top: BorderSide(color: NihPalette.borderSoft),
+                  bottom: BorderSide(color: NihPalette.borderSoft),
                 ),
               ),
             ),
@@ -81,7 +82,7 @@ class _OnboardingAgeStepState extends ConsumerState<OnboardingAgeStep> {
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF222226),
+                    color: NihPalette.base,
                   ),
                 ),
               ),

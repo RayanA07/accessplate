@@ -61,8 +61,9 @@ class _BottomTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: NihPalette.warmSurface,
         borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: NihPalette.borderSoft),
         boxShadow: const [
           BoxShadow(
             color: Color(0x1C16161C),
@@ -72,33 +73,40 @@ class _BottomTabBar extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _TabButton(
-              semanticLabel: 'Meals',
-              icon: Icons.home_rounded,
-              selected: selectedTab == _HomeTab.meals,
-              onTap: () => onSelected(_HomeTab.meals),
+            Expanded(
+              child: _TabButton(
+                semanticLabel: 'Meals',
+                icon: Icons.home_rounded,
+                selected: selectedTab == _HomeTab.meals,
+                onTap: () => onSelected(_HomeTab.meals),
+              ),
             ),
-            _TabButton(
-              semanticLabel: 'Logged',
-              icon: Icons.receipt_long_rounded,
-              selected: selectedTab == _HomeTab.logged,
-              onTap: () => onSelected(_HomeTab.logged),
+            Expanded(
+              child: _TabButton(
+                semanticLabel: 'Logged',
+                icon: Icons.receipt_long_rounded,
+                selected: selectedTab == _HomeTab.logged,
+                onTap: () => onSelected(_HomeTab.logged),
+              ),
             ),
-            _TabButton(
-              semanticLabel: 'Targets',
-              icon: Icons.stars_rounded,
-              selected: selectedTab == _HomeTab.targets,
-              onTap: () => onSelected(_HomeTab.targets),
+            Expanded(
+              child: _TabButton(
+                semanticLabel: 'Tracker',
+                icon: Icons.donut_large_rounded,
+                selected: selectedTab == _HomeTab.targets,
+                onTap: () => onSelected(_HomeTab.targets),
+              ),
             ),
-            _TabButton(
-              semanticLabel: 'Profile',
-              icon: Icons.person_outline_rounded,
-              selected: selectedTab == _HomeTab.profile,
-              onTap: () => onSelected(_HomeTab.profile),
+            Expanded(
+              child: _TabButton(
+                semanticLabel: 'Profile',
+                icon: Icons.person_outline_rounded,
+                selected: selectedTab == _HomeTab.profile,
+                onTap: () => onSelected(_HomeTab.profile),
+              ),
             ),
           ],
         ),
@@ -122,7 +130,7 @@ class _TabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconColor = selected ? Colors.white : const Color(0xFF8E8D95);
+    final iconColor = selected ? Colors.white : NihPalette.grayDark;
     return Semantics(
       button: true,
       selected: selected,
@@ -133,13 +141,26 @@ class _TabButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOut,
-          width: 52,
-          height: 52,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
           decoration: BoxDecoration(
             color: selected ? NihPalette.success : Colors.transparent,
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(22),
           ),
-          child: Icon(icon, color: iconColor, size: 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: iconColor, size: 24),
+              const SizedBox(height: 5),
+              Text(
+                semanticLabel,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: iconColor,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

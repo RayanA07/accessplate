@@ -24,7 +24,7 @@ The recommendation engine stays local-first and explainable:
    - meal timing
    - dietary style
 4. Access realism
-   - ZIP-based bundled source snapshots
+   - ZIP-based bundled source snapshots for offline ranking
    - transportation mode
    - travel-time tolerance
    - emergency mode
@@ -49,15 +49,17 @@ AccessPlate now makes the distinction explicit in code and UI.
 - Bundled modeled data:
   - ZIP snapshots and ZIP-prefix fallbacks in `assets/reference/local_access_profiles.json`
   - source burden for pantry, dollar store, convenience store, grocery, and fast food
-  - nearby-option counts, travel minutes, and same-day confidence
+  - offline access weighting used by the deterministic ranking engine
 - Live store-specific data:
-  - currently optional grocery brand and price matching through Kroger APIs
-  - store-specific product names, aisle hints, and prices
+  - Google Maps APIs for address / ZIP geocoding, reverse geocoding, nearby-store discovery, and route distance / travel metrics
+  - optional Kroger APIs for store-linked product names, package sizes, and prices
 
 Important boundary:
 
-- The bundled model is not live neighborhood inventory.
-- The live grocery layer does not provide live pantry, convenience-store, or dollar-store inventory.
+- The bundled model is not live neighborhood inventory and must not be presented as nearby-store proof.
+- A ZIP-only search origin is an approximate centroid fallback and must be labeled approximate.
+- The live grocery layer does not provide live pantry, convenience-store, dollar-store, or unsupported-retailer inventory.
+- A nearby store result does not guarantee item-level inventory unless a live product API confirms the item.
 
 ## Benefits-aware logic
 

@@ -110,15 +110,16 @@ class OnboardingSplashStep extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
           SizedBox(
-            height: 430,
+            height: 534,
             child: Stack(
               alignment: Alignment.center,
+              clipBehavior: Clip.none,
               children: [
                 Positioned(
-                  top: 34,
+                  top: 42,
                   child: Container(
-                    width: 290,
-                    height: 290,
+                    width: 328,
+                    height: 328,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
@@ -128,8 +129,9 @@ class OnboardingSplashStep extends ConsumerWidget {
                   ),
                 ),
                 Positioned(
-                  left: -50,
-                  right: -50,
+                  left: -34,
+                  right: -34,
+                  top: 70,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
@@ -253,8 +255,8 @@ class _PhonePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 272,
-      height: 496,
+      width: 288,
+      height: 522,
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(42),

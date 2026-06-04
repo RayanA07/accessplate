@@ -9,7 +9,7 @@ import '../../../domain/value_objects/user_language.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/cache_controller.dart';
 import '../../providers/profile_controller.dart';
-import '../../widgets/live_grocery_settings_card.dart';
+import '../../widgets/home_tab_header.dart';
 import '../../widgets/section_card.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -56,17 +56,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        copy.settingsTitle,
-                        style: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                    ),
-                    _AvatarBadge(name: profile.localLogin.displayName),
-                  ],
+                HomeTabHeader(
+                  eyebrow: copy.choose(
+                    'This device only',
+                    'Solo este dispositivo',
+                  ),
+                  title: copy.settingsTitle,
+                  subtitle: copy.choose(
+                    'Adjust language, store matching, and profile behavior without changing the mission of the app.',
+                    'Ajusta idioma, coincidencias de tienda y comportamiento del perfil sin cambiar la mision de la app.',
+                  ),
+                  icon: Icons.tune_rounded,
+                  trailing: _AvatarBadge(name: profile.localLogin.displayName),
+                  tintColor: NihPalette.primary,
                 ),
                 const SizedBox(height: 18),
                 _ProfileSummaryCard(profile: profile, copy: copy),
@@ -151,8 +153,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 14),
-                const LiveGrocerySettingsCard(),
                 const SizedBox(height: 14),
                 SectionCard(
                   child: Column(
@@ -437,7 +437,11 @@ class _AvatarBadge extends StatelessWidget {
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
-          colors: [Color(0xFF25396B), Color(0xFF0E1C3F), Color(0xFF142B5E)],
+          colors: [
+            NihPalette.primary,
+            NihPalette.primaryDarker,
+            NihPalette.primaryDarkest,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -468,6 +472,7 @@ class _ProfileSummaryCard extends StatelessWidget {
     final name = profile.localLogin.displayName.trim();
 
     return SectionCard(
+      tintColor: NihPalette.secondaryLight,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

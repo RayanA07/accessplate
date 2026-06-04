@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
@@ -49,7 +50,7 @@ class OnboardingFlowScreen extends ConsumerWidget {
     final profile = profileAsync.valueOrNull;
     if (profile == null) {
       return const Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: NihPalette.mist,
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -63,87 +64,91 @@ class OnboardingFlowScreen extends ConsumerWidget {
     final canContinue = _canContinue(profile, stage);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 430),
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(20, compact ? 10 : 14, 20, 20),
-              child: Column(
-                children: [
-                  if (stage != OnboardingStage.splash) ...[
-                    _FlowHeader(
-                      progress: progress,
-                      canGoBack: stage != _orderedStages.first,
-                      onBack: () => _goBack(controller, stage),
-                    ),
-                    SizedBox(height: compact ? 24 : 32),
-                  ] else
-                    SizedBox(height: compact ? 10 : 16),
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 180),
-                      child: KeyedSubtree(
-                        key: ValueKey(stage),
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: switch (stage) {
-                            OnboardingStage.splash =>
-                              const OnboardingSplashStep(),
-                            OnboardingStage.name => const OnboardingNameStep(),
-                            OnboardingStage.age => const OnboardingAgeStep(),
-                            OnboardingStage.height =>
-                              const OnboardingHeightStep(),
-                            OnboardingStage.weight =>
-                              const OnboardingWeightStep(),
-                            OnboardingStage.profile =>
-                              const OnboardingProfileStep(),
-                            OnboardingStage.allergens =>
-                              const OnboardingAllergensStep(),
-                            OnboardingStage.religion =>
-                              const OnboardingReligionStep(),
-                            OnboardingStage.medical =>
-                              const OnboardingMedicalStep(),
-                            OnboardingStage.budget =>
-                              const OnboardingBudgetStep(),
-                            OnboardingStage.environment =>
-                              const OnboardingEnvironmentStep(),
-                            OnboardingStage.availability =>
-                              const OnboardingAvailabilityStep(),
-                            OnboardingStage.access =>
-                              const OnboardingAccessStep(),
-                            OnboardingStage.dietaryStyle =>
-                              const OnboardingDietaryStyleStep(),
-                            OnboardingStage.mealTiming =>
-                              const OnboardingAllergensStep(),
-                            OnboardingStage.pantry =>
-                              const OnboardingPantryStep(),
-                            OnboardingStage.targets =>
-                              const OnboardingTargetsStep(),
-                          },
+      backgroundColor: Colors.transparent,
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: NihPalette.lightBackground),
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 430),
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, compact ? 10 : 14, 20, 20),
+                child: Column(
+                  children: [
+                    if (stage != OnboardingStage.splash) ...[
+                      _FlowHeader(
+                        progress: progress,
+                        canGoBack: stage != _orderedStages.first,
+                        onBack: () => _goBack(controller, stage),
+                      ),
+                      SizedBox(height: compact ? 24 : 32),
+                    ] else
+                      SizedBox(height: compact ? 10 : 16),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 180),
+                        child: KeyedSubtree(
+                          key: ValueKey(stage),
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: switch (stage) {
+                              OnboardingStage.splash =>
+                                const OnboardingSplashStep(),
+                              OnboardingStage.name =>
+                                const OnboardingNameStep(),
+                              OnboardingStage.age => const OnboardingAgeStep(),
+                              OnboardingStage.height =>
+                                const OnboardingHeightStep(),
+                              OnboardingStage.weight =>
+                                const OnboardingWeightStep(),
+                              OnboardingStage.profile =>
+                                const OnboardingProfileStep(),
+                              OnboardingStage.allergens =>
+                                const OnboardingAllergensStep(),
+                              OnboardingStage.religion =>
+                                const OnboardingReligionStep(),
+                              OnboardingStage.medical =>
+                                const OnboardingMedicalStep(),
+                              OnboardingStage.budget =>
+                                const OnboardingBudgetStep(),
+                              OnboardingStage.environment =>
+                                const OnboardingEnvironmentStep(),
+                              OnboardingStage.availability =>
+                                const OnboardingAvailabilityStep(),
+                              OnboardingStage.access =>
+                                const OnboardingAccessStep(),
+                              OnboardingStage.dietaryStyle =>
+                                const OnboardingDietaryStyleStep(),
+                              OnboardingStage.mealTiming =>
+                                const OnboardingAllergensStep(),
+                              OnboardingStage.pantry =>
+                                const OnboardingPantryStep(),
+                              OnboardingStage.targets =>
+                                const OnboardingTargetsStep(),
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: compact ? 12 : 18),
-                  _ContinueButton(
-                    label: switch (stage) {
-                      OnboardingStage.splash => copy.choose(
-                        'Get started',
-                        'Empezar',
-                      ),
-                      OnboardingStage.targets => copy.choose(
-                        'See suggested meals',
-                        'Ver comidas sugeridas',
-                      ),
-                      _ => copy.choose('Continue', 'Continuar'),
-                    },
-                    onPressed: canContinue
-                        ? () => _goForward(controller, stage)
-                        : null,
-                  ),
-                ],
+                    SizedBox(height: compact ? 12 : 18),
+                    _ContinueButton(
+                      label: switch (stage) {
+                        OnboardingStage.splash => copy.choose(
+                          'Get started',
+                          'Empezar',
+                        ),
+                        OnboardingStage.targets => copy.choose(
+                          'See suggested meals',
+                          'Ver comidas sugeridas',
+                        ),
+                        _ => copy.choose('Continue', 'Continuar'),
+                      },
+                      onPressed: canContinue
+                          ? () => _goForward(controller, stage)
+                          : null,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -200,12 +205,12 @@ class _FlowHeader extends StatelessWidget {
           child: canGoBack
               ? Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7F7FA),
+                    color: NihPalette.warmSurface,
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFEEEEF3)),
-                    boxShadow: const [
+                    border: Border.all(color: NihPalette.borderSoft),
+                    boxShadow: [
                       BoxShadow(
-                        color: Color(0x09000000),
+                        color: NihPalette.primary.withValues(alpha: 0.06),
                         blurRadius: 18,
                         offset: Offset(0, 8),
                       ),
@@ -217,7 +222,7 @@ class _FlowHeader extends StatelessWidget {
                     icon: const Icon(
                       Icons.arrow_back_ios_new_rounded,
                       size: 18,
-                      color: Color(0xFF8A8A90),
+                      color: NihPalette.primaryDarker,
                     ),
                   ),
                 )
@@ -231,10 +236,10 @@ class _FlowHeader extends StatelessWidget {
               height: 4,
               child: Stack(
                 children: [
-                  Container(color: const Color(0xFFF1F1F4)),
+                  Container(color: NihPalette.sandDark),
                   FractionallySizedBox(
                     widthFactor: progress,
-                    child: Container(color: const Color(0xFF1A1A1A)),
+                    child: Container(color: NihPalette.primary),
                   ),
                 ],
               ),
@@ -259,14 +264,15 @@ class _ContinueButton extends StatelessWidget {
       child: FilledButton(
         onPressed: onPressed,
         style: FilledButton.styleFrom(
-          backgroundColor: Colors.black,
-          disabledBackgroundColor: const Color(0xFFE0E0E3),
+          backgroundColor: NihPalette.primary,
+          disabledBackgroundColor: NihPalette.grayLight,
           disabledForegroundColor: Colors.white,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(54),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),
+          elevation: 0,
         ),
         child: Text(
           label,
