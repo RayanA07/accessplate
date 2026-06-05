@@ -1,4 +1,3 @@
-import 'package:access_plate/domain/entities/demo_location_seed.dart';
 import 'package:access_plate/domain/entities/grocery.dart';
 import 'package:access_plate/domain/entities/store_search.dart';
 import 'package:access_plate/domain/entities/user_constraints.dart';
@@ -40,8 +39,8 @@ void main() {
     );
   });
 
-  test('default access zip uses the Chicago demo food-desert seed', () {
-    expect(UserConstraints.defaults().access.postalCode, demoSeedPostalCode);
+  test('default access zip starts unset', () {
+    expect(UserConstraints.defaults().access.postalCode, isEmpty);
   });
 
   test('selected grocery store survives json round-trip', () {
@@ -138,10 +137,7 @@ void main() {
     final roundTrip = UserConstraints.fromJson(constraints.toJson());
 
     expect(roundTrip.cachedNearbyStoreLookup, isNotNull);
-    expect(
-      roundTrip.cachedNearbyStoreLookup?.origin.postalCode,
-      demoSeedPostalCode,
-    );
+    expect(roundTrip.cachedNearbyStoreLookup?.origin.postalCode, '60651');
     expect(roundTrip.cachedNearbyStoreLookup?.stores, hasLength(1));
     expect(roundTrip.cachedNearbyStoreLookup?.stores.first.name, 'Save A Lot');
   });

@@ -1,7 +1,6 @@
 import '../../domain/entities/food.dart';
 import '../../domain/entities/grocery.dart';
 import '../../domain/entities/meal_shopping.dart';
-import '../../domain/entities/store_search.dart';
 import '../../domain/entities/user_constraints.dart';
 import '../../domain/value_objects/availability_context.dart';
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -32,9 +33,7 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
 
     final digits = trimmed.replaceAll(RegExp(r'[^0-9]'), '');
     final zipOnly = digits.length == 5 && trimmed == digits;
-    final uri = Uri.parse(
-      '${_config.nominatimBaseUrl}/search',
-    ).replace(
+    final uri = Uri.parse('${_config.nominatimBaseUrl}/search').replace(
       queryParameters: {
         'format': 'jsonv2',
         'addressdetails': '1',
@@ -69,13 +68,17 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
         (zipOnly ? digits : null);
 
     return SearchLocation(
-      kind: zipOnly ? SearchLocationKind.zipCentroid : SearchLocationKind.address,
+      kind: zipOnly
+          ? SearchLocationKind.zipCentroid
+          : SearchLocationKind.address,
       label: zipOnly
           ? 'ZIP $digits area'
           : result['display_name'] as String? ?? trimmed,
       latitude: latitude,
       longitude: longitude,
-      verification: zipOnly ? DataVerification.approximate : DataVerification.live,
+      verification: zipOnly
+          ? DataVerification.approximate
+          : DataVerification.live,
       postalCode: postalCode,
       query: trimmed,
       detail: zipOnly
@@ -88,37 +91,21 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
   Future<SearchLocation> reverseGeocodeDeviceLocation(
     DeviceLocationFix fix,
   ) async {
-    final uri = Uri.parse(
-      '${_config.nominatimBaseUrl}/reverse',
-    ).replace(
-      queryParameters: {
-        'format': 'jsonv2',
-        'addressdetails': '1',
-        'zoom': '18',
-        'lat': fix.latitude.toString(),
-        'lon': fix.longitude.toString(),
-      },
-    );
-
-    final payload = await _getJsonMap(
-      uri,
-      failureMessage: 'Device location lookup failed',
-    );
-    final address = _addressMap(payload['address']);
-
     return SearchLocation(
       kind: SearchLocationKind.device,
-      label:
-          payload['display_name'] as String? ?? 'Current device location',
+      label: fix.isPrecise
+          ? 'Current location'
+          : 'Approximate current location',
       latitude: fix.latitude,
       longitude: fix.longitude,
       verification: fix.isPrecise
           ? DataVerification.live
           : DataVerification.approximate,
-      postalCode: _normalizePostalCode(address['postcode']?.toString()),
+      query:
+          '${fix.latitude.toStringAsFixed(5)}, ${fix.longitude.toStringAsFixed(5)}',
       detail: fix.isPrecise
-          ? 'Live device location with OpenStreetMap label'
-          : 'Approximate device location with OpenStreetMap label',
+          ? 'Device coordinates ${fix.latitude.toStringAsFixed(5)}, ${fix.longitude.toStringAsFixed(5)}'
+          : 'Approximate device coordinates ${fix.latitude.toStringAsFixed(5)}, ${fix.longitude.toStringAsFixed(5)}',
     );
   }
 
@@ -133,91 +120,80 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
       return const [];
     }
 
-    final query = _buildOverpassQuery(
-      origin: origin,
-      categories: categories,
-      radiusMeters: radiusMeters,
-      limitPerCategory: limitPerCategory,
-    );
-    final response = await _httpClient.post(
-      Uri.parse(_config.overpassBaseUrl),
-      headers: _headers(
-        contentType: 'application/x-www-form-urlencoded; charset=utf-8',
-      ),
-      body: {'data': query},
-    );
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw StoreSearchException(
-        'Nearby store search failed (${response.statusCode}).',
+    Object? primaryError;
+    try {
+      final query = _buildOverpassQuery(
+        origin: origin,
+        categories: categories,
+        radiusMeters: radiusMeters,
+        limitPerCategory: limitPerCategory,
       );
+      final response = await _httpClient
+          .post(
+            Uri.parse(_config.overpassBaseUrl),
+            headers: _headers(
+              contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+            ),
+            body: {'data': query},
+          )
+          .timeout(_overpassTimeout);
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        throw StoreSearchException(
+          'Nearby store search failed (${response.statusCode}).',
+        );
+      }
+
+      final payload = Map<String, dynamic>.from(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+      final stores = _storesFromOverpassElements(
+        origin: origin,
+        categories: categories,
+        elements: payload['elements'] as List<dynamic>? ?? const [],
+      );
+      if (stores.isNotEmpty) {
+        return stores;
+      }
+    } catch (error) {
+      primaryError = error;
     }
 
-    final payload = Map<String, dynamic>.from(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
-    final elements = payload['elements'] as List<dynamic>? ?? const [];
-    final merged = <String, NearbyStore>{};
-
-    for (final row in elements) {
-      final element = Map<String, dynamic>.from(row as Map);
-      final tags = _addressMap(element['tags']);
-      final matchedCategories = _categoriesFor(tags).intersection(categories);
-      if (matchedCategories.isEmpty) {
-        continue;
-      }
-
-      final coordinates = _coordinatesFor(element);
-      if (coordinates == null) {
-        continue;
-      }
-
-      final placeId = '${element['type'] ?? 'element'}:${element['id'] ?? ''}';
-      if (placeId == 'element:') {
-        continue;
-      }
-
-      final distanceMiles = _straightLineMiles(
-        origin.latitude,
-        origin.longitude,
-        coordinates.latitude,
-        coordinates.longitude,
+    try {
+      final fallbackStores = await _searchNearbyStoresWithNominatimFallback(
+        origin: origin,
+        categories: categories,
+        radiusMeters: radiusMeters,
+        limitPerCategory: limitPerCategory,
       );
-      final existing = merged[placeId];
-      final storeCategories = {
-        ...?existing?.categories,
-        ...matchedCategories,
-      };
-      merged[placeId] = NearbyStore(
-        placeId: placeId,
-        name: _storeName(tags, storeCategories),
-        address: _addressFromTags(tags),
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        categories: storeCategories,
-        primaryCategory:
-            existing?.primaryCategory ??
-            _primaryCategory(storeCategories),
-        discoveryVerification: DataVerification.live,
-        travelMetric: TravelMetric(
-          source: TravelMetricSource.straightLineApproximate,
-          distanceMiles: distanceMiles,
-        ),
-        phoneNumber:
-            tags['phone']?.toString() ?? tags['contact:phone']?.toString(),
-      );
+      if (fallbackStores.isNotEmpty) {
+        return fallbackStores;
+      }
+    } catch (_) {
+      if (primaryError == null) {
+        return const [];
+      }
     }
 
-    final stores = merged.values.toList(growable: false);
-    stores.sort((left, right) {
-      final leftMiles = left.travelMetric.distanceMiles ?? double.infinity;
-      final rightMiles = right.travelMetric.distanceMiles ?? double.infinity;
-      final byDistance = leftMiles.compareTo(rightMiles);
-      if (byDistance != 0) {
-        return byDistance;
-      }
-      return left.name.compareTo(right.name);
-    });
-    return stores;
+    if (primaryError is StoreSearchException) {
+      throw primaryError;
+    }
+    if (primaryError is TimeoutException) {
+      throw const StoreSearchException(
+        'Nearby store search timed out before stores could be verified.',
+      );
+    }
+    if (primaryError is SocketException) {
+      throw const StoreSearchException(
+        'Nearby store search could not reach the map service.',
+      );
+    }
+    if (primaryError != null) {
+      throw StoreSearchException('Nearby store search failed: $primaryError');
+    }
+
+    throw const StoreSearchException(
+      'No nearby stores matched the current live search.',
+    );
   }
 
   @override
@@ -233,24 +209,38 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
     Uri uri, {
     required String failureMessage,
   }) async {
-    final response = await _httpClient.get(uri, headers: _headers());
+    final response = await _httpClient
+        .get(uri, headers: _headers())
+        .timeout(_nominatimTimeout);
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw StoreSearchException('$failureMessage (${response.statusCode}).');
+      throw _httpFailure(
+        failureMessage: failureMessage,
+        statusCode: response.statusCode,
+      );
     }
     return jsonDecode(response.body) as List<dynamic>;
   }
 
-  Future<Map<String, dynamic>> _getJsonMap(
-    Uri uri, {
+  StoreSearchException _httpFailure({
     required String failureMessage,
-  }) async {
-    final response = await _httpClient.get(uri, headers: _headers());
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw StoreSearchException('$failureMessage (${response.statusCode}).');
+    required int statusCode,
+  }) {
+    if (statusCode == 429) {
+      return switch (failureMessage) {
+        'Location search failed' => const StoreSearchException(
+          'Location search is temporarily busy. Try again in a moment.',
+        ),
+        'Nearby store search fallback failed' => const StoreSearchException(
+          'Nearby store lookup fallback is temporarily busy.',
+        ),
+        'Device location lookup failed' => const StoreSearchException(
+          'Current location labeling is temporarily unavailable.',
+        ),
+        _ => StoreSearchException('$failureMessage (429).'),
+      };
     }
-    return Map<String, dynamic>.from(
-      jsonDecode(response.body) as Map<String, dynamic>,
-    );
+
+    return StoreSearchException('$failureMessage ($statusCode).');
   }
 
   Map<String, String> _headers({String? contentType}) {
@@ -272,9 +262,11 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
 
   _LatLng? _coordinatesFor(Map<String, dynamic> element) {
     final center = _addressMap(element['center']);
-    final latitude = (element['lat'] as num?)?.toDouble() ??
+    final latitude =
+        (element['lat'] as num?)?.toDouble() ??
         (center['lat'] as num?)?.toDouble();
-    final longitude = (element['lon'] as num?)?.toDouble() ??
+    final longitude =
+        (element['lon'] as num?)?.toDouble() ??
         (center['lon'] as num?)?.toDouble();
     if (latitude == null || longitude == null) {
       return null;
@@ -286,7 +278,9 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
     final categories = <AvailabilityContext>{};
     final shop = _normalize(tags['shop']?.toString() ?? '');
     final amenity = _normalize(tags['amenity']?.toString() ?? '');
-    final socialFacility = _normalize(tags['social_facility']?.toString() ?? '');
+    final socialFacility = _normalize(
+      tags['social_facility']?.toString() ?? '',
+    );
     final combined = _normalize(
       [
         tags['name'],
@@ -322,11 +316,7 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
     return _dollarStoreTerms.any(combined.contains);
   }
 
-  bool _isFoodPantry(
-    String amenity,
-    String socialFacility,
-    String combined,
-  ) {
+  bool _isFoodPantry(String amenity, String socialFacility, String combined) {
     if (socialFacility == 'food bank' || socialFacility == 'food pantry') {
       return true;
     }
@@ -418,13 +408,14 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
     required int limitPerCategory,
   }) {
     final fragments = <String>[
-      for (final category in categories) ..._queryFragmentsFor(
-        category,
-        origin.latitude,
-        origin.longitude,
-        radiusMeters,
-        limitPerCategory,
-      ),
+      for (final category in categories)
+        ..._queryFragmentsFor(
+          category,
+          origin.latitude,
+          origin.longitude,
+          radiusMeters,
+          limitPerCategory,
+        ),
     ];
     return '''
 [out:json][timeout:25];
@@ -433,6 +424,226 @@ ${fragments.join('\n')}
 );
 out center tags;
 ''';
+  }
+
+  List<NearbyStore> _storesFromOverpassElements({
+    required SearchLocation origin,
+    required Set<AvailabilityContext> categories,
+    required List<dynamic> elements,
+  }) {
+    final merged = <String, NearbyStore>{};
+
+    for (final row in elements) {
+      final element = Map<String, dynamic>.from(row as Map);
+      final tags = _addressMap(element['tags']);
+      final matchedCategories = _categoriesFor(tags).intersection(categories);
+      if (matchedCategories.isEmpty) {
+        continue;
+      }
+
+      final coordinates = _coordinatesFor(element);
+      if (coordinates == null) {
+        continue;
+      }
+
+      final placeId = '${element['type'] ?? 'element'}:${element['id'] ?? ''}';
+      if (placeId == 'element:') {
+        continue;
+      }
+
+      final distanceMiles = _straightLineMiles(
+        origin.latitude,
+        origin.longitude,
+        coordinates.latitude,
+        coordinates.longitude,
+      );
+      final existing = merged[placeId];
+      final storeCategories = {...?existing?.categories, ...matchedCategories};
+      merged[placeId] = NearbyStore(
+        placeId: placeId,
+        name: _storeName(tags, storeCategories),
+        address: _addressFromTags(tags),
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
+        categories: storeCategories,
+        primaryCategory:
+            existing?.primaryCategory ?? _primaryCategory(storeCategories),
+        discoveryVerification: DataVerification.live,
+        travelMetric: TravelMetric(
+          source: TravelMetricSource.straightLineApproximate,
+          distanceMiles: distanceMiles,
+        ),
+        phoneNumber:
+            tags['phone']?.toString() ?? tags['contact:phone']?.toString(),
+      );
+    }
+
+    final stores = merged.values.toList(growable: false);
+    stores.sort(_sortStoresByDistanceThenName);
+    return stores;
+  }
+
+  Future<List<NearbyStore>> _searchNearbyStoresWithNominatimFallback({
+    required SearchLocation origin,
+    required Set<AvailabilityContext> categories,
+    required int radiusMeters,
+    required int limitPerCategory,
+  }) async {
+    final merged = <String, NearbyStore>{};
+    final viewbox = _viewboxFor(origin, radiusMeters);
+
+    for (final category in categories) {
+      for (final phrase in _fallbackQueriesFor(category)) {
+        final uri = Uri.parse('${_config.nominatimBaseUrl}/search').replace(
+          queryParameters: {
+            'format': 'jsonv2',
+            'addressdetails': '1',
+            'limit': limitPerCategory.toString(),
+            'countrycodes': 'us',
+            'q': phrase,
+            'viewbox': viewbox,
+            'bounded': '1',
+          },
+        );
+
+        final payload = await _getJsonList(
+          uri,
+          failureMessage: 'Nearby store search fallback failed',
+        );
+        for (final row in payload) {
+          final result = Map<String, dynamic>.from(row as Map);
+          final latitude = double.tryParse(result['lat']?.toString() ?? '');
+          final longitude = double.tryParse(result['lon']?.toString() ?? '');
+          if (latitude == null || longitude == null) {
+            continue;
+          }
+
+          final placeId = _nominatimPlaceId(result);
+          if (placeId == null) {
+            continue;
+          }
+
+          final existing = merged[placeId];
+          final storeCategories = {...?existing?.categories, category};
+          merged[placeId] = NearbyStore(
+            placeId: placeId,
+            name: _storeNameFromSearchResult(result, category),
+            address: _addressFromSearchResult(result),
+            latitude: latitude,
+            longitude: longitude,
+            categories: storeCategories,
+            primaryCategory:
+                existing?.primaryCategory ?? _primaryCategory(storeCategories),
+            discoveryVerification: DataVerification.live,
+            travelMetric: TravelMetric(
+              source: TravelMetricSource.straightLineApproximate,
+              distanceMiles: _straightLineMiles(
+                origin.latitude,
+                origin.longitude,
+                latitude,
+                longitude,
+              ),
+            ),
+          );
+        }
+      }
+    }
+
+    final stores = merged.values.toList(growable: false);
+    stores.sort(_sortStoresByDistanceThenName);
+    return stores;
+  }
+
+  List<String> _fallbackQueriesFor(AvailabilityContext category) {
+    return switch (category) {
+      AvailabilityContext.grocery => const ['supermarket', 'grocery store'],
+      AvailabilityContext.convenience => const ['convenience store'],
+      AvailabilityContext.dollarStore => const [
+        'Dollar General',
+        'Family Dollar',
+        'Dollar Tree',
+      ],
+      AvailabilityContext.foodPantry => const ['food pantry', 'food bank'],
+      AvailabilityContext.fastFood => const ['fast food'],
+    };
+  }
+
+  String _viewboxFor(SearchLocation origin, int radiusMeters) {
+    final latDelta = radiusMeters / 111320.0;
+    final lngDelta =
+        radiusMeters /
+        (111320.0 *
+            math.cos(_toRadians(origin.latitude)).abs().clamp(0.2, 1.0));
+    final left = origin.longitude - lngDelta;
+    final right = origin.longitude + lngDelta;
+    final top = origin.latitude + latDelta;
+    final bottom = origin.latitude - latDelta;
+    return '$left,$top,$right,$bottom';
+  }
+
+  String? _nominatimPlaceId(Map<String, dynamic> result) {
+    final osmType = result['osm_type']?.toString();
+    final osmId = result['osm_id']?.toString();
+    if (osmType == null || osmType.isEmpty || osmId == null || osmId.isEmpty) {
+      return null;
+    }
+    return '$osmType:$osmId';
+  }
+
+  String _storeNameFromSearchResult(
+    Map<String, dynamic> result,
+    AvailabilityContext category,
+  ) {
+    final explicitName = result['name']?.toString().trim();
+    if (explicitName != null && explicitName.isNotEmpty) {
+      return explicitName;
+    }
+
+    final displayName = result['display_name']?.toString().trim();
+    if (displayName != null && displayName.isNotEmpty) {
+      final firstSegment = displayName.split(',').first.trim();
+      if (firstSegment.isNotEmpty) {
+        return firstSegment;
+      }
+    }
+
+    return switch (category) {
+      AvailabilityContext.grocery => 'Nearby grocery store',
+      AvailabilityContext.convenience => 'Nearby convenience store',
+      AvailabilityContext.dollarStore => 'Nearby dollar store',
+      AvailabilityContext.foodPantry => 'Nearby food pantry',
+      AvailabilityContext.fastFood => 'Nearby fast-food location',
+    };
+  }
+
+  String _addressFromSearchResult(Map<String, dynamic> result) {
+    final address = _addressMap(result['address']);
+    final formatted = _addressFromTags({
+      'addr:housenumber': address['house_number'],
+      'addr:street':
+          address['road'] ?? address['street'] ?? address['pedestrian'],
+      'addr:city':
+          address['city'] ??
+          address['town'] ??
+          address['village'] ??
+          address['hamlet'],
+      'addr:state': address['state'],
+      'addr:postcode': address['postcode'],
+    });
+    if (formatted != 'Address unavailable') {
+      return formatted;
+    }
+    return result['display_name']?.toString() ?? 'Address unavailable';
+  }
+
+  int _sortStoresByDistanceThenName(NearbyStore left, NearbyStore right) {
+    final leftMiles = left.travelMetric.distanceMiles ?? double.infinity;
+    final rightMiles = right.travelMetric.distanceMiles ?? double.infinity;
+    final byDistance = leftMiles.compareTo(rightMiles);
+    if (byDistance != 0) {
+      return byDistance;
+    }
+    return left.name.compareTo(right.name);
   }
 
   List<String> _queryFragmentsFor(
@@ -448,9 +659,7 @@ out center tags;
         'nwr["shop"="supermarket"]$around;',
         'nwr["shop"="grocery"]$around;',
       ],
-      AvailabilityContext.convenience => [
-        'nwr["shop"="convenience"]$around;',
-      ],
+      AvailabilityContext.convenience => ['nwr["shop"="convenience"]$around;'],
       AvailabilityContext.dollarStore => [
         'nwr["shop"="variety_store"]$around;',
         'nwr["shop"="discount"]$around;',
@@ -463,9 +672,7 @@ out center tags;
         'nwr["social_facility"~"food_bank|food_pantry",i]$around;',
         'nwr["name"~"food pantry|food bank",i]$around;',
       ],
-      AvailabilityContext.fastFood => [
-        'nwr["amenity"="fast_food"]$around;',
-      ],
+      AvailabilityContext.fastFood => ['nwr["amenity"="fast_food"]$around;'],
     }.take(limitPerCategory).toList(growable: false);
   }
 
@@ -516,3 +723,6 @@ const _dollarStoreTerms = <String>[
   '99 cents only',
   'five below',
 ];
+
+const _overpassTimeout = Duration(seconds: 12);
+const _nominatimTimeout = Duration(seconds: 8);

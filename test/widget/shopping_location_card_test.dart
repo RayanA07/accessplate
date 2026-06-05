@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:access_plate/domain/entities/store_search.dart';
 import 'package:access_plate/domain/entities/user_profile.dart';
+import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:access_plate/presentation/providers/nearby_store_providers.dart';
 import 'package:access_plate/presentation/providers/profile_controller.dart';
-import 'package:access_plate/domain/entities/store_search.dart';
-import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:access_plate/presentation/widgets/shopping_location_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets(
-    'shopping location card shows offline mode when location is unavailable',
+    'shopping location card shows setup guidance when location is unavailable',
     (tester) async {
       await tester.pumpWidget(
         _buildHarness(
@@ -21,6 +21,7 @@ void main() {
             mode: StoreAvailabilityMode.offline,
             apiConfigured: true,
             hasInternet: false,
+            fallbackReason: StoreAvailabilityFallbackReason.noLocation,
           ),
         ),
       );
@@ -28,15 +29,13 @@ void main() {
 
       expect(
         find.text(
-          'Using your saved store access — connect to internet for live store lookup',
+          'Add your current location or enter a ZIP code or address to verify nearby stores.',
         ),
         findsOneWidget,
       );
-      expect(find.text('Address or ZIP'), findsNothing);
-      expect(find.text('Use current location'), findsNothing);
-      expect(find.textContaining('GOOGLE_MAPS_API_KEY'), findsNothing);
-      expect(find.textContaining('map key'), findsNothing);
-      expect(find.text('Offline mode'), findsNothing);
+      expect(find.text('Setup needed'), findsOneWidget);
+      expect(find.text('Search'), findsOneWidget);
+      expect(find.text('Use current location'), findsOneWidget);
       expect(find.text('Device location'), findsNothing);
       expect(find.text('Live'), findsNothing);
       expect(find.text('Loading'), findsNothing);
@@ -44,11 +43,11 @@ void main() {
   );
 
   testWidgets(
-    'shopping location card shows device location and live when nearby stores are found',
+    'shopping location card shows device location live status and nearby store preview when nearby stores are found',
     (tester) async {
       await tester.pumpWidget(
         _buildHarness(
-          state: ShoppingLocationState(
+          state: const ShoppingLocationState(
             apiConfigured: true,
             location: _liveDeviceLocation,
           ),
@@ -65,11 +64,10 @@ void main() {
 
       expect(find.text('Device location'), findsOneWidget);
       expect(find.text('Live'), findsOneWidget);
-      expect(find.text('Offline mode'), findsNothing);
+      expect(find.text('Save A Lot | 0.8 mi'), findsOneWidget);
       expect(find.text('Searching...'), findsNothing);
       expect(find.text('Loading'), findsNothing);
       expect(find.byType(CircularProgressIndicator), findsNothing);
-      expect(find.text('1 stores'), findsNothing);
     },
   );
 
@@ -80,7 +78,7 @@ void main() {
 
       await tester.pumpWidget(
         _buildHarness(
-          state: ShoppingLocationState(
+          state: const ShoppingLocationState(
             apiConfigured: true,
             location: _liveDeviceLocation,
           ),
@@ -99,8 +97,43 @@ void main() {
       expect(find.text('Searching...'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.text('Live'), findsNothing);
-      expect(find.text('Offline mode'), findsNothing);
       expect(find.text('Loading'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'shopping location card shows search issue text instead of fake offline internet copy when lookup fails',
+    (tester) async {
+      await tester.pumpWidget(
+        _buildHarness(
+          state: const ShoppingLocationState(
+            apiConfigured: true,
+            location: _liveDeviceLocation,
+          ),
+          mode: const StoreAvailabilityModeState(
+            mode: StoreAvailabilityMode.offline,
+            apiConfigured: true,
+            hasInternet: true,
+            location: _liveDeviceLocation,
+            fallbackReason: StoreAvailabilityFallbackReason.searchFailed,
+            lookupError:
+                'Nearby store search timed out before stores could be verified.',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Search issue'), findsOneWidget);
+      expect(
+        find.textContaining('Live store lookup hit a service issue'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'Using your saved store access â€” connect to internet for live store lookup',
+        ),
+        findsNothing,
+      );
     },
   );
 }

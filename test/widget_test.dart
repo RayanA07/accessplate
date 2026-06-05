@@ -391,8 +391,6 @@ void main() {
       final unavailablePlan = _shoppingPlanWithoutStore(recommendation.food);
       const unavailableNote =
           'Nearby store verification is unavailable for this meal.';
-      const expandedGuidance =
-          'Store data unavailable offline. Use your access settings to find this at a nearby store.';
 
       await tester.pumpWidget(
         ProviderScope(
@@ -440,8 +438,13 @@ void main() {
       await tester.tap(find.widgetWithText(TextButton, 'Plan'));
       await tester.pumpAndSettle();
 
-      expect(find.text(unavailableNote), findsOneWidget);
-      expect(find.text(expandedGuidance), findsOneWidget);
+      expect(find.text(unavailableNote), findsWidgets);
+      expect(
+        find.text(
+          'Store data unavailable offline. Use your access settings to find this at a nearby store.',
+        ),
+        findsNothing,
+      );
     },
   );
 

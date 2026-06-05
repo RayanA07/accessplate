@@ -24,18 +24,14 @@ String? normalizePostalCode(String? value) {
 
 String resolvedAccessPostalCode(String? currentPostalCode) {
   final normalized = normalizePostalCode(currentPostalCode);
-  if (normalized == null || normalized == legacyDemoSeedPostalCode) {
-    return demoSeedPostalCode;
+  if (normalized == null ||
+      normalized == legacyDemoSeedPostalCode ||
+      normalized == demoSeedPostalCode) {
+    return '';
   }
   return normalized;
 }
 
 SearchLocation? seededSearchLocationForPostalCode(String? postalCode) {
-  final normalized = normalizePostalCode(postalCode);
-  if (normalized == null ||
-      normalized == legacyDemoSeedPostalCode ||
-      normalized == demoSeedPostalCode) {
-    return demoSeedLocation;
-  }
   return null;
 }

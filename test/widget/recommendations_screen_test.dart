@@ -33,6 +33,7 @@ void main() {
     await tester.scrollUntilVisible(
       find.byType(RecommendationCard).first,
       200,
+      scrollable: find.byType(Scrollable).first,
     );
     expect(find.byType(RecommendationCard), findsWidgets);
   });
@@ -43,7 +44,11 @@ void main() {
     await tester.pumpAndSettle();
 
     final planButton = find.widgetWithText(TextButton, 'Plan').first;
-    await tester.scrollUntilVisible(planButton, 200);
+    await tester.scrollUntilVisible(
+      planButton,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(planButton, warnIfMissed: false);
     await tester.pumpAndSettle();
@@ -59,7 +64,11 @@ void main() {
     await tester.pumpAndSettle();
 
     final logButton = find.widgetWithText(FilledButton, 'Log meal').first;
-    await tester.scrollUntilVisible(logButton, 200);
+    await tester.scrollUntilVisible(
+      logButton,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(logButton, warnIfMissed: false);
     await tester.pumpAndSettle();
@@ -67,7 +76,9 @@ void main() {
     expect(find.textContaining('daily tracking'), findsOneWidget);
   });
 
-  testWidgets('recommendations screen shows compact action plan', (tester) async {
+  testWidgets('recommendations screen shows compact action plan', (
+    tester,
+  ) async {
     await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
@@ -95,6 +106,7 @@ void main() {
             mode: StoreAvailabilityMode.offline,
             apiConfigured: true,
             hasInternet: false,
+            fallbackReason: StoreAvailabilityFallbackReason.noInternet,
           ),
           shoppingPlans: offlinePlans,
         ),
@@ -109,9 +121,53 @@ void main() {
       await tester.scrollUntilVisible(
         find.textContaining('Available at: Grocery store').first,
         200,
+        scrollable: find.byType(Scrollable).first,
       );
       expect(find.textContaining('Available at: Grocery store'), findsWidgets);
       expect(find.text('Verified'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'recommendations screen avoids the offline internet banner when live lookup has location but no nearby stores matched',
+    (tester) async {
+      await _setTallViewport(tester);
+      await tester.pumpWidget(
+        _buildHarness(
+          mode: const StoreAvailabilityModeState(
+            mode: StoreAvailabilityMode.offline,
+            apiConfigured: true,
+            hasInternet: true,
+            location: SearchLocation(
+              kind: SearchLocationKind.device,
+              label: '4001 W Chicago Ave, Chicago, IL 60651',
+              latitude: 41.8955,
+              longitude: -87.7261,
+              verification: DataVerification.live,
+              postalCode: '60651',
+            ),
+            fallbackReason: StoreAvailabilityFallbackReason.noStoresFound,
+          ),
+          shoppingPlans: {
+            for (final recommendation in _result.recommendations)
+              recommendation.food.id: _shoppingPlanWithoutStore(
+                recommendation.food,
+              ),
+          },
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Offline â€” showing meals from your saved settings'),
+        findsNothing,
+      );
+      expect(
+        find.textContaining(
+          'No verified nearby stores matched this search yet.',
+        ),
+        findsOneWidget,
+      );
     },
   );
 }
@@ -243,10 +299,7 @@ final _todayPlan = TodayPlan(
       label: 'Canned tuna',
       priority: PlannedPurchasePriority.buyFirst,
     ),
-    PlannedPurchase(
-      label: 'Soda',
-      priority: PlannedPurchasePriority.skipFirst,
-    ),
+    PlannedPurchase(label: 'Soda', priority: PlannedPurchasePriority.skipFirst),
   ],
   backupAction: 'Backup: Dollar store for crackers',
 );

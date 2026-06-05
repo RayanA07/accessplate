@@ -2,19 +2,15 @@ import 'package:access_plate/domain/entities/demo_location_seed.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('legacy Google demo ZIP migrates to the Chicago demo seed', () {
-    expect(
-      resolvedAccessPostalCode(legacyDemoSeedPostalCode),
-      demoSeedPostalCode,
-    );
+  test('legacy demo ZIP migrates to an unset ZIP', () {
+    expect(resolvedAccessPostalCode(legacyDemoSeedPostalCode), isEmpty);
   });
 
-  test('blank or demo ZIPs resolve to the seeded Chicago search location', () {
-    expect(seededSearchLocationForPostalCode(null), demoSeedLocation);
-    expect(
-      seededSearchLocationForPostalCode(demoSeedPostalCode),
-      demoSeedLocation,
-    );
+  test('blank or demo ZIPs do not force a seeded search location', () {
+    expect(resolvedAccessPostalCode(null), isEmpty);
+    expect(resolvedAccessPostalCode(demoSeedPostalCode), isEmpty);
+    expect(seededSearchLocationForPostalCode(null), isNull);
+    expect(seededSearchLocationForPostalCode(demoSeedPostalCode), isNull);
   });
 
   test(

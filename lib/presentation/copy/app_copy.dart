@@ -156,35 +156,28 @@ class AppCopy {
   String get actionPlanBackupLabel => choose('Backup', 'Respaldo');
   String get actionPlanDetailsTitle =>
       choose('Plan details', 'Detalles del plan');
-  String get actionPlanNoPurchaseYet => choose(
-    'No purchase needed yet',
-    'Todavia no hace falta comprar',
-  );
-  String get actionPlanNoSkipYet => choose(
-    'No clear skip item yet',
-    'Todavia no hay algo claro para dejar',
-  );
+  String get actionPlanNoPurchaseYet =>
+      choose('No purchase needed yet', 'Todavia no hace falta comprar');
+  String get actionPlanNoSkipYet =>
+      choose('No clear skip item yet', 'Todavia no hay algo claro para dejar');
   String get actionPlanNoPantryStep => choose(
     'No pantry step listed yet',
     'Todavia no hay un paso claro de despensa',
   );
-  String get actionPlanNoBackupYet => choose(
-    'No backup listed yet',
-    'Todavia no hay respaldo listado',
-  );
+  String get actionPlanNoBackupYet =>
+      choose('No backup listed yet', 'Todavia no hay respaldo listado');
   String get offlineMealsBanner => choose(
     'Offline — showing meals from your saved settings',
     'Sin internet — mostrando comidas segun tu configuracion guardada',
   );
-  String get nearbyStoresTitle =>
-      choose('Nearby stores', 'Tiendas cercanas');
+  String get nearbyStoresTitle => choose('Nearby stores', 'Tiendas cercanas');
   String get nearbyStoresOfflineBody => choose(
     'Using your saved store access — connect to internet for live store lookup',
     'Usando tu acceso guardado — conecta internet para buscar tiendas en vivo',
   );
   String get nearbyStoresPendingBody => choose(
-    'Location is set during onboarding. Nearby store results will appear here after setup.',
-    'La ubicacion se configura al inicio. Las tiendas cercanas apareceran aqui despues del setup.',
+    'Add your current location or enter a ZIP code or address to verify nearby stores.',
+    'Agrega tu ubicacion actual o escribe un codigo postal o direccion para verificar tiendas cercanas.',
   );
   String nearbyStoresCountLine(int count) => count == 0
       ? choose(
@@ -205,14 +198,16 @@ class AppCopy {
   );
   String get nearbyStoresDeviceLocationChip =>
       choose('Device location', 'Ubicacion del dispositivo');
-  String get nearbyStoresSearchingChip =>
-      choose('Searching...', 'Buscando...');
+  String get nearbyStoresSearchingChip => choose('Searching...', 'Buscando...');
   String get nearbyStoresLiveChip => choose('Live', 'En vivo');
   String get nearbyStoresClearAction => choose('Clear', 'Borrar');
-  String get onboardingEmergencySetupLabel => choose(
-    'Emergency day — quick setup',
-    'Dia de emergencia — setup rapido',
-  );
+  String get nearbyStoresSearchHint =>
+      choose('ZIP code or address', 'Codigo postal o direccion');
+  String get nearbyStoresSearchAction => choose('Search', 'Buscar');
+  String get nearbyStoresUseLocationAction =>
+      choose('Use current location', 'Usar ubicacion actual');
+  String get onboardingEmergencySetupLabel =>
+      choose('Emergency day — quick setup', 'Dia de emergencia — setup rapido');
   String get onboardingEmergencySetupDetail => choose(
     'Skip long setup and jump to fast, low-travel meal options.',
     'Salta el setup largo y ve directo a comidas rapidas y de poco viaje.',

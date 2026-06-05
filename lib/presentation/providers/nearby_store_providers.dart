@@ -33,18 +33,27 @@ class ShoppingLocationState {
     String? error,
     bool clearError = false,
     String? lastQuery,
+    bool clearLastQuery = false,
   }) {
     return ShoppingLocationState(
       apiConfigured: apiConfigured ?? this.apiConfigured,
       loading: loading ?? this.loading,
       location: clearLocation ? null : location ?? this.location,
       error: clearError ? null : error ?? this.error,
-      lastQuery: lastQuery ?? this.lastQuery,
+      lastQuery: clearLastQuery ? null : lastQuery ?? this.lastQuery,
     );
   }
 }
 
 enum StoreAvailabilityMode { offline, searching, online }
+
+enum StoreAvailabilityFallbackReason {
+  apiUnavailable,
+  noInternet,
+  noLocation,
+  noStoresFound,
+  searchFailed,
+}
 
 class StoreAvailabilityModeState {
   const StoreAvailabilityModeState({
@@ -53,6 +62,8 @@ class StoreAvailabilityModeState {
     required this.hasInternet,
     this.location,
     this.nearbyStores = const [],
+    this.fallbackReason,
+    this.lookupError,
   });
 
   final StoreAvailabilityMode mode;
@@ -60,11 +71,17 @@ class StoreAvailabilityModeState {
   final bool hasInternet;
   final SearchLocation? location;
   final List<NearbyStore> nearbyStores;
+  final StoreAvailabilityFallbackReason? fallbackReason;
+  final String? lookupError;
 
   bool get isOffline => mode == StoreAvailabilityMode.offline;
   bool get isSearching => mode == StoreAvailabilityMode.searching;
   bool get isOnline => mode == StoreAvailabilityMode.online;
   bool get hasLocation => location != null;
+  bool get shouldShowOfflineBanner =>
+      isOffline &&
+      (fallbackReason == StoreAvailabilityFallbackReason.apiUnavailable ||
+          fallbackReason == StoreAvailabilityFallbackReason.noInternet);
   bool get usingDeviceLocation =>
       location != null &&
       location!.kind == SearchLocationKind.device &&
@@ -168,15 +185,10 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
       final bootstrap = await _ref.read(appBootstrapProvider.future);
       final location = await bootstrap.storeLocatorRepository
           .reverseGeocodeDeviceLocation(fix);
-      if (location.postalCode?.length == 5) {
-        await _ref
-            .read(profileControllerProvider.notifier)
-            .updatePostalCode(location.postalCode!);
-      }
       state = state.copyWith(
         loading: false,
         location: location,
-        lastQuery: location.postalCode ?? location.label,
+        lastQuery: location.query ?? location.label,
         clearError: true,
       );
     } on StoreSearchException catch (error) {
@@ -231,6 +243,7 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
     state = state.copyWith(
       clearLocation: true,
       clearError: true,
+      clearLastQuery: true,
       loading: false,
     );
     await _ref
@@ -250,12 +263,13 @@ final nearbyStoresProvider = FutureProvider<List<NearbyStore>>((ref) async {
   final origin = locationState.location!;
   final cachedLookup = profile.constraints.cachedNearbyStoreLookup;
   final hasInternet = ref.watch(hasInternetConnectionProvider).value ?? true;
-  if (!hasInternet) {
-    return _cachedStoresFor(
-      cachedLookup: cachedLookup,
-      origin: origin,
-      categories: profile.constraints.feasibility.availability,
-    );
+  final cachedStores = _cachedStoresFor(
+    cachedLookup: cachedLookup,
+    origin: origin,
+    categories: profile.constraints.feasibility.availability,
+  );
+  if (!hasInternet && cachedStores.isNotEmpty) {
+    return cachedStores;
   }
 
   try {
@@ -275,12 +289,11 @@ final nearbyStoresProvider = FutureProvider<List<NearbyStore>>((ref) async {
           ),
         );
     return stores;
-  } catch (_) {
-    return _cachedStoresFor(
-      cachedLookup: cachedLookup,
-      origin: origin,
-      categories: profile.constraints.feasibility.availability,
-    );
+  } catch (error) {
+    if (cachedStores.isNotEmpty) {
+      return cachedStores;
+    }
+    rethrow;
   }
 });
 
@@ -293,17 +306,30 @@ final storeAvailabilityModeProvider = Provider<StoreAvailabilityModeState>((
   final location = locationState.location;
   final nearbyStores = nearbyAsync.valueOrNull ?? const <NearbyStore>[];
 
-  if (!locationState.apiConfigured || !hasInternet || location == null) {
+  if (!locationState.apiConfigured) {
     return StoreAvailabilityModeState(
       mode: StoreAvailabilityMode.offline,
       apiConfigured: locationState.apiConfigured,
       hasInternet: hasInternet,
       location: location,
       nearbyStores: nearbyStores,
+      fallbackReason: StoreAvailabilityFallbackReason.apiUnavailable,
     );
   }
 
-  if (nearbyAsync.isLoading) {
+  if (location == null) {
+    return StoreAvailabilityModeState(
+      mode: StoreAvailabilityMode.offline,
+      apiConfigured: locationState.apiConfigured,
+      hasInternet: hasInternet,
+      location: location,
+      nearbyStores: nearbyStores,
+      fallbackReason: StoreAvailabilityFallbackReason.noLocation,
+      lookupError: locationState.error,
+    );
+  }
+
+  if (locationState.loading || nearbyAsync.isLoading) {
     return StoreAvailabilityModeState(
       mode: StoreAvailabilityMode.searching,
       apiConfigured: locationState.apiConfigured,
@@ -313,9 +339,9 @@ final storeAvailabilityModeProvider = Provider<StoreAvailabilityModeState>((
     );
   }
 
-  if (nearbyStores.isEmpty) {
+  if (nearbyStores.isNotEmpty) {
     return StoreAvailabilityModeState(
-      mode: StoreAvailabilityMode.offline,
+      mode: StoreAvailabilityMode.online,
       apiConfigured: locationState.apiConfigured,
       hasInternet: hasInternet,
       location: location,
@@ -323,12 +349,29 @@ final storeAvailabilityModeProvider = Provider<StoreAvailabilityModeState>((
     );
   }
 
+  if (nearbyAsync.hasError) {
+    return StoreAvailabilityModeState(
+      mode: StoreAvailabilityMode.offline,
+      apiConfigured: locationState.apiConfigured,
+      hasInternet: hasInternet,
+      location: location,
+      nearbyStores: nearbyStores,
+      fallbackReason: hasInternet
+          ? StoreAvailabilityFallbackReason.searchFailed
+          : StoreAvailabilityFallbackReason.noInternet,
+      lookupError: _errorMessageFor(nearbyAsync.error),
+    );
+  }
+
   return StoreAvailabilityModeState(
-    mode: StoreAvailabilityMode.online,
+    mode: StoreAvailabilityMode.offline,
     apiConfigured: locationState.apiConfigured,
     hasInternet: hasInternet,
     location: location,
     nearbyStores: nearbyStores,
+    fallbackReason: hasInternet
+        ? StoreAvailabilityFallbackReason.noStoresFound
+        : StoreAvailabilityFallbackReason.noInternet,
   );
 });
 
@@ -337,7 +380,12 @@ final mealShoppingSummariesProvider =
       final bootstrap = await ref.watch(appBootstrapProvider.future);
       final profile = await ref.watch(profileControllerProvider.future);
       final recommendations = await ref.watch(recommendationsProvider.future);
-      final nearbyStores = await ref.watch(nearbyStoresProvider.future);
+      List<NearbyStore> nearbyStores;
+      try {
+        nearbyStores = await ref.watch(nearbyStoresProvider.future);
+      } catch (_) {
+        nearbyStores = const <NearbyStore>[];
+      }
       final availabilityMode = ref.read(storeAvailabilityModeProvider);
       final usableNearbyStores = availabilityMode.isOnline
           ? nearbyStores
@@ -411,4 +459,11 @@ List<NearbyStore> _cachedStoresFor({
   return cachedLookup.stores
       .where((store) => categories.any(store.supportsCategory))
       .toList(growable: false);
+}
+
+String? _errorMessageFor(Object? error) {
+  if (error == null) {
+    return null;
+  }
+  return error.toString();
 }

@@ -202,7 +202,7 @@ class PreferenceConstraints {
 
 class AccessConstraints {
   const AccessConstraints({
-    this.postalCode = demoSeedPostalCode,
+    this.postalCode = '',
     this.transportation = TransportationMode.walk,
     this.maxTravelMinutes = 20,
     this.benefitPrograms = const {},

@@ -17,7 +17,7 @@ class OpenStreetMapApiConfig {
       ),
       userAgent: String.fromEnvironment(
         'OSM_HTTP_USER_AGENT',
-        defaultValue: 'AccessPlate prototype demo',
+        defaultValue: 'AccessPlate/1.2 (Flutter app)',
       ),
     );
   }
