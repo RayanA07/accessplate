@@ -4801,7 +4801,7 @@
   },
   {
     "id": 169,
-    "name": "Microwave pancake mix",
+    "name": "Fluffy microwave pancakes",
     "category": "prepared_meal",
     "cuisine": "latin",
     "servingG": 246,
@@ -5335,7 +5335,8 @@
       "convenience"
     ],
     "ingredients": [
-      "nut"
+      "mixed_nuts",
+      "dried_fruit"
     ],
     "snapEligible": true,
     "wicEligible": false,

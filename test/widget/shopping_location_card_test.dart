@@ -71,6 +71,46 @@ void main() {
     },
   );
 
+  testWidgets('shopping location card hides unresolved numeric store names', (
+    tester,
+  ) async {
+    const unresolvedStore = NearbyStore(
+      placeId: 'element:810',
+      name: '810',
+      address: 'Unknown storefront',
+      latitude: 41.8965,
+      longitude: -87.728,
+      categories: {AvailabilityContext.grocery},
+      discoveryVerification: DataVerification.live,
+      travelMetric: TravelMetric(
+        source: TravelMetricSource.liveRoute,
+        distanceMiles: 0.05,
+        durationMinutes: 2,
+      ),
+    );
+
+    await tester.pumpWidget(
+      _buildHarness(
+        state: const ShoppingLocationState(
+          apiConfigured: true,
+          location: _liveDeviceLocation,
+        ),
+        mode: const StoreAvailabilityModeState(
+          mode: StoreAvailabilityMode.online,
+          apiConfigured: true,
+          hasInternet: true,
+          location: _liveDeviceLocation,
+          nearbyStores: [_nearbyStore, unresolvedStore],
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Save A Lot | 0.8 mi'), findsOneWidget);
+    expect(find.text('810 | <0.1 mi'), findsNothing);
+    expect(find.text('810'), findsNothing);
+  });
+
   testWidgets(
     'shopping location card shows searching state with spinner while nearby stores are loading',
     (tester) async {

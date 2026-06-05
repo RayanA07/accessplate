@@ -76,12 +76,7 @@ abstract final class MealLogoResolver {
     MealShoppingPlan? plan,
     UserConstraints? constraints,
   }) {
-    final fastFoodLogo = _fastFoodLogo(food: food, plan: plan);
-    if (fastFoodLogo != null) {
-      return fastFoodLogo;
-    }
-
-    return _storeLogo(plan: plan);
+    return _fastFoodLogo(food: food, plan: plan);
   }
 
   static MealLogoSelection? _fastFoodLogo({

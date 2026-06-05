@@ -100,7 +100,7 @@ void main() {
       expect(selection?.assetPath, 'assets/branding/meal_logos/subway.png');
     });
 
-    test('uses Kroger logo for grocery meals from a selected Kroger store', () {
+    test('does not use grocery store logos for grocery meals', () {
       final selection = MealLogoResolver.resolve(
         food: _food(name: 'Rice and beans bowl'),
         constraints: UserConstraints.defaults().copyWith(
@@ -136,34 +136,36 @@ void main() {
         ),
       );
 
-      expect(selection?.label, 'Kroger');
+      expect(selection, isNull);
     });
 
-    test('uses Safeway logo when the resolved store name matches Safeway', () {
-      final selection = MealLogoResolver.resolve(
-        food: _food(name: 'Homestyle chicken soup'),
-        plan: _plan(
-          chosenStore: NearbyStore(
-            placeId: 'safeway-nearby',
-            name: 'Safeway',
-            address: '100 Market St',
-            latitude: 0,
-            longitude: 0,
-            categories: const {AvailabilityContext.grocery},
-            primaryCategory: AvailabilityContext.grocery,
-            discoveryVerification: DataVerification.live,
-            travelMetric: const TravelMetric(
-              source: TravelMetricSource.liveRoute,
-              durationMinutes: 12,
+    test(
+      'does not use grocery logos even when the nearby store name matches',
+      () {
+        final selection = MealLogoResolver.resolve(
+          food: _food(name: 'Homestyle chicken soup'),
+          plan: _plan(
+            chosenStore: NearbyStore(
+              placeId: 'safeway-nearby',
+              name: 'Safeway',
+              address: '100 Market St',
+              latitude: 0,
+              longitude: 0,
+              categories: const {AvailabilityContext.grocery},
+              primaryCategory: AvailabilityContext.grocery,
+              discoveryVerification: DataVerification.live,
+              travelMetric: const TravelMetric(
+                source: TravelMetricSource.liveRoute,
+                durationMinutes: 12,
+              ),
             ),
+            offlineAvailabilityContext: AvailabilityContext.grocery,
           ),
-          offlineAvailabilityContext: AvailabilityContext.grocery,
-        ),
-      );
+        );
 
-      expect(selection?.label, 'Safeway');
-      expect(selection?.assetPath, 'assets/branding/meal_logos/safeway.png');
-    });
+        expect(selection, isNull);
+      },
+    );
 
     test('falls back when there is no supported brand match', () {
       final selection = MealLogoResolver.resolve(

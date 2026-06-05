@@ -44,7 +44,7 @@ class CompactActionPlanSection extends StatelessWidget {
     );
     final skipItem = skipItems.isEmpty ? null : skipItems.first;
     final bestStop =
-        trip?.title ??
+        _bestStopDetail(trip?.title) ??
         plan?.title ??
         copy.choose('your nearest stop', 'tu parada mas cercana');
     final detailRows = _detailRows(plan, trip, buyFirst, skipFirst);
@@ -58,103 +58,136 @@ class CompactActionPlanSection extends StatelessWidget {
         tintColor: emergencyMode
             ? NihPalette.warning.withValues(alpha: 0.16)
             : NihPalette.primaryAltLight,
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
         borderRadius: 26,
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
+            Container(
+              width: 4,
+              margin: const EdgeInsets.only(right: 14),
+              decoration: BoxDecoration(
+                color: NihPalette.primary,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        emergencyMode
-                            ? copy.actionPlanDoThisNowTitle
-                            : copy.actionPlanDoThisFirstTitle,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              emergencyMode
+                                  ? copy.actionPlanDoThisNowTitle
+                                  : copy.actionPlanDoThisFirstTitle,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              emergencyMode
+                                  ? copy.actionPlanEmergencyHint
+                                  : copy.actionPlanDefaultHint,
+                              style: Theme.of(context).textTheme.bodySmall,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        emergencyMode
-                            ? copy.actionPlanEmergencyHint
-                            : copy.actionPlanDefaultHint,
-                        style: Theme.of(context).textTheme.bodySmall,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      if (emergencyMode) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: NihPalette.warning.withValues(alpha: 0.22),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            copy.emergencyModeTitle,
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  color: NihPalette.primaryDarkest,
+                                ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                ),
-                if (emergencyMode) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                  const SizedBox(height: 16),
+                  Text(
+                    '${copy.actionPlanBestStopLabel}: $bestStop',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      height: 1.25,
                     ),
-                    decoration: BoxDecoration(
-                      color: NihPalette.warning.withValues(alpha: 0.22),
-                      borderRadius: BorderRadius.circular(999),
+                  ),
+                  const SizedBox(height: 14),
+                  _PlanChipsRow(
+                    label: copy.actionPlanBuyLabel,
+                    items: buyItems,
+                    emptyText: copy.actionPlanNoPurchaseYet,
+                  ),
+                  if (skipItem != null) ...[
+                    const SizedBox(height: 10),
+                    _PlanSkipRow(
+                      label: copy.actionPlanSkipLabel,
+                      item: skipItem,
                     ),
-                    child: Text(
-                      copy.emergencyModeTitle,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: NihPalette.primaryDarkest,
+                  ],
+                  const SizedBox(height: 8),
+                  if (detailRows.isNotEmpty)
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        dividerColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                      ),
+                      child: ExpansionTile(
+                        tilePadding: EdgeInsets.zero,
+                        childrenPadding: const EdgeInsets.only(bottom: 8),
+                        visualDensity: VisualDensity.compact,
+                        title: Text(
+                          copy.actionPlanDetailsTitle,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        children: detailRows,
                       ),
                     ),
-                  ),
                 ],
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${copy.actionPlanBestStopLabel}: $bestStop',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                height: 1.25,
               ),
             ),
-            const SizedBox(height: 12),
-            _PlanChipsRow(
-              label: copy.actionPlanBuyLabel,
-              items: buyItems,
-              emptyText: copy.actionPlanNoPurchaseYet,
-            ),
-            if (skipItem != null) ...[
-              const SizedBox(height: 10),
-              _PlanSkipRow(label: copy.actionPlanSkipLabel, item: skipItem),
-            ],
-            const SizedBox(height: 4),
-            if (detailRows.isNotEmpty)
-              Theme(
-                data: Theme.of(context).copyWith(
-                  dividerColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-                child: ExpansionTile(
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: const EdgeInsets.only(bottom: 8),
-                  visualDensity: VisualDensity.compact,
-                  title: Text(
-                    copy.actionPlanDetailsTitle,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  children: detailRows,
-                ),
-              ),
           ],
         ),
       ),
     );
+  }
+
+  String? _bestStopDetail(String? rawValue) {
+    if (rawValue == null) {
+      return null;
+    }
+    final cleaned = rawValue
+        .replaceFirst(
+          RegExp(
+            r'^\s*(best first stop|mejor primera parada):\s*',
+            caseSensitive: false,
+          ),
+          '',
+        )
+        .trim();
+    return cleaned.isEmpty ? null : cleaned;
   }
 
   String _purchaseLabels(
@@ -192,9 +225,7 @@ class CompactActionPlanSection extends StatelessWidget {
       rows.add(_DetailBlock(title: copy.todayPlanTitle, body: plan!.summary));
     }
     if (trip?.summary.trim().isNotEmpty == true) {
-      rows.add(
-        _DetailBlock(title: copy.sourceTripTitle, body: trip!.summary),
-      );
+      rows.add(_DetailBlock(title: copy.sourceTripTitle, body: trip!.summary));
     }
     if (trip?.routeReason?.trim().isNotEmpty == true) {
       rows.add(
@@ -335,9 +366,9 @@ class _DetailBlock extends StatelessWidget {
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 2),
           Text(body, style: Theme.of(context).textTheme.bodySmall),

@@ -12,6 +12,7 @@ import 'package:access_plate/domain/entities/store_search.dart';
 import 'package:access_plate/domain/entities/user_profile.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:access_plate/domain/value_objects/meal_type.dart';
+import 'package:access_plate/presentation/copy/app_copy.dart';
 import 'package:access_plate/presentation/providers/nearby_store_providers.dart';
 import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/providers/recommendations_provider.dart';
@@ -89,6 +90,37 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Buy'), findsWidgets);
+  });
+
+  testWidgets('compact action plan strips a duplicated best stop prefix', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CompactActionPlanSection(
+            copy: AppCopy(UserProfile.defaults().constraints.access.language),
+            todayPlan: _todayPlan,
+            sourceTripPlan: const SourceTripPlan(
+              mission: SourceTripMission.emergency,
+              primarySource: AvailabilityContext.convenience,
+              title: 'Best first stop: Convenience store',
+              summary: 'Lowest travel burden for today.',
+              reasons: ['Close by'],
+              highlights: ['Quick pickup'],
+            ),
+            emergencyMode: false,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Best first stop: Convenience store'), findsOneWidget);
+    expect(
+      find.text('Best first stop: Best first stop: Convenience store'),
+      findsNothing,
+    );
   });
 
   testWidgets(

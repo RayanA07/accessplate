@@ -511,6 +511,10 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.byIcon(Icons.lunch_dining_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.soup_kitchen_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.ramen_dining_rounded), findsOneWidget);
+
       for (var index = 0; index < recommendations.length; index++) {
         final button = find.widgetWithText(TextButton, 'Plan').first;
         await tester.ensureVisible(button);
@@ -732,9 +736,11 @@ void main() {
       await tester.pumpAndSettle();
 
       for (final recommendation in recommendations) {
-        await tester.tap(
-          find.byKey(ValueKey('score-badge-${recommendation.food.id}')),
+        final scoreBadge = find.byKey(
+          ValueKey('score-badge-${recommendation.food.id}'),
         );
+        await tester.ensureVisible(scoreBadge);
+        await tester.tap(scoreBadge, warnIfMissed: false);
         await tester.pumpAndSettle();
 
         expect(find.byKey(const ValueKey('score-sheet-title')), findsOneWidget);

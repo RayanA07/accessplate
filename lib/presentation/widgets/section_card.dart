@@ -8,6 +8,7 @@ class SectionCard extends StatelessWidget {
     this.tintColor,
     this.fillColor,
     this.borderRadius = 30,
+    this.boxShadow,
   });
 
   final Widget child;
@@ -15,6 +16,7 @@ class SectionCard extends StatelessWidget {
   final Color? tintColor;
   final Color? fillColor;
   final double borderRadius;
+  final List<BoxShadow>? boxShadow;
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +36,15 @@ class SectionCard extends StatelessWidget {
         border: Border.all(
           color: scheme.outlineVariant.withValues(alpha: 0.92),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: scheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 28,
-            offset: const Offset(0, 12),
-          ),
-        ],
+        boxShadow:
+            boxShadow ??
+            [
+              BoxShadow(
+                color: scheme.shadow.withValues(alpha: 0.05),
+                blurRadius: 28,
+                offset: const Offset(0, 12),
+              ),
+            ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),

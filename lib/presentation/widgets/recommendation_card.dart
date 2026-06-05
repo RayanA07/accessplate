@@ -13,6 +13,7 @@ import '../copy/app_copy.dart';
 import '../providers/nearby_store_providers.dart';
 import 'food_thumbnail.dart';
 import 'section_card.dart';
+import 'store_display_utils.dart';
 
 class RecommendationCard extends ConsumerStatefulWidget {
   const RecommendationCard({
@@ -64,8 +65,15 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     );
 
     return SectionCard(
-      borderRadius: 28,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+      borderRadius: 16,
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x14000000),
+          blurRadius: 10,
+          offset: Offset(0, 2),
+        ),
+      ],
       child: AnimatedSize(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
@@ -131,7 +139,7 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                               height: 1.35,
                             ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       _LabelBlock(
                         title: _collapsedBuyTitle(copy, displayedPlan),
                         child: _IngredientChipWrap(
@@ -147,10 +155,9 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                               ?.copyWith(color: NihPalette.grayDark),
                         ),
                       ],
-                      if (_backupStoresFor(displayedPlan)
-                          case final backups?
+                      if (_backupStoresFor(displayedPlan) case final backups?
                           when availabilityMode.isOnline) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 20),
                         _AlsoAvailableNearby(
                           label: copy.choose(
                             'Also available nearby:',
@@ -164,7 +171,7 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 18),
             Row(
               children: [
                 TextButton.icon(
@@ -224,8 +231,10 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
   }) {
     if (availabilityMode.isOnline) {
       final store = plan?.chosenStore;
-      if (store != null) {
-        return '${store.name} | ${_travelLabel(store.travelMetric)}';
+      final storeName = store == null ? null : resolvedStoreDisplayName(store);
+      if (store != null && storeName != null) {
+        final travel = compactStoreTravelLabel(store.travelMetric);
+        return travel == null ? storeName : '$storeName | $travel';
       }
       if (plan != null && plan.isMerchantSpecific) {
         return _merchantUnverifiedHeadline(plan, copy);
@@ -382,7 +391,15 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     if (backups.isEmpty) {
       return null;
     }
-    return backups.map((store) => store.name).toList(growable: false);
+    final names = <String>[];
+    final seen = <String>{};
+    for (final store in backups) {
+      final name = resolvedStoreDisplayName(store);
+      if (name != null && seen.add(name)) {
+        names.add(name);
+      }
+    }
+    return names.isEmpty ? null : names;
   }
 
   Future<void> _showScoreBreakdownSheet(
@@ -413,14 +430,22 @@ class _StoreSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 8,
-      runSpacing: 6,
-      children: [
-        Text(headline, style: textStyle),
-        if (verified) _VerifiedBadge(label: verifiedLabel),
-      ],
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: headline),
+          if (verified) ...[
+            const WidgetSpan(child: SizedBox(width: 8)),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: _VerifiedBadge(label: verifiedLabel),
+            ),
+          ],
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: textStyle,
     );
   }
 }
@@ -433,16 +458,15 @@ class _VerifiedBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9),
+        color: NihPalette.primary,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFF8BC68F)),
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: NihPalette.primaryDarkest,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Colors.white,
           fontWeight: FontWeight.w800,
         ),
       ),
@@ -463,17 +487,16 @@ class _AlsoAvailableNearby extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: NihPalette.grayDark),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: NihPalette.grayDark,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final name in storeNames) _StoreChip(label: name),
-          ],
+          spacing: 6,
+          runSpacing: 6,
+          children: [for (final name in storeNames) _StoreChip(label: name)],
         ),
       ],
     );
@@ -488,10 +511,10 @@ class _StoreChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: NihPalette.warmSurface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(color: NihPalette.borderSoft),
       ),
       child: Text(
@@ -499,6 +522,74 @@ class _StoreChip extends StatelessWidget {
         style: Theme.of(
           context,
         ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+}
+
+class _NearbyStoreList extends StatelessWidget {
+  const _NearbyStoreList({required this.stores});
+
+  final List<NearbyStore> stores;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var index = 0; index < stores.length; index++) ...[
+          _NearbyStoreListRow(store: stores[index]),
+          if (index < stores.length - 1)
+            Divider(
+              height: 16,
+              color: NihPalette.borderSoft.withValues(alpha: 0.72),
+            ),
+        ],
+      ],
+    );
+  }
+}
+
+class _NearbyStoreListRow extends StatelessWidget {
+  const _NearbyStoreListRow({required this.store});
+
+  final NearbyStore store;
+
+  @override
+  Widget build(BuildContext context) {
+    final storeName = resolvedStoreDisplayName(store);
+    if (storeName == null) {
+      return const SizedBox.shrink();
+    }
+    final distanceLabel = compactStoreTravelLabel(store.travelMetric);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: NihPalette.secondaryLightest,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.store_rounded,
+              size: 16,
+              color: NihPalette.primaryDarkest,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              distanceLabel == null ? storeName : '$storeName | $distanceLabel',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -533,6 +624,12 @@ class _ExpandedPlan extends StatelessWidget {
             .toList(growable: false) ??
         const <IngredientRequirement>[];
     final chosenStore = plan?.chosenStore;
+    final chosenStoreName = chosenStore == null
+        ? null
+        : resolvedStoreDisplayName(chosenStore);
+    final visibleBackupStores = (plan?.backupStores ?? const <NearbyStore>[])
+        .where((store) => resolvedStoreDisplayName(store) != null)
+        .toList(growable: false);
     final offlineContext = plan?.offlineAvailabilityContext;
 
     return Column(
@@ -543,14 +640,21 @@ class _ExpandedPlan extends StatelessWidget {
             padding: EdgeInsets.only(bottom: 12),
             child: LinearProgressIndicator(),
           ),
-        if (availabilityMode.isOnline && chosenStore != null) ...[
+        if (availabilityMode.isOnline &&
+            chosenStore != null &&
+            chosenStoreName != null) ...[
           _LabelBlock(
             title: copy.choose('Go to', 'Ve a'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${chosenStore.name} | ${_travelLabel(chosenStore.travelMetric)}',
+                  [
+                    chosenStoreName,
+                    if (compactStoreTravelLabel(chosenStore.travelMetric)
+                        case final travel?)
+                      travel,
+                  ].join(' | '),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
@@ -644,23 +748,10 @@ class _ExpandedPlan extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        if (availabilityMode.isOnline &&
-            plan?.backupStores.isNotEmpty == true) ...[
+        if (availabilityMode.isOnline && visibleBackupStores.isNotEmpty) ...[
           _LabelBlock(
             title: copy.choose('Backup store', 'Tienda de respaldo'),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: plan!.backupStores
-                  .map(
-                    (store) => Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(
-                        '${store.name} | ${_travelLabel(store.travelMetric)}',
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
+            child: _NearbyStoreList(stores: visibleBackupStores),
           ),
           const SizedBox(height: 12),
         ],
@@ -694,7 +785,11 @@ class _ExpandedPlan extends StatelessWidget {
       final context = plan!.offlineAvailabilityContext!;
       return _offlineAvailabilityLabel(context);
     }
-    return plan?.chosenStore?.name ?? copy.choose('this store', 'esta tienda');
+    final chosenStore = plan?.chosenStore;
+    final storeName = chosenStore == null
+        ? null
+        : resolvedStoreDisplayName(chosenStore);
+    return storeName ?? copy.choose('this store', 'esta tienda');
   }
 
   String _plannedItemLine(IngredientRequirement item) {

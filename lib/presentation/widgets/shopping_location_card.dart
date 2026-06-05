@@ -8,6 +8,7 @@ import '../copy/app_copy.dart';
 import '../providers/nearby_store_providers.dart';
 import '../providers/profile_controller.dart';
 import 'section_card.dart';
+import 'store_display_utils.dart';
 
 class ShoppingLocationCard extends ConsumerWidget {
   const ShoppingLocationCard({super.key});
@@ -22,7 +23,11 @@ class ShoppingLocationCard extends ConsumerWidget {
     final availabilityMode = ref.watch(storeAvailabilityModeProvider);
     final theme = Theme.of(context);
     final location = availabilityMode.location;
+    final nearbyStoreCount = availabilityMode.nearbyStores
+        .where((store) => resolvedStoreDisplayName(store) != null)
+        .length;
     final nearbyStores = availabilityMode.nearbyStores
+        .where((store) => resolvedStoreDisplayName(store) != null)
         .take(3)
         .toList(growable: false);
 
@@ -41,7 +46,7 @@ class ShoppingLocationCard extends ConsumerWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            _bodyText(copy, availabilityMode, location),
+            _bodyText(copy, availabilityMode, location, nearbyStoreCount),
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: 10),
@@ -83,9 +88,13 @@ class ShoppingLocationCard extends ConsumerWidget {
           ],
           if (nearbyStores.isNotEmpty) ...[
             const SizedBox(height: 10),
-            for (final store in nearbyStores) ...[
-              _NearbyStorePreview(store: store),
-              if (store != nearbyStores.last) const SizedBox(height: 6),
+            for (var index = 0; index < nearbyStores.length; index++) ...[
+              _NearbyStorePreview(store: nearbyStores[index]),
+              if (index < nearbyStores.length - 1)
+                Divider(
+                  height: 14,
+                  color: NihPalette.borderSoft.withValues(alpha: 0.72),
+                ),
             ],
           ],
           if (location != null) ...[
@@ -126,16 +135,13 @@ class ShoppingLocationCard extends ConsumerWidget {
     AppCopy copy,
     StoreAvailabilityModeState availabilityMode,
     SearchLocation? location,
+    int nearbyStoreCount,
   ) {
     if (location == null) {
       return copy.nearbyStoresPendingBody;
     }
 
-    final summary = _summaryLine(
-      copy,
-      location,
-      availabilityMode.nearbyStores.length,
-    );
+    final summary = _summaryLine(copy, location, nearbyStoreCount);
     return switch (availabilityMode.fallbackReason) {
       StoreAvailabilityFallbackReason.apiUnavailable =>
         copy.nearbyStoresOfflineBody,
@@ -328,35 +334,41 @@ class _NearbyStorePreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final distanceMiles = store.travelMetric.distanceMiles;
-    final distanceLabel = distanceMiles == null
-        ? null
-        : distanceMiles < 0.1
-        ? '<0.1 mi'
-        : '${distanceMiles.toStringAsFixed(1)} mi';
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.only(top: 3),
-          child: Icon(
-            Icons.storefront_rounded,
-            size: 16,
-            color: NihPalette.primaryDarkest,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            distanceLabel == null
-                ? store.name
-                : '${store.name} | $distanceLabel',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w700,
+    final storeName = resolvedStoreDisplayName(store);
+    if (storeName == null) {
+      return const SizedBox.shrink();
+    }
+    final distanceLabel = compactStoreTravelLabel(store.travelMetric);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: NihPalette.secondaryLightest,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.store_rounded,
+              size: 16,
+              color: NihPalette.primaryDarkest,
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              distanceLabel == null ? storeName : '$storeName | $distanceLabel',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

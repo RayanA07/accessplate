@@ -27,7 +27,7 @@ class AppDatabase {
 
     _database = await openDatabase(
       path,
-      version: 6,
+      version: 7,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
         await db.rawQuery('PRAGMA journal_mode = WAL');
@@ -44,10 +44,10 @@ class AppDatabase {
           await _addMerchantBrandColumn(db);
         }
         // Force a full re-seed when the merchant column was just added (v5) or
-        // bundled meal fields such as names changed (v6); row count is
+        // bundled meal fields such as names changed (v6/v7); row count is
         // unchanged in these cases, so the normal count-based sync would skip
         // it.
-        await _syncSeedFoods(db, force: oldVersion < 6);
+        await _syncSeedFoods(db, force: oldVersion < 7);
         await _backfillCacheEntries(db);
       },
       onOpen: (db) async {
