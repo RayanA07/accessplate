@@ -498,7 +498,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       merged[entry.key] = (merged[entry.key] ?? 0) + entry.value;
     }
     final entry = LoggedMealEntry(
-      mealName: mealName.trim(),
+      mealName: LoggedMealEntry.normalizeMealName(mealName),
       loggedAt: now,
       caloriesKcal: caloriesKcal,
       foodIds: actedIds.toList(growable: false)..sort(),

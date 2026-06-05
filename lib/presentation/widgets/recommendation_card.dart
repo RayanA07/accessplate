@@ -66,7 +66,7 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
 
     return SectionCard(
       borderRadius: 16,
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+      padding: const EdgeInsets.all(16),
       boxShadow: const [
         BoxShadow(
           color: Color(0x14000000),
@@ -157,7 +157,7 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                       ],
                       if (_backupStoresFor(displayedPlan) case final backups?
                           when availabilityMode.isOnline) ...[
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 8),
                         _AlsoAvailableNearby(
                           label: copy.choose(
                             'Also available nearby:',
@@ -171,7 +171,7 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 8),
             Row(
               children: [
                 TextButton.icon(
@@ -430,6 +430,30 @@ class _StoreSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Split "Store Name | 0.6 mi" so name can truncate but distance stays visible
+    final pipeIndex = headline.indexOf(' | ');
+    if (pipeIndex != -1) {
+      final storeName = headline.substring(0, pipeIndex);
+      final distancePart = headline.substring(pipeIndex); // " | 0.6 mi"
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              storeName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: textStyle,
+            ),
+          ),
+          Text(distancePart, style: textStyle),
+          if (verified) ...[
+            const SizedBox(width: 8),
+            _VerifiedBadge(label: verifiedLabel),
+          ],
+        ],
+      );
+    }
     return Text.rich(
       TextSpan(
         children: [
@@ -487,12 +511,13 @@ class _AlsoAvailableNearby extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: NihPalette.grayDark,
-            fontWeight: FontWeight.w600,
+          style: const TextStyle(
+            color: Color(0xFF888888),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         Wrap(
           spacing: 6,
           runSpacing: 6,
@@ -513,7 +538,7 @@ class _StoreChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: NihPalette.warmSurface,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: NihPalette.borderSoft),
       ),
@@ -1017,23 +1042,21 @@ class _ScoreBadge extends StatelessWidget {
     return Semantics(
       button: true,
       label: semanticLabel,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(18),
-          child: Ink(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: NihPalette.primaryDarkest,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Text(
-              '$score',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: NihPalette.white,
-                fontWeight: FontWeight.w900,
-              ),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 44,
+          height: 44,
+          decoration: const BoxDecoration(
+            color: Color(0xFF1B4332),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            '$score',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
             ),
           ),
         ),

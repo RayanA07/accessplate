@@ -12,7 +12,10 @@ class HomeTabHeader extends StatelessWidget {
     this.eyebrow,
     this.trailing,
     this.tintColor,
+    this.cardTintColor,
     this.fillColor,
+    this.iconBackgroundColor,
+    this.iconBorderColor,
   });
 
   final String title;
@@ -21,13 +24,16 @@ class HomeTabHeader extends StatelessWidget {
   final String? eyebrow;
   final Widget? trailing;
   final Color? tintColor;
+  final Color? cardTintColor;
   final Color? fillColor;
+  final Color? iconBackgroundColor;
+  final Color? iconBorderColor;
 
   @override
   Widget build(BuildContext context) {
     final iconTint = tintColor ?? NihPalette.primary;
     return SectionCard(
-      tintColor: iconTint.withValues(alpha: 0.18),
+      tintColor: cardTintColor ?? iconTint.withValues(alpha: 0.18),
       fillColor: fillColor,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Row(
@@ -38,8 +44,10 @@ class HomeTabHeader extends StatelessWidget {
             height: 50,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: iconTint.withValues(alpha: 0.14),
-              border: Border.all(color: iconTint.withValues(alpha: 0.16)),
+              color: iconBackgroundColor ?? iconTint.withValues(alpha: 0.14),
+              border: Border.all(
+                color: iconBorderColor ?? iconTint.withValues(alpha: 0.16),
+              ),
             ),
             child: Icon(icon, color: iconTint),
           ),

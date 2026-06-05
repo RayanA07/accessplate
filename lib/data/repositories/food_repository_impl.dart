@@ -67,6 +67,7 @@ class FoodRepositoryImpl implements FoodRepository {
   }
 
   FoodRecord _mapRecord(Map<String, Object?> row) {
+    final name = _normalizedMealName(row['name'] as String);
     final allergens = _decodeStringList(
       row['allergens_json'] as String,
     ).map(Allergen.fromCode).toSet();
@@ -106,7 +107,7 @@ class FoodRepositoryImpl implements FoodRepository {
 
     final food = Food(
       id: (row['id'] as num).toInt(),
-      name: row['name'] as String,
+      name: name,
       category: row['category'] as String,
       cuisine: row['cuisine'] as String?,
       servingG: (row['serving_g'] as num).toDouble(),
@@ -120,7 +121,10 @@ class FoodRepositoryImpl implements FoodRepository {
       allergens: allergens,
       religionExcluded: religionRules,
       medicalRules: medicalRules,
-      ingredients: _decodeStringList(row['ingredients_json'] as String).toSet(),
+      ingredients: _normalizedIngredients(
+        name: name,
+        ingredients: _decodeStringList(row['ingredients_json'] as String),
+      ),
       source: row['source'] as String,
       merchantBrandKey: row['merchant_brand_key'] as String?,
     );
@@ -134,5 +138,28 @@ class FoodRepositoryImpl implements FoodRepository {
 
   List<String> _decodeStringList(String raw) {
     return List<String>.from(jsonDecode(raw) as List<dynamic>);
+  }
+
+  String _normalizedMealName(String rawName) {
+    switch (rawName.trim().toLowerCase()) {
+      case 'convenience banana bunch':
+        return 'Fresh banana and peanut butter';
+      default:
+        return rawName;
+    }
+  }
+
+  Set<String> _normalizedIngredients({
+    required String name,
+    required List<String> ingredients,
+  }) {
+    switch (name.trim().toLowerCase()) {
+      case 'fresh banana and peanut butter':
+        return {'banana', 'peanut butter'};
+      case 'bean and cheese wrap':
+        return {'flour tortillas', 'refried beans', 'cheese slices'};
+      default:
+        return ingredients.toSet();
+    }
   }
 }

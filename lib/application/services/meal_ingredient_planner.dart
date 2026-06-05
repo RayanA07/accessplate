@@ -71,10 +71,7 @@ class MealIngredientPlanner {
         food.availability.contains(AvailabilityContext.fastFood);
   }
 
-  bool _hasAtHome(
-    IngredientRequirement requirement,
-    PantryConstraints pantry,
-  ) {
+  bool _hasAtHome(IngredientRequirement requirement, PantryConstraints pantry) {
     for (final alias in requirement.pantryAliases) {
       final stock = pantry.stockFor(alias);
       if (stock == PantryStockLevel.enough || stock == PantryStockLevel.low) {
@@ -797,6 +794,29 @@ final _structuredMealRequirements = <int, List<IngredientRequirement>>{
       'Tortillas',
       searchTerms: ['tortillas'],
       pantryAliases: ['tortillas'],
+      quantityLabel: '1 pack',
+    ),
+  ],
+  96: [
+    _structuredIngredient(
+      'flour_tortillas',
+      'Flour tortillas',
+      searchTerms: ['flour tortillas'],
+      pantryAliases: ['tortillas', 'flour tortillas'],
+      quantityLabel: '1 pack',
+    ),
+    _structuredIngredient(
+      'refried_beans',
+      'Refried beans',
+      searchTerms: ['refried beans'],
+      pantryAliases: ['beans', 'refried beans'],
+      quantityLabel: '1 can',
+    ),
+    _structuredIngredient(
+      'cheese_slices',
+      'Cheese slices',
+      searchTerms: ['cheese slices'],
+      pantryAliases: ['cheese', 'cheese slices'],
       quantityLabel: '1 pack',
     ),
   ],

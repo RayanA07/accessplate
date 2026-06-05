@@ -1101,7 +1101,9 @@
       "convenience"
     ],
     "ingredients": [
-      "tortillas"
+      "flour tortillas",
+      "refried beans",
+      "cheese slices"
     ],
     "snapEligible": true,
     "wicEligible": false,
@@ -1693,7 +1695,7 @@
   },
   {
     "id": 108,
-    "name": "Convenience banana bunch",
+    "name": "Fresh banana and peanut butter",
     "category": "prepared_meal",
     "cuisine": "mediterranean",
     "servingG": 300,
@@ -1716,7 +1718,8 @@
       "grocery"
     ],
     "ingredients": [
-      "banana"
+      "banana",
+      "peanut butter"
     ],
     "snapEligible": false,
     "wicEligible": false,

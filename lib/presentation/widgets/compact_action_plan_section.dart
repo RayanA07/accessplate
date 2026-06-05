@@ -94,7 +94,8 @@ class CompactActionPlanSection extends StatelessWidget {
                               emergencyMode
                                   ? copy.actionPlanEmergencyHint
                                   : copy.actionPlanDefaultHint,
-                              style: Theme.of(context).textTheme.bodySmall,
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: const Color(0xFF888888)),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),

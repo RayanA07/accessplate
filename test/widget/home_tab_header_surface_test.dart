@@ -17,6 +17,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_headerSurfaceColor(tester), NihPalette.white);
+    expect(_loggedHeaderIconSurfaceColor(tester), const Color(0xFFF5F0E8));
   });
 
   testWidgets('tracker tab header uses the standard white card surface', (
@@ -53,6 +54,28 @@ Color? _headerSurfaceColor(WidgetTester tester) {
   );
   final decoration = decoratedBox.decoration as BoxDecoration;
   return decoration.color;
+}
+
+Color? _loggedHeaderIconSurfaceColor(WidgetTester tester) {
+  final decoratedBoxes = tester
+      .widgetList<DecoratedBox>(
+        find.descendant(
+          of: find.byType(HomeTabHeader),
+          matching: find.byType(DecoratedBox),
+        ),
+      )
+      .toList(growable: false);
+  for (final decoratedBox in decoratedBoxes) {
+    final decoration = decoratedBox.decoration;
+    if (decoration is! BoxDecoration) {
+      continue;
+    }
+    final radius = decoration.borderRadius;
+    if (radius is BorderRadius && radius.topLeft.x == 16) {
+      return decoration.color;
+    }
+  }
+  return null;
 }
 
 class _TestProfileController extends ProfileController {

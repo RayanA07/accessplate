@@ -30,67 +30,24 @@ class FoodThumbnail extends StatelessWidget {
       constraints: constraints,
     );
     return Container(
-      width: 112,
-      height: 112,
+      width: 80,
+      height: 80,
       decoration: BoxDecoration(
         color: const Color(0xFFF5F0E8),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: NihPalette.borderSoft.withValues(alpha: 0.9)),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 12,
+            color: Color(0x1A000000),
+            blurRadius: 6,
             offset: Offset(0, 2),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(18),
-        child: Stack(
-          children: [
-            Positioned(
-              right: -8,
-              top: -10,
-              child: Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              left: -6,
-              bottom: -6,
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFFFF).withValues(alpha: 0.54),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned.fill(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F0E8),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: logo == null
-                        ? _MealArtScene(kind: kind, accent: accent)
-                        : _MealLogoScene(logo: logo, accent: accent),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(12),
+        child: logo == null
+            ? _MealArtScene(kind: kind, accent: accent)
+            : _MealLogoScene(logo: logo, accent: accent),
       ),
     );
   }
@@ -104,54 +61,20 @@ class _MealLogoScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          left: 10,
-          top: 10,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              logo.isFastFood ? 'FAST FOOD' : 'STORE',
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.9,
-                color: Color(0xFF5B5245),
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 24, 10, 10),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8F3E9),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0x14000000)),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Image.asset(
-                  logo.assetPath,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.medium,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Image.asset(
+        logo.assetPath,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
+      ),
     );
   }
 }
 
 enum _MealArtKind {
+  nutBag,
+  fruitSnack,
   snackBowl,
   wrapSandwich,
   steamedBowl,
@@ -168,8 +91,19 @@ enum _MealArtKind {
   genericPlate;
 
   static _MealArtKind fromFood(Food food) {
+    final normalizedName = food.name.trim().toLowerCase();
     final summary = '${food.name} ${food.ingredients.join(' ')}'.toLowerCase();
 
+    if (normalizedName == 'trail mix snack pack') {
+      return _MealArtKind.nutBag;
+    }
+    if (normalizedName == 'bean and cheese wrap') {
+      return _MealArtKind.wrapSandwich;
+    }
+    if (normalizedName == 'fresh banana and peanut butter' ||
+        normalizedName == 'convenience banana bunch') {
+      return _MealArtKind.fruitSnack;
+    }
     if (summary.contains('peanut') ||
         summary.contains('almond') ||
         summary.contains('cashew') ||
@@ -219,7 +153,8 @@ enum _MealArtKind {
         summary.contains('yogurt') ||
         summary.contains('cereal') ||
         summary.contains('smoothie') ||
-        summary.contains('milk')) {
+        summary.contains('milk') ||
+        summary.contains('pancake')) {
       return _MealArtKind.breakfastCup;
     }
     if (summary.contains('salad')) {
@@ -271,20 +206,34 @@ class _MealArtScene extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return switch (kind) {
+      _MealArtKind.nutBag => _IconMealArtScene(
+        icon: Icons.shopping_bag_rounded,
+        accent: accent,
+      ),
+      _MealArtKind.fruitSnack => _IconMealArtScene(
+        icon: Icons.emoji_nature_rounded,
+        accent: accent,
+      ),
       _MealArtKind.snackBowl || _MealArtKind.snackPack => _IconMealArtScene(
         icon: Icons.ramen_dining_rounded,
         accent: accent,
       ),
-      _MealArtKind.wrapSandwich || _MealArtKind.sandwichPlate => _IconMealArtScene(
-        icon: Icons.lunch_dining_rounded,
-        accent: accent,
-      ),
-      _MealArtKind.steamedBowl || _MealArtKind.soupBread || _MealArtKind.saladBowl || _MealArtKind.riceBowl || _MealArtKind.proteinPlate || _MealArtKind.genericPlate => _IconMealArtScene(
+      _MealArtKind.wrapSandwich || _MealArtKind.sandwichPlate =>
+        _IconMealArtScene(icon: Icons.lunch_dining_rounded, accent: accent),
+      _MealArtKind.steamedBowl ||
+      _MealArtKind.soupBread ||
+      _MealArtKind.saladBowl ||
+      _MealArtKind.riceBowl ||
+      _MealArtKind.proteinPlate ||
+      _MealArtKind.genericPlate => _IconMealArtScene(
         icon: Icons.restaurant_rounded,
         accent: accent,
       ),
-      _MealArtKind.burgerCombo || _MealArtKind.wrapMeal || _MealArtKind.pizzaCombo => _IconMealArtScene(
-        icon: Icons.restaurant_rounded, // Defaulting to plate for these complex scenes in icon mode
+      _MealArtKind.burgerCombo ||
+      _MealArtKind.wrapMeal ||
+      _MealArtKind.pizzaCombo => _IconMealArtScene(
+        icon: Icons
+            .restaurant_rounded, // Defaulting to plate for these complex scenes in icon mode
         accent: accent,
       ),
       _MealArtKind.breakfastCup => _IconMealArtScene(
@@ -296,38 +245,14 @@ class _MealArtScene extends StatelessWidget {
 }
 
 class _IconMealArtScene extends StatelessWidget {
-  const _IconMealArtScene({
-    required this.icon,
-    required this.accent,
-  });
+  const _IconMealArtScene({required this.icon, required this.accent});
 
   final IconData icon;
   final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: const Color(0xFFF5F0E8),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(
-          icon,
-          size: 24, // Icon size within the 48dp container
-          color: const Color(0xFF1B4332),
-        ),
-      ),
-    );
+    return Center(child: Icon(icon, size: 48, color: const Color(0xFF1B4332)));
   }
 }
 

@@ -27,7 +27,7 @@ class AppDatabase {
 
     _database = await openDatabase(
       path,
-      version: 7,
+      version: 8,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
         await db.rawQuery('PRAGMA journal_mode = WAL');
@@ -44,10 +44,10 @@ class AppDatabase {
           await _addMerchantBrandColumn(db);
         }
         // Force a full re-seed when the merchant column was just added (v5) or
-        // bundled meal fields such as names changed (v6/v7); row count is
+        // bundled meal fields such as names changed (v6/v8); row count is
         // unchanged in these cases, so the normal count-based sync would skip
         // it.
-        await _syncSeedFoods(db, force: oldVersion < 7);
+        await _syncSeedFoods(db, force: oldVersion < 8);
         await _backfillCacheEntries(db);
       },
       onOpen: (db) async {
@@ -207,9 +207,7 @@ class AppDatabase {
 
   Future<void> _addMerchantBrandColumn(Database db) async {
     final columns = await db.rawQuery('PRAGMA table_info(foods)');
-    final hasColumn = columns.any(
-      (row) => row['name'] == 'merchant_brand_key',
-    );
+    final hasColumn = columns.any((row) => row['name'] == 'merchant_brand_key');
     if (!hasColumn) {
       await db.execute('ALTER TABLE foods ADD COLUMN merchant_brand_key TEXT');
     }

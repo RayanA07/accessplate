@@ -92,6 +92,18 @@ void main() {
     expect(find.text('Buy'), findsWidgets);
   });
 
+  testWidgets('compact action plan subtitle uses the muted hierarchy color', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_buildHarness());
+    await tester.pumpAndSettle();
+
+    final subtitle = tester.widget<Text>(
+      find.text('Your next stop, home food, and buy order for today.'),
+    );
+    expect(subtitle.style?.color, const Color(0xFF888888));
+  });
+
   testWidgets('compact action plan strips a duplicated best stop prefix', (
     tester,
   ) async {

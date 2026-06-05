@@ -35,7 +35,9 @@ void main() {
 
     expect(plan.toBuy, isNotEmpty);
     expect(
-      plan.toBuy.every((item) => item.evidence == IngredientEvidence.structured),
+      plan.toBuy.every(
+        (item) => item.evidence == IngredientEvidence.structured,
+      ),
       isTrue,
     );
     expect(plan.hasEstimatedToBuy, isFalse);
@@ -69,6 +71,43 @@ void main() {
     expect(
       plan.toBuy.every((item) => item.evidence == IngredientEvidence.estimated),
       isTrue,
+    );
+  });
+
+  test('bean and cheese wrap uses the updated structured buy list', () {
+    final plan = planner.build(
+      food: Food(
+        id: 96,
+        name: 'Bean and cheese wrap',
+        category: 'prepared_meal',
+        servingG: 266,
+        servingLabel: '1 serving',
+        costEstimate: 3.0,
+        costConfidence: 'high',
+        prepMethod: 'microwave',
+        prepTimeMin: 2,
+        mealTypes: const {MealType.lunch},
+        availability: const {AvailabilityContext.grocery},
+        allergens: const {},
+        religionExcluded: const [],
+        medicalRules: const [],
+        ingredients: const {
+          'flour tortillas',
+          'refried beans',
+          'cheese slices',
+        },
+        source: 'test_fixture',
+      ),
+      pantry: const PantryConstraints(),
+    );
+
+    expect(
+      plan.toBuy.map((item) => '${item.label} | ${item.quantityLabel}'),
+      orderedEquals([
+        'Flour tortillas | 1 pack',
+        'Refried beans | 1 can',
+        'Cheese slices | 1 pack',
+      ]),
     );
   });
 }

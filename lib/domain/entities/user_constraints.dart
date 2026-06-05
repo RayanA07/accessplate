@@ -429,6 +429,16 @@ class LoggedMealEntry {
   final double caloriesKcal;
   final List<int> foodIds;
 
+  static String normalizeMealName(String rawMealName) {
+    final trimmed = rawMealName.trim();
+    switch (trimmed.toLowerCase()) {
+      case 'convenience banana bunch':
+        return 'Fresh banana and peanut butter';
+      default:
+        return trimmed;
+    }
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'mealName': mealName,
@@ -443,7 +453,7 @@ class LoggedMealEntry {
       return null;
     }
     final json = Map<String, dynamic>.from(raw);
-    final mealName = (json['mealName'] as String? ?? '').trim();
+    final mealName = normalizeMealName(json['mealName'] as String? ?? '');
     final loggedAtRaw = json['loggedAt'] as String?;
     final loggedAt = loggedAtRaw == null
         ? null

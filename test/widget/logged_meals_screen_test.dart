@@ -49,7 +49,53 @@ void main() {
     expect(find.text('4:26 PM'), findsNWidgets(2));
     expect(find.text('12:05 PM'), findsOneWidget);
     expect(find.text('Meal logged'), findsNothing);
+    await tester.scrollUntilVisible(
+      find.text('Need a fresh start?'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Need a fresh start?'), findsOneWidget);
   });
+
+  testWidgets(
+    'logged meals screen hides reset section when nothing is logged',
+    (tester) async {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final profile = UserProfile.defaults().copyWith(
+        onboardingComplete: true,
+        constraints: UserConstraints.defaults().copyWith(
+          todayIntakeDate: today,
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            profileControllerProvider.overrideWith(
+              () => _TestProfileController(profile),
+            ),
+          ],
+          child: const MaterialApp(home: LoggedMealsScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Need a fresh start?'), findsNothing);
+      expect(find.text('Reset today'), findsNothing);
+      await tester.scrollUntilVisible(
+        find.text('Nothing logged yet today'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byIcon(Icons.flatware_rounded), findsOneWidget);
+      expect(find.text('Nothing logged yet today'), findsOneWidget);
+      expect(
+        find.text('Tap Log meal on any suggestion to start tracking.'),
+        findsOneWidget,
+      );
+    },
+  );
 }
 
 class _TestProfileController extends ProfileController {

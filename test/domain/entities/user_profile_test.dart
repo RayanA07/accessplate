@@ -199,6 +199,29 @@ void main() {
     },
   );
 
+  test('legacy convenience banana meal names normalize on load', () {
+    final constraints = UserConstraints.fromJson({
+      'loggedMeals': [
+        {
+          'mealName': 'Convenience banana bunch',
+          'loggedAt': DateTime.utc(2026, 6, 4, 14, 30).toIso8601String(),
+          'caloriesKcal': 463,
+          'foodIds': [108],
+        },
+      ],
+    });
+
+    expect(constraints.loggedMeals, hasLength(1));
+    expect(
+      constraints.loggedMeals.first.mealName,
+      'Fresh banana and peanut butter',
+    );
+    expect(
+      constraints.loggedMealHistory.first.mealName,
+      'Fresh banana and peanut butter',
+    );
+  });
+
   test('legacy pantry lists migrate to enough stock', () {
     final constraints = UserConstraints.fromJson(const {
       'pantry': {
