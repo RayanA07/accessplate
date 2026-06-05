@@ -12,12 +12,14 @@ class CompactActionPlanSection extends StatelessWidget {
     required this.todayPlan,
     required this.sourceTripPlan,
     required this.emergencyMode,
+    this.topMealName,
   });
 
   final AppCopy copy;
   final TodayPlan? todayPlan;
   final SourceTripPlan? sourceTripPlan;
   final bool emergencyMode;
+  final String? topMealName;
 
   @override
   Widget build(BuildContext context) {
@@ -27,27 +29,19 @@ class CompactActionPlanSection extends StatelessWidget {
 
     final plan = todayPlan;
     final trip = sourceTripPlan;
-    final buyFirst = _purchaseLabels(
-      plan,
-      PlannedPurchasePriority.buyFirst,
-      fallback: copy.actionPlanNoPurchaseYet,
-    );
-    final skipFirst = _purchaseLabels(
-      plan,
-      PlannedPurchasePriority.skipFirst,
-      fallback: copy.actionPlanNoSkipYet,
-    );
-    final buyItems = _purchaseItemList(plan, PlannedPurchasePriority.buyFirst);
     final skipItems = _purchaseItemList(
       plan,
       PlannedPurchasePriority.skipFirst,
     );
     final skipItem = skipItems.isEmpty ? null : skipItems.first;
+    final buyItems = topMealName != null
+        ? [topMealName!]
+        : _purchaseItemList(plan, PlannedPurchasePriority.buyFirst);
     final bestStop =
         _bestStopDetail(trip?.title) ??
         plan?.title ??
         copy.choose('your nearest stop', 'tu parada mas cercana');
-    final detailRows = _detailRows(plan, trip, buyFirst, skipFirst);
+    final detailRows = _detailRows(plan, trip, bestStop);
 
     return Semantics(
       container: true,
@@ -217,37 +211,34 @@ class CompactActionPlanSection extends StatelessWidget {
   List<Widget> _detailRows(
     TodayPlan? plan,
     SourceTripPlan? trip,
-    String buyFirst,
-    String skipFirst,
+    String bestStop,
   ) {
-    final rows = <Widget>[];
-
-    if (plan?.summary.trim().isNotEmpty == true) {
-      rows.add(_DetailBlock(title: copy.todayPlanTitle, body: plan!.summary));
+    if (plan == null && trip == null) {
+      return const [];
     }
-    if (trip?.summary.trim().isNotEmpty == true) {
-      rows.add(_DetailBlock(title: copy.sourceTripTitle, body: trip!.summary));
-    }
-    if (trip?.routeReason?.trim().isNotEmpty == true) {
-      rows.add(
-        _DetailBlock(
-          title: copy.choose('Why this stop', 'Por que esta parada'),
-          body: trip!.routeReason!,
+    return [
+      _DetailBlock(
+        title: copy.todayPlanTitle,
+        body: copy.choose(
+          'Get everything in one stop on your way.',
+          'Consigue todo en una sola parada en tu camino.',
         ),
-      );
-    }
-    if (buyFirst != copy.actionPlanNoPurchaseYet) {
-      rows.add(
-        _DetailBlock(title: copy.actionPlanBuyFirstLabel, body: buyFirst),
-      );
-    }
-    if (skipFirst != copy.actionPlanNoSkipYet) {
-      rows.add(
-        _DetailBlock(title: copy.actionPlanSkipFirstLabel, body: skipFirst),
-      );
-    }
-
-    return rows;
+      ),
+      _DetailBlock(
+        title: copy.sourceTripTitle,
+        body: copy.choose(
+          '$bestStop has everything you need for this meal.',
+          '$bestStop tiene todo lo que necesitas para esta comida.',
+        ),
+      ),
+      _DetailBlock(
+        title: copy.choose('Why this stop', 'Por que esta parada'),
+        body: copy.choose(
+          'Closest match to your budget, travel range, and pantry.',
+          'La mejor coincidencia con tu presupuesto, rango de viaje y despensa.',
+        ),
+      ),
+    ];
   }
 }
 

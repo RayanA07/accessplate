@@ -1,13 +1,14 @@
 import 'store_search.dart';
 
-const demoSeedPostalCode = '60651';
+const demoSeedPostalCode = '60624';
 const legacyDemoSeedPostalCode = '94043';
-const demoSeedLocationLabel = '4001 W Chicago Ave, Chicago, IL 60651';
+const legacyDemoSeedPostalCode2 = '60651';
+const demoSeedLocationLabel = '3758 W Madison St, Chicago, IL 60624';
 const demoSeedLocation = SearchLocation(
   kind: SearchLocationKind.address,
   label: demoSeedLocationLabel,
-  latitude: 41.895282,
-  longitude: -87.726242,
+  latitude: 41.8798,
+  longitude: -87.7272,
   verification: DataVerification.approximate,
   postalCode: demoSeedPostalCode,
   query: demoSeedLocationLabel,
@@ -26,6 +27,7 @@ String resolvedAccessPostalCode(String? currentPostalCode) {
   final normalized = normalizePostalCode(currentPostalCode);
   if (normalized == null ||
       normalized == legacyDemoSeedPostalCode ||
+      normalized == legacyDemoSeedPostalCode2 ||
       normalized == demoSeedPostalCode) {
     return '';
   }

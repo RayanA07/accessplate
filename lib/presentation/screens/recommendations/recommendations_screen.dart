@@ -108,6 +108,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
                 todayPlan: result.todayPlan,
                 sourceTripPlan: result.sourceTripPlan,
                 emergencyMode: profile.constraints.access.emergencyMode,
+                topMealName: _topNonFastFoodName(result.recommendations),
               ),
             ],
             if (recommendationsAsync.isLoading)
@@ -220,6 +221,15 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
       builder: (_) => const QuickAdjustSheet(),
     );
   }
+}
+
+String? _topNonFastFoodName(List<ScoredFood> recommendations) {
+  for (final rec in recommendations) {
+    if (rec.food.id < 1000) {
+      return rec.food.name;
+    }
+  }
+  return null;
 }
 
 class _OfflineMealsBanner extends StatelessWidget {

@@ -820,4 +820,13 @@ final _structuredMealRequirements = <int, List<IngredientRequirement>>{
       quantityLabel: '1 pack',
     ),
   ],
+  169: [
+    _structuredIngredient(
+      'pancake_mix',
+      'Pancake mix',
+      searchTerms: ['pancake mix'],
+      pantryAliases: ['pancake mix', 'pancakes'],
+      quantityLabel: '1 box',
+    ),
+  ],
 };

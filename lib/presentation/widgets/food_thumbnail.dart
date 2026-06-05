@@ -211,7 +211,7 @@ class _MealArtScene extends StatelessWidget {
         accent: accent,
       ),
       _MealArtKind.fruitSnack => _IconMealArtScene(
-        icon: Icons.emoji_nature_rounded,
+        icon: Icons.lunch_dining_rounded,
         accent: accent,
       ),
       _MealArtKind.snackBowl || _MealArtKind.snackPack => _IconMealArtScene(

@@ -163,16 +163,16 @@ class BuildMealShoppingPlanUseCase {
       return const {AvailabilityContext.fastFood};
     }
 
-    if (contexts.contains(AvailabilityContext.grocery)) {
-      return const {AvailabilityContext.grocery};
+    if (contexts.contains(AvailabilityContext.dollarStore)) {
+      return const {AvailabilityContext.dollarStore};
     }
 
     if (contexts.contains(AvailabilityContext.convenience)) {
       return const {AvailabilityContext.convenience};
     }
 
-    if (contexts.contains(AvailabilityContext.dollarStore)) {
-      return const {AvailabilityContext.dollarStore};
+    if (contexts.contains(AvailabilityContext.grocery)) {
+      return const {AvailabilityContext.grocery};
     }
 
     if (contexts.contains(AvailabilityContext.foodPantry)) {

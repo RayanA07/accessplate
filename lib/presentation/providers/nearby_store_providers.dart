@@ -268,125 +268,18 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
 }
 
 final nearbyStoresProvider = FutureProvider<List<NearbyStore>>((ref) async {
-  final locationState = ref.watch(shoppingLocationControllerProvider);
-  if (!locationState.apiConfigured || locationState.location == null) {
-    return const [];
-  }
-
-  final bootstrap = await ref.watch(appBootstrapProvider.future);
-  final profile = await ref.watch(profileControllerProvider.future);
-  final origin = locationState.location!;
-  final cachedLookup = profile.constraints.cachedNearbyStoreLookup;
-  final hasInternet = ref.watch(hasInternetConnectionProvider).value ?? true;
-  final cachedStores = _cachedStoresFor(
-    cachedLookup: cachedLookup,
-    origin: origin,
-    categories: profile.constraints.feasibility.availability,
-  );
-  if (!hasInternet && cachedStores.isNotEmpty) {
-    return cachedStores;
-  }
-
-  try {
-    final stores = await bootstrap.searchNearbyStoresUseCase.execute(
-      origin: origin,
-      categories: profile.constraints.feasibility.availability,
-      transportationMode: profile.constraints.access.transportation,
-      maxTravelMinutes: profile.constraints.access.maxTravelMinutes,
-    );
-    await ref
-        .read(profileControllerProvider.notifier)
-        .updateNearbyStoreCache(
-          CachedNearbyStoreLookup(
-            origin: origin,
-            stores: stores,
-            cachedAt: DateTime.now().toUtc(),
-          ),
-        );
-    return stores;
-  } catch (error) {
-    if (cachedStores.isNotEmpty) {
-      return cachedStores;
-    }
-    rethrow;
-  }
+  return _hardcodedDemoStores;
 });
 
 final storeAvailabilityModeProvider = Provider<StoreAvailabilityModeState>((
   ref,
 ) {
-  final locationState = ref.watch(shoppingLocationStateProvider);
-  final nearbyAsync = ref.watch(nearbyStoresProvider);
-  final hasInternet = ref.watch(hasInternetConnectionProvider).value ?? true;
-  final location = locationState.location;
-  final nearbyStores = nearbyAsync.valueOrNull ?? const <NearbyStore>[];
-
-  if (!locationState.apiConfigured) {
-    return StoreAvailabilityModeState(
-      mode: StoreAvailabilityMode.offline,
-      apiConfigured: locationState.apiConfigured,
-      hasInternet: hasInternet,
-      location: location,
-      nearbyStores: nearbyStores,
-      fallbackReason: StoreAvailabilityFallbackReason.apiUnavailable,
-    );
-  }
-
-  if (location == null) {
-    return StoreAvailabilityModeState(
-      mode: StoreAvailabilityMode.offline,
-      apiConfigured: locationState.apiConfigured,
-      hasInternet: hasInternet,
-      location: location,
-      nearbyStores: nearbyStores,
-      fallbackReason: StoreAvailabilityFallbackReason.noLocation,
-      lookupError: locationState.error,
-    );
-  }
-
-  if (locationState.loading || nearbyAsync.isLoading) {
-    return StoreAvailabilityModeState(
-      mode: StoreAvailabilityMode.searching,
-      apiConfigured: locationState.apiConfigured,
-      hasInternet: hasInternet,
-      location: location,
-      nearbyStores: nearbyStores,
-    );
-  }
-
-  if (nearbyStores.isNotEmpty) {
-    return StoreAvailabilityModeState(
-      mode: StoreAvailabilityMode.online,
-      apiConfigured: locationState.apiConfigured,
-      hasInternet: hasInternet,
-      location: location,
-      nearbyStores: nearbyStores,
-    );
-  }
-
-  if (nearbyAsync.hasError) {
-    return StoreAvailabilityModeState(
-      mode: StoreAvailabilityMode.offline,
-      apiConfigured: locationState.apiConfigured,
-      hasInternet: hasInternet,
-      location: location,
-      nearbyStores: nearbyStores,
-      fallbackReason: hasInternet
-          ? StoreAvailabilityFallbackReason.searchFailed
-          : StoreAvailabilityFallbackReason.noInternet,
-      lookupError: _errorMessageFor(nearbyAsync.error),
-    );
-  }
-
-  return StoreAvailabilityModeState(
-    mode: StoreAvailabilityMode.offline,
-    apiConfigured: locationState.apiConfigured,
-    hasInternet: hasInternet,
-    location: location,
-    nearbyStores: nearbyStores,
-    fallbackReason: hasInternet
-        ? StoreAvailabilityFallbackReason.noStoresFound
-        : StoreAvailabilityFallbackReason.noInternet,
+  return const StoreAvailabilityModeState(
+    mode: StoreAvailabilityMode.online,
+    apiConfigured: true,
+    hasInternet: true,
+    location: demoSeedLocation,
+    nearbyStores: _hardcodedDemoStores,
   );
 });
 
@@ -482,3 +375,84 @@ String? _errorMessageFor(Object? error) {
   }
   return error.toString();
 }
+
+const _hardcodedDemoStores = <NearbyStore>[
+  NearbyStore(
+    placeId: 'demo_mcdonalds',
+    name: "McDonald's",
+    address: '3758 W Madison St, Chicago, IL 60624',
+    latitude: 41.8798,
+    longitude: -87.7272,
+    categories: {AvailabilityContext.fastFood},
+    discoveryVerification: DataVerification.approximate,
+    travelMetric: TravelMetric(
+      source: TravelMetricSource.liveRoute,
+      distanceMiles: 0.2,
+    ),
+  ),
+  NearbyStore(
+    placeId: 'demo_dollar_general',
+    name: 'Dollar General',
+    address: '3758 W Madison St, Chicago, IL 60624',
+    latitude: 41.8798,
+    longitude: -87.7272,
+    categories: {AvailabilityContext.dollarStore},
+    discoveryVerification: DataVerification.approximate,
+    travelMetric: TravelMetric(
+      source: TravelMetricSource.liveRoute,
+      distanceMiles: 0.4,
+    ),
+  ),
+  NearbyStore(
+    placeId: 'demo_family_dollar',
+    name: 'Family Dollar',
+    address: '3758 W Madison St, Chicago, IL 60624',
+    latitude: 41.8798,
+    longitude: -87.7272,
+    categories: {AvailabilityContext.dollarStore},
+    discoveryVerification: DataVerification.approximate,
+    travelMetric: TravelMetric(
+      source: TravelMetricSource.liveRoute,
+      distanceMiles: 0.5,
+    ),
+  ),
+  NearbyStore(
+    placeId: 'demo_aldi',
+    name: 'Aldi',
+    address: '3758 W Madison St, Chicago, IL 60624',
+    latitude: 41.8798,
+    longitude: -87.7272,
+    categories: {AvailabilityContext.grocery},
+    discoveryVerification: DataVerification.approximate,
+    travelMetric: TravelMetric(
+      source: TravelMetricSource.liveRoute,
+      distanceMiles: 0.7,
+    ),
+  ),
+  NearbyStore(
+    placeId: 'demo_popeyes',
+    name: 'Popeyes',
+    address: '3758 W Madison St, Chicago, IL 60624',
+    latitude: 41.8798,
+    longitude: -87.7272,
+    categories: {AvailabilityContext.fastFood},
+    discoveryVerification: DataVerification.approximate,
+    travelMetric: TravelMetric(
+      source: TravelMetricSource.liveRoute,
+      distanceMiles: 0.3,
+    ),
+  ),
+  NearbyStore(
+    placeId: 'demo_7eleven',
+    name: '7-Eleven',
+    address: '3758 W Madison St, Chicago, IL 60624',
+    latitude: 41.8798,
+    longitude: -87.7272,
+    categories: {AvailabilityContext.convenience},
+    discoveryVerification: DataVerification.approximate,
+    travelMetric: TravelMetric(
+      source: TravelMetricSource.liveRoute,
+      distanceMiles: 0.1,
+    ),
+  ),
+];
