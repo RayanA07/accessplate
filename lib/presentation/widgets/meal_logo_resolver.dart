@@ -96,9 +96,31 @@ abstract final class MealLogoResolver {
       return null;
     }
 
-    return _logoForText(food.name) ??
+    // Prefer the structured brand key derived at seed time over fragile name
+    // string heuristics. The chosen store is merchant-verified by the planner,
+    // so its name is a safe secondary source.
+    return _logoForBrandKey(food.merchantBrandKey) ??
+        _logoForBrandKey(plan?.requiredMerchantKey) ??
+        _logoForText(food.name) ??
         _logoForText(plan?.chosenStore?.name) ??
         _logoForText(plan?.liveProductMatch?.store.name);
+  }
+
+  static const Map<String, MealLogoSelection> _logosByBrandKey = {
+    'burger_king': _burgerKing,
+    'chick_fil_a': _chickFilA,
+    'chipotle': _chipotle,
+    'taco_bell': _tacoBell,
+    'mcdonalds': _mcdonalds,
+    'subway': _subway,
+    'wendys': _wendys,
+  };
+
+  static MealLogoSelection? _logoForBrandKey(String? brandKey) {
+    if (brandKey == null) {
+      return null;
+    }
+    return _logosByBrandKey[brandKey];
   }
 
   static MealLogoSelection? _storeLogo({

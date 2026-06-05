@@ -224,6 +224,16 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
       if (store != null) {
         return '${store.name} | ${_travelLabel(store.travelMetric)}';
       }
+      if (plan != null && plan.isMerchantSpecific) {
+        return _merchantUnverifiedHeadline(plan, copy);
+      }
+      if (plan?.storeStatusNote case final note?) {
+        return note;
+      }
+      return copy.choose(
+        'Live search found nearby stores, but this meal was not verified at one yet.',
+        'La busqueda en vivo encontro tiendas cercanas, pero esta comida todavia no se verifico en una.',
+      );
     }
     if (!availabilityMode.apiConfigured) {
       return copy.choose(
@@ -237,7 +247,29 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
         'Buscando tiendas cercanas para esta comida...',
       );
     }
+    if (availabilityMode.fallbackReason ==
+        StoreAvailabilityFallbackReason.noLocation) {
+      return copy.choose(
+        'Location is not set yet, so this meal is still using your saved access settings.',
+        'Todavia no hay ubicacion guardada, asi que esta comida sigue usando tus ajustes guardados.',
+      );
+    }
     if (availabilityMode.isOffline) {
+      if (availabilityMode.fallbackReason ==
+          StoreAvailabilityFallbackReason.noStoresFound) {
+        return plan?.storeStatusNote ??
+            copy.choose(
+              'No verified nearby store matched this meal for the current search.',
+              'Ninguna tienda cercana verificada coincidió con esta comida para la busqueda actual.',
+            );
+      }
+      if (availabilityMode.fallbackReason ==
+          StoreAvailabilityFallbackReason.searchFailed) {
+        return copy.choose(
+          'Live store search is temporarily unavailable, so this meal is using saved access settings.',
+          'La busqueda en vivo de tiendas no esta disponible por ahora, asi que esta comida usa los ajustes guardados.',
+        );
+      }
       final context = plan?.offlineAvailabilityContext;
       if (context != null) {
         return _offlineAvailabilityHeadline(context, copy);
@@ -256,6 +288,24 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
       'Using your saved store access settings for this meal.',
       'Usando tus ajustes guardados de acceso para esta comida.',
     );
+  }
+
+  String _merchantUnverifiedHeadline(MealShoppingPlan plan, AppCopy copy) {
+    final brand =
+        plan.requiredMerchantName ?? copy.choose('this chain', 'esta cadena');
+    final base = copy.choose(
+      'No nearby $brand verified for this search.',
+      'No se verifico ningun $brand cercano para esta busqueda.',
+    );
+    final alternatives = plan.merchantAlternatives
+        .take(2)
+        .map((store) => store.name)
+        .toList(growable: false);
+    if (alternatives.isEmpty) {
+      return base;
+    }
+    final names = alternatives.join(', ');
+    return '$base ${copy.choose('Nearest fast-food options nearby: $names.', 'Opciones de comida rapida mas cercanas: $names.')}';
   }
 
   String _offlineAvailabilityHeadline(
@@ -562,7 +612,7 @@ class _ExpandedPlan extends StatelessWidget {
         ],
         if (plan?.storeStatusNote case final note?) ...[
           Text(
-            plan?.chosenStore == null ? _offlineStoreGuidance() : note,
+            _storeGuidance(note),
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: NihPalette.grayDark),
@@ -640,6 +690,29 @@ class _ExpandedPlan extends StatelessWidget {
       'Store data unavailable offline. Use your access settings to find this at a nearby store.',
       'Datos de tienda no disponibles sin conexion. Usa tu configuracion de acceso para encontrar esto en una tienda cercana.',
     );
+  }
+
+  String _storeGuidance(String note) {
+    if (plan?.chosenStore != null) {
+      return note;
+    }
+    return switch (availabilityMode.fallbackReason) {
+      StoreAvailabilityFallbackReason.noInternet => _offlineStoreGuidance(),
+      StoreAvailabilityFallbackReason.noLocation => copy.choose(
+        'Location is not set yet. Use access setup to verify a nearby store for this meal.',
+        'Todavia no hay ubicacion guardada. Usa la configuracion de acceso para verificar una tienda cercana para esta comida.',
+      ),
+      StoreAvailabilityFallbackReason.noStoresFound => note,
+      StoreAvailabilityFallbackReason.searchFailed => copy.choose(
+        'Live store search is temporarily unavailable. Saved access settings are being used until store lookup recovers.',
+        'La busqueda en vivo de tiendas no esta disponible por ahora. Se usan los ajustes guardados hasta que se recupere la busqueda.',
+      ),
+      StoreAvailabilityFallbackReason.apiUnavailable => copy.choose(
+        'Nearby store search is unavailable right now.',
+        'La busqueda de tiendas cercanas no esta disponible ahora.',
+      ),
+      null => availabilityMode.isOnline ? note : _offlineStoreGuidance(),
+    };
   }
 
   String _offlineAvailabilityLabel(AvailabilityContext context) {

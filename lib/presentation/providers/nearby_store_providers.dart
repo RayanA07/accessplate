@@ -185,10 +185,13 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
       final bootstrap = await _ref.read(appBootstrapProvider.future);
       final location = await bootstrap.storeLocatorRepository
           .reverseGeocodeDeviceLocation(fix);
+      // Device location drives search from the resolved coordinates and shows a
+      // readable label, but must not prefill the typed-query field (especially
+      // not with raw lat/lng).
       state = state.copyWith(
         loading: false,
         location: location,
-        lastQuery: location.query ?? location.label,
+        clearLastQuery: true,
         clearError: true,
       );
     } on StoreSearchException catch (error) {

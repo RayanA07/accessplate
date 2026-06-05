@@ -108,6 +108,10 @@ class MealShoppingPlan {
     this.liveLookupAttempted = false,
     this.storeStatusNote,
     this.offlineAvailabilityContext,
+    this.requiredMerchantKey,
+    this.requiredMerchantName,
+    this.merchantVerified = false,
+    this.merchantAlternatives = const [],
   });
 
   final Food food;
@@ -119,6 +123,24 @@ class MealShoppingPlan {
   final bool liveLookupAttempted;
   final String? storeStatusNote;
   final AvailabilityContext? offlineAvailabilityContext;
+
+  /// Brand key this meal requires (e.g. `taco_bell`) when it is a chain-specific
+  /// fast-food item; `null` for category-based meals.
+  final String? requiredMerchantKey;
+
+  /// Display name of the required brand (e.g. `Taco Bell`).
+  final String? requiredMerchantName;
+
+  /// True only when [chosenStore] is a verified store of [requiredMerchantKey].
+  final bool merchantVerified;
+
+  /// Nearby fast-food places that do *not* match the required brand. Surfaced
+  /// only to honestly say "nearest fast-food options nearby: ..." — never to
+  /// stand in for the required merchant.
+  final List<NearbyStore> merchantAlternatives;
+
+  /// Whether this meal can only be satisfied by one specific chain.
+  bool get isMerchantSpecific => requiredMerchantKey != null;
 
   bool get hasNearbyStore => chosenStore != null;
   bool get hasLiveProducts =>
@@ -139,6 +161,10 @@ class MealShoppingPlan {
     bool? liveLookupAttempted,
     String? storeStatusNote,
     AvailabilityContext? offlineAvailabilityContext,
+    String? requiredMerchantKey,
+    String? requiredMerchantName,
+    bool? merchantVerified,
+    List<NearbyStore>? merchantAlternatives,
   }) {
     return MealShoppingPlan(
       food: food,
@@ -153,6 +179,10 @@ class MealShoppingPlan {
       storeStatusNote: storeStatusNote ?? this.storeStatusNote,
       offlineAvailabilityContext:
           offlineAvailabilityContext ?? this.offlineAvailabilityContext,
+      requiredMerchantKey: requiredMerchantKey ?? this.requiredMerchantKey,
+      requiredMerchantName: requiredMerchantName ?? this.requiredMerchantName,
+      merchantVerified: merchantVerified ?? this.merchantVerified,
+      merchantAlternatives: merchantAlternatives ?? this.merchantAlternatives,
     );
   }
 }

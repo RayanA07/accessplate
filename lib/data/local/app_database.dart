@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../core/constants/cache_policy.dart';
+import '../../domain/value_objects/merchant_brand.dart';
 import '../seed_loader.dart';
 
 class AppDatabase {
@@ -12,6 +13,8 @@ class AppDatabase {
     : _seedLoader = seedLoader ?? SeedLoader();
 
   final SeedLoader _seedLoader;
+  final MerchantBrandCatalog _merchantBrandCatalog =
+      MerchantBrandCatalog.defaults;
   Database? _database;
 
   Future<Database> open() async {
@@ -24,7 +27,7 @@ class AppDatabase {
 
     _database = await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
         await db.rawQuery('PRAGMA journal_mode = WAL');
@@ -37,7 +40,13 @@ class AppDatabase {
         if (oldVersion < 2) {
           await _createCacheTables(db);
         }
-        await _syncSeedFoods(db);
+        if (oldVersion < 5) {
+          await _addMerchantBrandColumn(db);
+        }
+        // Force a full re-seed when the merchant column was just added so every
+        // existing food row gets its brand key populated (row count is
+        // unchanged, so the normal count-based sync would skip it).
+        await _syncSeedFoods(db, force: oldVersion < 5);
         await _backfillCacheEntries(db);
       },
       onOpen: (db) async {
@@ -77,7 +86,8 @@ class AppDatabase {
         religion_json TEXT NOT NULL,
         medical_json TEXT NOT NULL,
         ingredients_json TEXT NOT NULL,
-        source TEXT NOT NULL
+        source TEXT NOT NULL,
+        merchant_brand_key TEXT
       )
     ''');
 
@@ -194,7 +204,17 @@ class AppDatabase {
     );
   }
 
-  Future<void> _syncSeedFoods(Database db) async {
+  Future<void> _addMerchantBrandColumn(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info(foods)');
+    final hasColumn = columns.any(
+      (row) => row['name'] == 'merchant_brand_key',
+    );
+    if (!hasColumn) {
+      await db.execute('ALTER TABLE foods ADD COLUMN merchant_brand_key TEXT');
+    }
+  }
+
+  Future<void> _syncSeedFoods(Database db, {bool force = false}) async {
     final foods = await _seedLoader.loadFoods();
     final expectedCount = foods.length;
     final existingCount =
@@ -202,7 +222,7 @@ class AppDatabase {
           await db.rawQuery('SELECT COUNT(*) FROM foods'),
         ) ??
         0;
-    if (existingCount == expectedCount) {
+    if (!force && existingCount == expectedCount) {
       return;
     }
 
@@ -231,6 +251,13 @@ class AppDatabase {
       );
       final ingredients = _normalizedIngredientTokens(item, name);
       final nutrients = Map<String, dynamic>.from(item['nutrients'] as Map);
+      // Derive the chain brand key from an explicit seed field when present,
+      // otherwise from the meal name prefix (e.g. "Taco Bell ..." -> taco_bell).
+      // Only confident matches are stored; everything else stays null (generic).
+      final merchantBrandKey =
+          (item['merchant'] as String?)?.trim().isNotEmpty == true
+          ? item['merchant'] as String
+          : _merchantBrandCatalog.matchKey(name, requirePrefix: true);
 
       batch.delete('nutrients', where: 'food_id = ?', whereArgs: [id]);
       batch.delete('food_allergens', where: 'food_id = ?', whereArgs: [id]);
@@ -264,6 +291,7 @@ class AppDatabase {
         'medical_json': jsonEncode(medicalRules),
         'ingredients_json': jsonEncode(ingredients),
         'source': item['source'] ?? 'bundled_reference',
+        'merchant_brand_key': merchantBrandKey,
       }, conflictAlgorithm: ConflictAlgorithm.replace);
 
       batch.insert('nutrients', {

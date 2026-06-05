@@ -4,6 +4,7 @@ import '../../domain/entities/meal_shopping.dart';
 import '../../domain/entities/store_search.dart';
 import '../../domain/entities/user_constraints.dart';
 import '../../domain/value_objects/availability_context.dart';
+import '../../domain/value_objects/merchant_brand.dart';
 import '../services/meal_ingredient_planner.dart';
 import 'lookup_live_ingredient_products_use_case.dart';
 
@@ -12,13 +13,16 @@ class BuildMealShoppingPlanUseCase {
     required LookupLiveIngredientProductsUseCase liveProductLookupUseCase,
     required IngredientAvailabilityCatalog ingredientAvailabilityCatalog,
     MealIngredientPlanner? ingredientPlanner,
+    MerchantBrandCatalog merchantBrandCatalog = MerchantBrandCatalog.defaults,
   }) : _liveProductLookupUseCase = liveProductLookupUseCase,
        _ingredientAvailabilityCatalog = ingredientAvailabilityCatalog,
-       _ingredientPlanner = ingredientPlanner ?? const MealIngredientPlanner();
+       _ingredientPlanner = ingredientPlanner ?? const MealIngredientPlanner(),
+       _merchantBrandCatalog = merchantBrandCatalog;
 
   final LookupLiveIngredientProductsUseCase _liveProductLookupUseCase;
   final IngredientAvailabilityCatalog _ingredientAvailabilityCatalog;
   final MealIngredientPlanner _ingredientPlanner;
+  final MerchantBrandCatalog _merchantBrandCatalog;
 
   MealShoppingPlan buildSummary({
     required Food food,
@@ -33,7 +37,38 @@ class BuildMealShoppingPlanUseCase {
     final candidateStores = nearbyStores
         .where((store) => relevantContexts.any(store.supportsCategory))
         .toList(growable: false);
-    final chosenStore = candidateStores.isEmpty ? null : candidateStores.first;
+
+    // Separate category matching from merchant matching. A chain-specific
+    // fast-food meal (e.g. a Taco Bell bowl) may only be tied to a nearby store
+    // of the same brand. It must never fall back to "the nearest fast-food
+    // place" — that is exactly how a Taco Bell meal ended up showing Marco's
+    // Pizza. Generic/grocery meals keep the simple nearest-in-category choice.
+    final requiredMerchantKey = food.merchantBrandKey;
+    final requiredMerchantName = _merchantBrandCatalog
+        .brandForKey(requiredMerchantKey)
+        ?.displayName;
+    final isMerchantSpecific = requiredMerchantKey != null;
+
+    NearbyStore? chosenStore;
+    var merchantVerified = false;
+    var merchantAlternatives = const <NearbyStore>[];
+    if (isMerchantSpecific) {
+      final brandMatches = candidateStores
+          .where((store) => store.matchesMerchant(requiredMerchantKey))
+          .toList(growable: false);
+      if (brandMatches.isNotEmpty) {
+        // candidateStores arrive distance-sorted, so first == nearest match.
+        chosenStore = brandMatches.first;
+        merchantVerified = true;
+      } else {
+        // No verified brand nearby: keep chosenStore null and remember the
+        // other fast-food places only so the UI can name them as alternatives.
+        merchantAlternatives = candidateStores.take(3).toList(growable: false);
+      }
+    } else {
+      chosenStore = candidateStores.isEmpty ? null : candidateStores.first;
+    }
+
     final offlineAvailabilityContext =
         _ingredientAvailabilityCatalog.preferredContextForMeal(
           food: food,
@@ -46,7 +81,17 @@ class BuildMealShoppingPlanUseCase {
       ingredients: ingredientPlan,
       chosenStore: chosenStore,
       backupStores: _backupStores(
-        candidateStores: candidateStores,
+        // For a verified chain meal, backups are only other same-brand stores.
+        // For an unverified chain meal there are no valid backups (wrong-brand
+        // places must not masquerade as backups). Generic meals use all
+        // candidates.
+        candidateStores: isMerchantSpecific
+            ? (merchantVerified
+                  ? candidateStores
+                        .where((s) => s.matchesMerchant(requiredMerchantKey))
+                        .toList(growable: false)
+                  : const <NearbyStore>[])
+            : candidateStores,
         chosenStore: chosenStore,
       ),
       candidateStores: candidateStores,
@@ -56,8 +101,15 @@ class BuildMealShoppingPlanUseCase {
         food: food,
         relevantContexts: relevantContexts,
         chosenStore: chosenStore,
+        requiredMerchantName: requiredMerchantName,
+        isMerchantSpecific: isMerchantSpecific,
+        merchantAlternatives: merchantAlternatives,
       ),
       offlineAvailabilityContext: offlineAvailabilityContext,
+      requiredMerchantKey: requiredMerchantKey,
+      requiredMerchantName: requiredMerchantName,
+      merchantVerified: merchantVerified,
+      merchantAlternatives: merchantAlternatives,
     );
   }
 
@@ -66,7 +118,10 @@ class BuildMealShoppingPlanUseCase {
   ) async {
     if (basePlan.ingredients.toBuy.isEmpty ||
         basePlan.ingredients.isOrderOnly ||
+        basePlan.isMerchantSpecific ||
         basePlan.candidateStores.isEmpty) {
+      // Chain-specific fast-food meals are never enriched with live grocery
+      // products, and live lookups must never reassign their store.
       return basePlan.copyWith(liveLookupAttempted: true);
     }
 
@@ -158,9 +213,24 @@ class BuildMealShoppingPlanUseCase {
     required Food food,
     required Set<AvailabilityContext> relevantContexts,
     required NearbyStore? chosenStore,
+    required String? requiredMerchantName,
+    required bool isMerchantSpecific,
+    required List<NearbyStore> merchantAlternatives,
   }) {
     if (chosenStore != null) {
       return null;
+    }
+    if (isMerchantSpecific) {
+      final brand = requiredMerchantName ?? 'this restaurant';
+      final base = 'No nearby $brand verified for this search.';
+      if (merchantAlternatives.isEmpty) {
+        return base;
+      }
+      final names = merchantAlternatives
+          .take(2)
+          .map((store) => store.name)
+          .join(', ');
+      return '$base Nearest fast-food options nearby: $names.';
     }
     if (relevantContexts.isEmpty) {
       return 'No verified nearby store for this meal type is available.';

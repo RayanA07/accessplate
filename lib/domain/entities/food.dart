@@ -46,6 +46,7 @@ class Food {
     required this.ingredients,
     this.cuisine,
     this.source = 'bundled',
+    this.merchantBrandKey,
   });
 
   final int id;
@@ -65,6 +66,14 @@ class Food {
   final List<MedicalRule> medicalRules;
   final Set<String> ingredients;
   final String source;
+
+  /// Stable brand key (e.g. `taco_bell`) for chain-specific meals, resolved
+  /// from the bundled merchant catalog at seed time. `null` for generic meals
+  /// (groceries, pantry items, unbranded fast food). A non-null value means the
+  /// meal may only be matched against a nearby store with the same brand.
+  final String? merchantBrandKey;
+
+  bool get isMerchantSpecific => merchantBrandKey != null;
 
   bool get readyToEat => prepMethod == 'none';
 

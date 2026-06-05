@@ -759,6 +759,106 @@ void main() {
       }
     },
   );
+
+  testWidgets(
+    'recommendation card never pairs a chain meal with a wrong-brand store',
+    (tester) async {
+      final recommendation = _sampleFood(
+        1020,
+        name: 'Taco Bell Power Menu Bowl',
+        availability: const {AvailabilityContext.fastFood},
+      );
+      final marcos = NearbyStore(
+        placeId: 'marcos',
+        name: "Marco's Pizza",
+        address: "Marco's Pizza, 123 Demo St",
+        latitude: 39.10,
+        longitude: -84.51,
+        categories: const {AvailabilityContext.fastFood},
+        primaryCategory: AvailabilityContext.fastFood,
+        discoveryVerification: DataVerification.live,
+        travelMetric: const TravelMetric(
+          source: TravelMetricSource.straightLineApproximate,
+          distanceMiles: 1.5,
+        ),
+        brandKey: 'marcos_pizza',
+      );
+      final unverifiedPlan = MealShoppingPlan(
+        food: recommendation.food,
+        ingredients: IngredientPlan(
+          atHome: const [],
+          toBuy: [
+            IngredientRequirement(
+              key: 'order-1020',
+              label: recommendation.food.name,
+              searchTerms: const [],
+              pantryAliases: const [],
+              evidence: IngredientEvidence.menuItem,
+              quantityLabel: recommendation.food.servingLabel,
+            ),
+          ],
+        ),
+        chosenStore: null,
+        backupStores: const [],
+        candidateStores: [marcos],
+        liveProductMatch: null,
+        liveLookupAttempted: true,
+        storeStatusNote:
+            'No nearby Taco Bell verified for this search. '
+            "Nearest fast-food options nearby: Marco's Pizza.",
+        offlineAvailabilityContext: AvailabilityContext.fastFood,
+        requiredMerchantKey: 'taco_bell',
+        requiredMerchantName: 'Taco Bell',
+        merchantVerified: false,
+        merchantAlternatives: [marcos],
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            shoppingLocationStateProvider.overrideWith(
+              (ref) => const ShoppingLocationState(apiConfigured: true),
+            ),
+            storeAvailabilityModeProvider.overrideWith(
+              (ref) => _onlineStoreAvailabilityMode(),
+            ),
+            mealShoppingSummariesProvider.overrideWith(
+              (ref) async => {recommendation.food.id: unverifiedPlan},
+            ),
+            prefetchedLiveMealShoppingPlansProvider.overrideWith(
+              (ref) async => {recommendation.food.id: unverifiedPlan},
+            ),
+          ],
+          child: MaterialApp(
+            theme: AccessPlateTheme.light(),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: RecommendationCard(
+                  recommendation: recommendation,
+                  onExplain: () {},
+                  onTrack: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // It says, explicitly, that the required chain was not found.
+      expect(
+        find.textContaining('No nearby Taco Bell verified'),
+        findsOneWidget,
+      );
+      // It is never presented as verified, and never as a "Go to" store.
+      expect(find.text('Verified'), findsNothing);
+      expect(
+        find.textContaining("Marco's Pizza | "),
+        findsNothing,
+        reason: "Marco's Pizza must not be shown as the meal's store",
+      );
+    },
+  );
 }
 
 ScoredFood _sampleFood(

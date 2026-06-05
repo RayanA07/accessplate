@@ -94,7 +94,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
               ),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            if (availabilityMode.isOffline) ...[
+            if (availabilityMode.shouldShowOfflineBanner) ...[
               const SizedBox(height: 14),
               _OfflineMealsBanner(copy: copy),
             ],
@@ -103,7 +103,8 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
             const SizedBox(height: 14),
             const ShoppingLocationCard(),
             if (result != null &&
-                (result.todayPlan != null || result.sourceTripPlan != null)) ...[
+                (result.todayPlan != null ||
+                    result.sourceTripPlan != null)) ...[
               const SizedBox(height: 12),
               CompactActionPlanSection(
                 copy: copy,
@@ -414,7 +415,6 @@ class _RecommendationsErrorState extends StatelessWidget {
   }
 }
 
-
 class _EmptyState extends StatelessWidget {
   const _EmptyState({
     required this.copy,
@@ -553,4 +553,3 @@ class _BulletLine extends StatelessWidget {
     );
   }
 }
-

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import '../../domain/entities/store_search.dart';
 import '../../domain/repositories/store_locator_repository.dart';
 import '../../domain/value_objects/availability_context.dart';
+import '../../domain/value_objects/merchant_brand.dart';
 import '../../domain/value_objects/transportation_mode.dart';
 import 'open_street_map_api_config.dart';
 
@@ -15,11 +16,14 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
   OpenStreetMapStoreLocatorRepository({
     required OpenStreetMapApiConfig config,
     http.Client? httpClient,
+    MerchantBrandCatalog merchantBrandCatalog = MerchantBrandCatalog.defaults,
   }) : _config = config,
-       _httpClient = httpClient ?? http.Client();
+       _httpClient = httpClient ?? http.Client(),
+       _merchantBrandCatalog = merchantBrandCatalog;
 
   final OpenStreetMapApiConfig _config;
   final http.Client _httpClient;
+  final MerchantBrandCatalog _merchantBrandCatalog;
 
   @override
   bool get isConfigured => _config.isConfigured;
@@ -91,22 +95,102 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
   Future<SearchLocation> reverseGeocodeDeviceLocation(
     DeviceLocationFix fix,
   ) async {
+    final verification = fix.isPrecise
+        ? DataVerification.live
+        : DataVerification.approximate;
+    final fallbackLabel = fix.isPrecise
+        ? 'Current location'
+        : 'Approximate current location';
+
+    // Resolve a human-readable label from the device coordinates. The raw
+    // lat/lng is NEVER placed in `query` (which feeds the visible search field);
+    // searching always uses the coordinates on this object. If labeling fails
+    // (offline / rate limited), fall back to a generic label but keep the real
+    // coordinates so nearby search still works.
+    String label = fallbackLabel;
+    String? postalCode;
+    String detail = fix.isPrecise
+        ? 'Device GPS fix'
+        : 'Approximate device GPS fix';
+    try {
+      final uri = Uri.parse('${_config.nominatimBaseUrl}/reverse').replace(
+        queryParameters: {
+          'format': 'jsonv2',
+          'addressdetails': '1',
+          'zoom': '16',
+          'lat': fix.latitude.toString(),
+          'lon': fix.longitude.toString(),
+        },
+      );
+      final response = await _httpClient
+          .get(uri, headers: _headers())
+          .timeout(_nominatimTimeout);
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final result = Map<String, dynamic>.from(
+          jsonDecode(response.body) as Map<String, dynamic>,
+        );
+        final address = _addressMap(result['address']);
+        final resolvedLabel = _shortAreaLabel(address) ??
+            _firstSegment(result['display_name']?.toString());
+        if (resolvedLabel != null && resolvedLabel.isNotEmpty) {
+          label = resolvedLabel;
+          detail = fix.isPrecise
+              ? 'Reverse geocoded from device GPS via OpenStreetMap Nominatim'
+              : 'Approximate area reverse geocoded via OpenStreetMap Nominatim';
+        }
+        postalCode = _normalizePostalCode(address['postcode']?.toString());
+      }
+    } catch (_) {
+      // Keep the generic fallback label; coordinates remain valid for search.
+    }
+
     return SearchLocation(
       kind: SearchLocationKind.device,
-      label: fix.isPrecise
-          ? 'Current location'
-          : 'Approximate current location',
+      label: label,
       latitude: fix.latitude,
       longitude: fix.longitude,
-      verification: fix.isPrecise
-          ? DataVerification.live
-          : DataVerification.approximate,
-      query:
-          '${fix.latitude.toStringAsFixed(5)}, ${fix.longitude.toStringAsFixed(5)}',
-      detail: fix.isPrecise
-          ? 'Device coordinates ${fix.latitude.toStringAsFixed(5)}, ${fix.longitude.toStringAsFixed(5)}'
-          : 'Approximate device coordinates ${fix.latitude.toStringAsFixed(5)}, ${fix.longitude.toStringAsFixed(5)}',
+      verification: verification,
+      postalCode: postalCode,
+      // Intentionally null: device location must not prefill the typed-query
+      // field with raw coordinates.
+      query: null,
+      detail: detail,
     );
+  }
+
+  /// Builds a concise "City, ST 12345" style label from a Nominatim address map.
+  String? _shortAreaLabel(Map<String, dynamic> address) {
+    final city = (address['city'] ??
+            address['town'] ??
+            address['village'] ??
+            address['hamlet'] ??
+            address['suburb'] ??
+            address['neighbourhood'])
+        ?.toString()
+        .trim();
+    final state = address['state']?.toString().trim();
+    final postcode = _normalizePostalCode(address['postcode']?.toString());
+
+    final cityState = [
+      if (city != null && city.isNotEmpty) city,
+      if (state != null && state.isNotEmpty) state,
+    ].join(', ');
+    final pieces = [
+      if (cityState.isNotEmpty) cityState,
+      ?postcode,
+    ];
+    if (pieces.isEmpty) {
+      return null;
+    }
+    return pieces.join(' ');
+  }
+
+  String? _firstSegment(String? displayName) {
+    if (displayName == null) {
+      return null;
+    }
+    final segment = displayName.split(',').first.trim();
+    return segment.isEmpty ? null : segment;
   }
 
   @override
@@ -202,6 +286,10 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
     required Iterable<NearbyStore> stores,
     required TransportationMode transportationMode,
   }) async {
+    // The public OpenStreetMap prototype path has no routing engine, so no live
+    // drive/walk times are available. Returning an empty map keeps each store's
+    // straight-line distance, which is explicitly surfaced as "approximate" in
+    // the UI — we never imply a live route we did not compute.
     return const {};
   }
 
@@ -272,6 +360,21 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
       return null;
     }
     return _LatLng(latitude, longitude);
+  }
+
+  /// Resolves a known chain brand key from a store's OSM tags. `brand`/
+  /// `operator` are canonical chain identifiers, so they take priority over the
+  /// free-form `name`. Returns `null` when no known chain is confidently
+  /// recognized.
+  String? _brandKeyFromTags(Map<String, dynamic> tags) {
+    for (final tag in const ['brand', 'operator', 'name']) {
+      final value = tags[tag]?.toString();
+      final key = _merchantBrandCatalog.matchKey(value);
+      if (key != null) {
+        return key;
+      }
+    }
+    return null;
   }
 
   Set<AvailabilityContext> _categoriesFor(Map<String, dynamic> tags) {
@@ -475,6 +578,7 @@ out center tags;
         ),
         phoneNumber:
             tags['phone']?.toString() ?? tags['contact:phone']?.toString(),
+        brandKey: existing?.brandKey ?? _brandKeyFromTags(tags),
       );
     }
 
@@ -544,6 +648,11 @@ out center tags;
                 longitude,
               ),
             ),
+            brandKey: existing?.brandKey ??
+                _merchantBrandCatalog.matchKey(
+                  result['name']?.toString() ??
+                      result['display_name']?.toString(),
+                ),
           );
         }
       }

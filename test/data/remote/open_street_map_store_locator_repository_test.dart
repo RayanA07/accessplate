@@ -73,11 +73,52 @@ void main() {
     expect(result.detail, contains('Approximate ZIP area'));
   });
 
-  test('device reverse lookup uses device coordinates without HTTP', () async {
+  test('device reverse lookup resolves a readable label, not raw coordinates',
+      () async {
     final repository = OpenStreetMapStoreLocatorRepository(
       config: config,
       httpClient: MockClient((request) async {
-        fail('reverseGeocodeDeviceLocation should not make an HTTP request');
+        expect(request.url.path, '/reverse');
+        expect(request.url.queryParameters['lat'], '41.8955');
+        expect(request.url.queryParameters['lon'], '-87.7261');
+        return http.Response(
+          jsonEncode({
+            'display_name': '4001 W Chicago Ave, Chicago, IL 60651, USA',
+            'address': {
+              'city': 'Chicago',
+              'state': 'IL',
+              'postcode': '60651',
+            },
+          }),
+          200,
+        );
+      }),
+    );
+
+    final result = await repository.reverseGeocodeDeviceLocation(
+      const DeviceLocationFix(
+        latitude: 41.8955,
+        longitude: -87.7261,
+        isPrecise: true,
+      ),
+    );
+
+    expect(result.kind, SearchLocationKind.device);
+    expect(result.label, 'Chicago, IL 60651');
+    expect(result.postalCode, '60651');
+    expect(result.latitude, 41.8955);
+    expect(result.longitude, -87.7261);
+    // The visible search field must never be prefilled with raw coordinates.
+    expect(result.query, isNull);
+    expect(result.label, isNot(contains('41.89')));
+  });
+
+  test('device reverse lookup falls back to a generic label when labeling fails',
+      () async {
+    final repository = OpenStreetMapStoreLocatorRepository(
+      config: config,
+      httpClient: MockClient((request) async {
+        return http.Response('upstream error', 500);
       }),
     );
 
@@ -91,8 +132,62 @@ void main() {
 
     expect(result.kind, SearchLocationKind.device);
     expect(result.label, 'Current location');
-    expect(result.postalCode, isNull);
-    expect(result.query, '41.89550, -87.72610');
+    expect(result.query, isNull);
+    // Coordinates are still usable for a nearby search even without a label.
+    expect(result.latitude, 41.8955);
+    expect(result.longitude, -87.7261);
+  });
+
+  test('tags a known chain store with its brand key from Overpass', () async {
+    final repository = OpenStreetMapStoreLocatorRepository(
+      config: config,
+      httpClient: MockClient((request) async {
+        return http.Response(
+          jsonEncode({
+            'elements': [
+              {
+                'type': 'node',
+                'id': 10,
+                'lat': 39.1031,
+                'lon': -84.5121,
+                'tags': {
+                  'name': 'Taco Bell',
+                  'brand': 'Taco Bell',
+                  'amenity': 'fast_food',
+                },
+              },
+              {
+                'type': 'node',
+                'id': 11,
+                'lat': 39.1029,
+                'lon': -84.5125,
+                'tags': {'name': "Marco's Pizza", 'amenity': 'fast_food'},
+              },
+            ],
+          }),
+          200,
+        );
+      }),
+    );
+
+    final stores = await repository.searchNearbyStores(
+      origin: const SearchLocation(
+        kind: SearchLocationKind.address,
+        label: 'Demo origin',
+        latitude: 39.1031,
+        longitude: -84.5120,
+        verification: DataVerification.live,
+      ),
+      categories: const {AvailabilityContext.fastFood},
+      radiusMeters: 2000,
+    );
+
+    final tacoBell = stores.firstWhere((store) => store.name == 'Taco Bell');
+    final marcos = stores.firstWhere((store) => store.name == "Marco's Pizza");
+    expect(tacoBell.brandKey, 'taco_bell');
+    expect(tacoBell.matchesMerchant('taco_bell'), isTrue);
+    expect(marcos.brandKey, 'marcos_pizza');
+    expect(marcos.matchesMerchant('taco_bell'), isFalse);
   });
 
   test(

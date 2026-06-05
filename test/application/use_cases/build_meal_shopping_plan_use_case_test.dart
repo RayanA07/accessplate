@@ -114,6 +114,89 @@ void main() {
       },
     );
 
+    test(
+      'does not pick a different brand for a chain-specific meal (Taco Bell + only Marco\'s)',
+      () {
+        final useCase = _useCase();
+
+        final plan = useCase.buildSummary(
+          food: _tacoBellMeal(),
+          constraints: _fastFoodConstraints(),
+          nearbyStores: [
+            _fastFoodStore(
+              placeId: 'marcos',
+              name: "Marco's Pizza",
+              brandKey: 'marcos_pizza',
+              distanceMiles: 1.5,
+            ),
+            _fastFoodStore(
+              placeId: 'subway',
+              name: 'Subway',
+              brandKey: 'subway',
+              distanceMiles: 2.1,
+            ),
+          ],
+        );
+
+        // The chain meal is NOT tied to a wrong-brand store.
+        expect(plan.chosenStore, isNull);
+        expect(plan.isMerchantSpecific, isTrue);
+        expect(plan.merchantVerified, isFalse);
+        expect(plan.requiredMerchantName, 'Taco Bell');
+        // No wrong-brand store is dressed up as a backup.
+        expect(plan.backupStores, isEmpty);
+        // Alternatives are surfaced honestly for "nearest fast food" copy.
+        expect(
+          plan.merchantAlternatives.map((store) => store.name),
+          ["Marco's Pizza", 'Subway'],
+        );
+        expect(
+          plan.storeStatusNote,
+          'No nearby Taco Bell verified for this search. '
+          "Nearest fast-food options nearby: Marco's Pizza, Subway.",
+        );
+      },
+    );
+
+    test(
+      'verifies a chain-specific meal against the matching brand and nearest one',
+      () {
+        final useCase = _useCase();
+
+        final plan = useCase.buildSummary(
+          food: _tacoBellMeal(),
+          constraints: _fastFoodConstraints(),
+          nearbyStores: [
+            _fastFoodStore(
+              placeId: 'marcos',
+              name: "Marco's Pizza",
+              brandKey: 'marcos_pizza',
+              distanceMiles: 0.4,
+            ),
+            _fastFoodStore(
+              placeId: 'tb-near',
+              name: 'Taco Bell',
+              brandKey: 'taco_bell',
+              distanceMiles: 1.2,
+            ),
+            _fastFoodStore(
+              placeId: 'tb-far',
+              name: 'Taco Bell',
+              brandKey: 'taco_bell',
+              distanceMiles: 3.6,
+            ),
+          ],
+        );
+
+        expect(plan.merchantVerified, isTrue);
+        expect(plan.chosenStore?.placeId, 'tb-near');
+        expect(plan.chosenStore?.brandKey, 'taco_bell');
+        // Backups only include other Taco Bells, never Marco's Pizza.
+        expect(plan.backupStores.map((store) => store.placeId), ['tb-far']);
+        expect(plan.storeStatusNote, isNull);
+      },
+    );
+
     test('adds an offline source context from the bundled ingredient map', () {
       final useCase = BuildMealShoppingPlanUseCase(
         liveProductLookupUseCase: LookupLiveIngredientProductsUseCase(
@@ -142,11 +225,73 @@ final _ingredientAvailabilityCatalog = IngredientAvailabilityCatalog.fromJson(
   },
 );
 
+BuildMealShoppingPlanUseCase _useCase() {
+  return BuildMealShoppingPlanUseCase(
+    liveProductLookupUseCase: LookupLiveIngredientProductsUseCase(
+      _FakeGroceryCatalogRepository(productsByStoreAndTerm: const {}),
+    ),
+    ingredientAvailabilityCatalog: _ingredientAvailabilityCatalog,
+  );
+}
+
 UserConstraints _constraints() {
   return UserConstraints.defaults().copyWith(
     feasibility: const FeasibilityConstraints(
       availability: {AvailabilityContext.grocery},
     ),
+  );
+}
+
+UserConstraints _fastFoodConstraints() {
+  return UserConstraints.defaults().copyWith(
+    feasibility: const FeasibilityConstraints(
+      availability: {AvailabilityContext.fastFood},
+    ),
+  );
+}
+
+Food _tacoBellMeal() {
+  return Food(
+    id: 1020,
+    name: 'Taco Bell Power Menu Bowl',
+    category: 'prepared_meal',
+    servingG: 420,
+    servingLabel: '1 bowl',
+    costEstimate: 8.79,
+    costConfidence: 'low',
+    prepMethod: 'none',
+    prepTimeMin: 0,
+    mealTypes: const {MealType.lunch, MealType.dinner},
+    availability: const {AvailabilityContext.fastFood},
+    allergens: const {},
+    religionExcluded: const [],
+    medicalRules: const [],
+    ingredients: const {'beans', 'cheese', 'chicken', 'rice'},
+    source: 'test_fixture',
+    merchantBrandKey: 'taco_bell',
+  );
+}
+
+NearbyStore _fastFoodStore({
+  required String placeId,
+  required String name,
+  required String brandKey,
+  required double distanceMiles,
+}) {
+  return NearbyStore(
+    placeId: placeId,
+    name: name,
+    address: '$name address',
+    latitude: 39.10,
+    longitude: -84.51,
+    categories: const {AvailabilityContext.fastFood},
+    primaryCategory: AvailabilityContext.fastFood,
+    discoveryVerification: DataVerification.live,
+    travelMetric: TravelMetric(
+      source: TravelMetricSource.straightLineApproximate,
+      distanceMiles: distanceMiles,
+    ),
+    brandKey: brandKey,
   );
 }
 

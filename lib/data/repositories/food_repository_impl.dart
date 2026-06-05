@@ -122,6 +122,7 @@ class FoodRepositoryImpl implements FoodRepository {
       medicalRules: medicalRules,
       ingredients: _decodeStringList(row['ingredients_json'] as String).toSet(),
       source: row['source'] as String,
+      merchantBrandKey: row['merchant_brand_key'] as String?,
     );
 
     final nutrients = Nutrients.fromJson(

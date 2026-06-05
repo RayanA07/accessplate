@@ -124,6 +124,7 @@ class NearbyStore {
     this.primaryCategory,
     this.linkedGroceryStore,
     this.phoneNumber,
+    this.brandKey,
   });
 
   final String placeId;
@@ -138,8 +139,19 @@ class NearbyStore {
   final GroceryStore? linkedGroceryStore;
   final String? phoneNumber;
 
+  /// Normalized merchant brand key (e.g. `taco_bell`) resolved from the store's
+  /// OSM `brand`/`operator`/`name` tags, or `null` if the store could not be
+  /// confidently tied to a known chain. Used to verify that a brand-specific
+  /// meal is matched only to a store of the same brand.
+  final String? brandKey;
+
   bool supportsCategory(AvailabilityContext context) {
     return categories.contains(context);
+  }
+
+  /// Whether this store is the exact merchant required by a brand-specific meal.
+  bool matchesMerchant(String? requiredBrandKey) {
+    return requiredBrandKey != null && brandKey == requiredBrandKey;
   }
 
   NearbyStore copyWith({
@@ -150,6 +162,7 @@ class NearbyStore {
     GroceryStore? linkedGroceryStore,
     bool clearLinkedGroceryStore = false,
     String? phoneNumber,
+    String? brandKey,
   }) {
     return NearbyStore(
       placeId: placeId,
@@ -166,6 +179,7 @@ class NearbyStore {
           ? null
           : linkedGroceryStore ?? this.linkedGroceryStore,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      brandKey: brandKey ?? this.brandKey,
     );
   }
 
@@ -182,6 +196,7 @@ class NearbyStore {
       'travelMetric': travelMetric.toJson(),
       'linkedGroceryStore': linkedGroceryStore?.toJson(),
       'phoneNumber': phoneNumber,
+      'brandKey': brandKey,
     };
   }
 
@@ -211,6 +226,7 @@ class NearbyStore {
             )
           : null,
       phoneNumber: json['phoneNumber'] as String?,
+      brandKey: json['brandKey'] as String?,
     );
   }
 }
@@ -312,6 +328,7 @@ class CachedNearbyStoreLookup {
           currentStore.travelMetric.durationMinutes !=
               nextStore.travelMetric.durationMinutes ||
           currentStore.phoneNumber != nextStore.phoneNumber ||
+          currentStore.brandKey != nextStore.brandKey ||
           currentStore.linkedGroceryStore?.locationId !=
               nextStore.linkedGroceryStore?.locationId) {
         return false;
