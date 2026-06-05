@@ -5,6 +5,7 @@ import '../../domain/entities/food.dart';
 import '../../domain/entities/meal_shopping.dart';
 import '../../domain/entities/user_constraints.dart';
 import '../../domain/value_objects/availability_context.dart';
+import 'meal_logo_resolver.dart';
 
 class FoodThumbnail extends StatelessWidget {
   const FoodThumbnail({
@@ -23,6 +24,11 @@ class FoodThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final kind = _MealArtKind.fromFood(food);
+    final logo = MealLogoResolver.resolve(
+      food: food,
+      plan: plan,
+      constraints: constraints,
+    );
     return Container(
       width: 80,
       height: 80,
@@ -39,7 +45,28 @@ class FoodThumbnail extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: _MealArtScene(kind: kind, accent: accent),
+        child: logo == null
+            ? _MealArtScene(kind: kind, accent: accent)
+            : _MealLogoScene(logo: logo, accent: accent),
+      ),
+    );
+  }
+}
+
+class _MealLogoScene extends StatelessWidget {
+  const _MealLogoScene({required this.logo, required this.accent});
+
+  final MealLogoSelection logo;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Image.asset(
+        logo.assetPath,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.medium,
       ),
     );
   }
@@ -50,7 +77,6 @@ enum _MealArtKind {
   fruitSnack,
   snackBowl,
   wrapSandwich,
-  tunaPlate,
   steamedBowl,
   burgerCombo,
   wrapMeal,
@@ -73,10 +99,6 @@ enum _MealArtKind {
     }
     if (normalizedName == 'bean and cheese wrap') {
       return _MealArtKind.wrapSandwich;
-    }
-    if (normalizedName == 'tuna and cracker plate' ||
-        normalizedName == 'pantry coleslaw mix bowl') {
-      return _MealArtKind.tunaPlate;
     }
     if (normalizedName == 'fresh banana and peanut butter' ||
         normalizedName == 'convenience banana bunch') {
@@ -189,15 +211,11 @@ class _MealArtScene extends StatelessWidget {
         accent: accent,
       ),
       _MealArtKind.fruitSnack => _IconMealArtScene(
-        icon: Icons.food_bank_rounded,
+        icon: Icons.emoji_nature_rounded,
         accent: accent,
       ),
       _MealArtKind.snackBowl || _MealArtKind.snackPack => _IconMealArtScene(
         icon: Icons.ramen_dining_rounded,
-        accent: accent,
-      ),
-      _MealArtKind.tunaPlate => _IconMealArtScene(
-        icon: Icons.dinner_dining_rounded,
         accent: accent,
       ),
       _MealArtKind.wrapSandwich || _MealArtKind.sandwichPlate =>

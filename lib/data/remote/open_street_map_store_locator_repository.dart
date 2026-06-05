@@ -130,8 +130,7 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
           jsonDecode(response.body) as Map<String, dynamic>,
         );
         final address = _addressMap(result['address']);
-        final resolvedLabel =
-            _shortAreaLabel(address) ??
+        final resolvedLabel = _shortAreaLabel(address) ??
             _firstSegment(result['display_name']?.toString());
         if (resolvedLabel != null && resolvedLabel.isNotEmpty) {
           label = resolvedLabel;
@@ -161,15 +160,14 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
 
   /// Builds a concise "City, ST 12345" style label from a Nominatim address map.
   String? _shortAreaLabel(Map<String, dynamic> address) {
-    final city =
-        (address['city'] ??
-                address['town'] ??
-                address['village'] ??
-                address['hamlet'] ??
-                address['suburb'] ??
-                address['neighbourhood'])
-            ?.toString()
-            .trim();
+    final city = (address['city'] ??
+            address['town'] ??
+            address['village'] ??
+            address['hamlet'] ??
+            address['suburb'] ??
+            address['neighbourhood'])
+        ?.toString()
+        .trim();
     final state = address['state']?.toString().trim();
     final postcode = _normalizePostalCode(address['postcode']?.toString());
 
@@ -177,7 +175,10 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
       if (city != null && city.isNotEmpty) city,
       if (state != null && state.isNotEmpty) state,
     ].join(', ');
-    final pieces = [if (cityState.isNotEmpty) cityState, ?postcode];
+    final pieces = [
+      if (cityState.isNotEmpty) cityState,
+      ?postcode,
+    ];
     if (pieces.isEmpty) {
       return null;
     }
@@ -520,7 +521,7 @@ class OpenStreetMapStoreLocatorRepository implements StoreLocatorRepository {
         ),
     ];
     return '''
-[out:json][timeout:8];
+[out:json][timeout:25];
 (
 ${fragments.join('\n')}
 );
@@ -647,8 +648,7 @@ out center tags;
                 longitude,
               ),
             ),
-            brandKey:
-                existing?.brandKey ??
+            brandKey: existing?.brandKey ??
                 _merchantBrandCatalog.matchKey(
                   result['name']?.toString() ??
                       result['display_name']?.toString(),
@@ -853,5 +853,5 @@ const _dollarStoreTerms = <String>[
   'five below',
 ];
 
-const _overpassTimeout = Duration(seconds: 8);
+const _overpassTimeout = Duration(seconds: 12);
 const _nominatimTimeout = Duration(seconds: 8);

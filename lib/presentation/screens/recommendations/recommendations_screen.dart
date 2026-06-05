@@ -9,6 +9,7 @@ import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../providers/recommendations_provider.dart';
+import '../../providers/nearby_store_providers.dart';
 import '../../widgets/compact_action_plan_section.dart';
 import '../../widgets/quick_adjust_sheet.dart';
 import '../../widgets/recommendation_card.dart';
@@ -42,6 +43,7 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
         UserProfile.defaults();
     final copy = AppCopy(profile.constraints.access.language);
     final recommendationsAsync = ref.watch(recommendationsProvider);
+    final availabilityMode = ref.watch(storeAvailabilityModeProvider);
     final result = recommendationsAsync.valueOrNull;
     final error = recommendationsAsync.hasError
         ? recommendationsAsync.error
@@ -86,11 +88,15 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
             const SizedBox(height: 4),
             Text(
               copy.choose(
-                'Practical meal options matched to nearby demo stores.',
-                'Opciones practicas emparejadas con tiendas demo cercanas.',
+                'Practical meal options with verified nearby store lookup when live data is available.',
+                'Opciones practicas con busqueda verificada de tiendas cercanas cuando hay datos en vivo.',
               ),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
+            if (availabilityMode.shouldShowOfflineBanner) ...[
+              const SizedBox(height: 14),
+              _OfflineMealsBanner(copy: copy),
+            ],
             const SizedBox(height: 14),
             const ShoppingLocationCard(),
             if (result != null &&
@@ -212,6 +218,32 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
       context: context,
       isScrollControlled: true,
       builder: (_) => const QuickAdjustSheet(),
+    );
+  }
+}
+
+class _OfflineMealsBanner extends StatelessWidget {
+  const _OfflineMealsBanner({required this.copy});
+
+  final AppCopy copy;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFC107)),
+      ),
+      child: Text(
+        copy.offlineMealsBanner,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: const Color(0xFF8A5300),
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
   }
 }

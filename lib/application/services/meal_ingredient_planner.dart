@@ -820,36 +820,4 @@ final _structuredMealRequirements = <int, List<IngredientRequirement>>{
       quantityLabel: '1 pack',
     ),
   ],
-  133: [
-    _structuredIngredient(
-      'canned_tuna',
-      'Canned tuna',
-      searchTerms: ['canned tuna', 'tuna can'],
-      pantryAliases: ['tuna', 'canned tuna'],
-      quantityLabel: '1 can',
-    ),
-    _structuredIngredient(
-      'saltine_crackers',
-      'Saltine crackers',
-      searchTerms: ['saltine crackers', 'saltines'],
-      pantryAliases: ['saltines', 'crackers', 'saltine crackers'],
-      quantityLabel: '1 box',
-    ),
-  ],
-  187: [
-    _structuredIngredient(
-      'refried_beans',
-      'Refried beans',
-      searchTerms: ['refried beans'],
-      pantryAliases: ['beans', 'refried beans'],
-      quantityLabel: '1 can',
-    ),
-    _structuredIngredient(
-      'corn_tortillas',
-      'Corn tortillas',
-      searchTerms: ['corn tortillas'],
-      pantryAliases: ['tortillas', 'corn tortillas'],
-      quantityLabel: '1 pack',
-    ),
-  ],
 };

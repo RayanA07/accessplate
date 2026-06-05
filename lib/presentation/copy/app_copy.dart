@@ -196,10 +196,6 @@ class AppCopy {
     '$label is the approximate search origin. ${nearbyStoresCountLine(count)}',
     '$label es el origen de busqueda aproximado. ${nearbyStoresCountLine(count)}',
   );
-  String nearbyStoresDefaultFallbackLine(int count) => choose(
-    '4001 W Chicago Ave, Chicago, IL 60651 is the approximate search origin. $count nearby stores matched.',
-    '4001 W Chicago Ave, Chicago, IL 60651 es el origen de busqueda aproximado. $count tiendas cercanas coincidentes.',
-  );
   String nearbyStoresLiveLine(String label, int count) => choose(
     '$label is the live search origin. ${nearbyStoresCountLine(count)}',
     '$label es el origen de busqueda en vivo. ${nearbyStoresCountLine(count)}',
@@ -208,8 +204,6 @@ class AppCopy {
       choose('Device location', 'Ubicacion del dispositivo');
   String get nearbyStoresSearchingChip => choose('Searching...', 'Buscando...');
   String get nearbyStoresLiveChip => choose('Live', 'En vivo');
-  String get nearbyStoresOfflineChip =>
-      choose('Offline mode', 'Modo sin internet');
   String get nearbyStoresClearAction => choose('Clear', 'Borrar');
   String get nearbyStoresSearchHint =>
       choose('ZIP code or address', 'Codigo postal o direccion');
