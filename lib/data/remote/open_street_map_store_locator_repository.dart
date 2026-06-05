@@ -584,7 +584,7 @@ out center tags;
 
     final stores = merged.values.toList(growable: false);
     stores.sort(_sortStoresByDistanceThenName);
-    return stores;
+    return _dedupeStores(stores);
   }
 
   Future<List<NearbyStore>> _searchNearbyStoresWithNominatimFallback({
@@ -660,7 +660,7 @@ out center tags;
 
     final stores = merged.values.toList(growable: false);
     stores.sort(_sortStoresByDistanceThenName);
-    return stores;
+    return _dedupeStores(stores);
   }
 
   List<String> _fallbackQueriesFor(AvailabilityContext category) {
@@ -743,6 +743,26 @@ out center tags;
       return formatted;
     }
     return result['display_name']?.toString() ?? 'Address unavailable';
+  }
+
+  /// Removes duplicate listings for the same store. Distinct OSM elements
+  /// (e.g. a node and a building polygon, or two imports of one 7-Eleven) can
+  /// share an identical name and distance; those must not appear twice. The
+  /// list is already distance-sorted, so the nearest/first instance is kept.
+  List<NearbyStore> _dedupeStores(List<NearbyStore> stores) {
+    final seen = <String>{};
+    final result = <NearbyStore>[];
+    for (final store in stores) {
+      final miles = store.travelMetric.distanceMiles;
+      final distanceKey = miles == null
+          ? 'na'
+          : (miles * 10).round().toString();
+      final key = '${_normalize(store.name)}|$distanceKey';
+      if (seen.add(key)) {
+        result.add(store);
+      }
+    }
+    return result;
   }
 
   int _sortStoresByDistanceThenName(NearbyStore left, NearbyStore right) {

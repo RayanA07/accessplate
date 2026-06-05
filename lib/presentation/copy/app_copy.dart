@@ -147,6 +147,10 @@ class AppCopy {
     'Your next stop, home food, and buy order for today.',
     'Tu siguiente parada, comida en casa y orden de compra para hoy.',
   );
+  String get actionPlanBestStopLabel =>
+      choose('Best first stop', 'Mejor primera parada');
+  String get actionPlanBuyLabel => choose('Buy', 'Compra');
+  String get actionPlanSkipLabel => choose('Skip', 'Deja');
   String get actionPlanGoFirstLabel => choose('Go first', 'Ve primero');
   String get actionPlanUseFromHomeLabel =>
       choose('Use from home', 'Usa de casa');

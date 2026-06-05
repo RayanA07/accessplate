@@ -84,9 +84,11 @@ void main() {
 
     expect(find.byType(CompactActionPlanSection), findsOneWidget);
     expect(find.text('Do this first today'), findsOneWidget);
-    expect(find.text('Go first'), findsOneWidget);
-    expect(find.text('Buy first'), findsWidgets);
-    expect(find.text('Start at convenience store'), findsOneWidget);
+    expect(
+      find.text('Best first stop: Start at convenience store'),
+      findsOneWidget,
+    );
+    expect(find.text('Buy'), findsWidgets);
   });
 
   testWidgets(

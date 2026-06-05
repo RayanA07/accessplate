@@ -11,7 +11,6 @@ import '../../providers/profile_controller.dart';
 import '../../providers/recommendations_provider.dart';
 import '../../providers/nearby_store_providers.dart';
 import '../../widgets/compact_action_plan_section.dart';
-import '../../widgets/medical_disclaimer_banner.dart';
 import '../../widgets/quick_adjust_sheet.dart';
 import '../../widgets/recommendation_card.dart';
 import '../../widgets/section_card.dart';
@@ -98,8 +97,6 @@ class _RecommendationsScreenState extends ConsumerState<RecommendationsScreen> {
               const SizedBox(height: 14),
               _OfflineMealsBanner(copy: copy),
             ],
-            const SizedBox(height: 14),
-            MedicalDisclaimerBanner(copy: copy),
             const SizedBox(height: 14),
             const ShoppingLocationCard(),
             if (result != null &&

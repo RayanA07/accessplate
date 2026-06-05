@@ -166,7 +166,19 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
 
     if (postalCode.length == 5) {
       await search(postalCode, persistZip: false);
+      return;
     }
+
+    // No cached origin and no usable saved ZIP yet: fall back to the bundled
+    // Chicago 60651 demo origin so nearby search has a real, consistent
+    // starting point instead of whatever the device/emulator defaults to
+    // (e.g. Mountain View 94043).
+    state = state.copyWith(
+      loading: false,
+      location: demoSeedLocation,
+      clearLastQuery: true,
+      clearError: true,
+    );
   }
 
   Future<void> useDeviceLocation() async {

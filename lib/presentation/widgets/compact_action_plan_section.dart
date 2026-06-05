@@ -37,7 +37,16 @@ class CompactActionPlanSection extends StatelessWidget {
       PlannedPurchasePriority.skipFirst,
       fallback: copy.actionPlanNoSkipYet,
     );
-    final backup = _backupLabel(plan, trip);
+    final buyItems = _purchaseItemList(plan, PlannedPurchasePriority.buyFirst);
+    final skipItems = _purchaseItemList(
+      plan,
+      PlannedPurchasePriority.skipFirst,
+    );
+    final skipItem = skipItems.isEmpty ? null : skipItems.first;
+    final bestStop =
+        trip?.title ??
+        plan?.title ??
+        copy.choose('your nearest stop', 'tu parada mas cercana');
     final detailRows = _detailRows(plan, trip, buyFirst, skipFirst);
 
     return Semantics(
@@ -103,31 +112,25 @@ class CompactActionPlanSection extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: 10),
-            _CompactActionRow(
-              label: copy.actionPlanGoFirstLabel,
-              value: trip?.title ?? plan?.title ?? copy.actionPlanNoBackupYet,
+            const SizedBox(height: 12),
+            Text(
+              '${copy.actionPlanBestStopLabel}: $bestStop',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                height: 1.25,
+              ),
             ),
-            const SizedBox(height: 6),
-            _CompactActionRow(
-              label: copy.actionPlanUseFromHomeLabel,
-              value: _homeFact(plan),
+            const SizedBox(height: 12),
+            _PlanChipsRow(
+              label: copy.actionPlanBuyLabel,
+              items: buyItems,
+              emptyText: copy.actionPlanNoPurchaseYet,
             ),
-            const SizedBox(height: 6),
-            _CompactActionRow(
-              label: copy.actionPlanBuyFirstLabel,
-              value: buyFirst,
-            ),
-            const SizedBox(height: 6),
-            _CompactActionRow(
-              label: copy.actionPlanSkipFirstLabel,
-              value: skipFirst,
-            ),
-            const SizedBox(height: 6),
-            _CompactActionRow(
-              label: copy.actionPlanBackupLabel,
-              value: backup,
-            ),
+            if (skipItem != null) ...[
+              const SizedBox(height: 10),
+              _PlanSkipRow(label: copy.actionPlanSkipLabel, item: skipItem),
+            ],
+            const SizedBox(height: 4),
             if (detailRows.isNotEmpty)
               Theme(
                 data: Theme.of(context).copyWith(
@@ -154,53 +157,27 @@ class CompactActionPlanSection extends StatelessWidget {
     );
   }
 
-  String _homeFact(TodayPlan? plan) {
-    final facts = plan?.leadRecommendation.explanation?.decisionFacts;
-    if (facts != null) {
-      final match = facts.where(
-        (fact) => fact.label == copy.choose('From home', 'Desde casa'),
-      );
-      if (match.isNotEmpty) {
-        return match.first.value;
-      }
-    }
-
-    for (final step in plan?.steps ?? const <String>[]) {
-      final lowered = step.toLowerCase();
-      if (lowered.contains('home') || lowered.contains('casa')) {
-        return step;
-      }
-    }
-    return copy.actionPlanNoPantryStep;
-  }
-
   String _purchaseLabels(
     TodayPlan? plan,
     PlannedPurchasePriority priority, {
     required String fallback,
   }) {
-    final matches =
-        plan?.purchases
-            .where((item) => item.priority == priority)
-            .take(2)
-            .map((item) => item.label)
-            .toList(growable: false) ??
-        const <String>[];
+    final matches = _purchaseItemList(plan, priority).take(2).toList();
     if (matches.isEmpty) {
       return fallback;
     }
     return matches.join(' | ');
   }
 
-  String _backupLabel(TodayPlan? plan, SourceTripPlan? trip) {
-    final backupAction = plan?.backupAction?.trim();
-    if (backupAction != null && backupAction.isNotEmpty) {
-      return backupAction;
-    }
-    if (trip?.backupSource != null) {
-      return copy.sourceTripBackupStop(copy.sourceLabel(trip!.backupSource!));
-    }
-    return copy.actionPlanNoBackupYet;
+  List<String> _purchaseItemList(
+    TodayPlan? plan,
+    PlannedPurchasePriority priority,
+  ) {
+    return plan?.purchases
+            .where((item) => item.priority == priority)
+            .map((item) => item.label)
+            .toList(growable: false) ??
+        const <String>[];
   }
 
   List<Widget> _detailRows(
@@ -242,41 +219,103 @@ class CompactActionPlanSection extends StatelessWidget {
   }
 }
 
-class _CompactActionRow extends StatelessWidget {
-  const _CompactActionRow({required this.label, required this.value});
+class _PlanChipsRow extends StatelessWidget {
+  const _PlanChipsRow({
+    required this.label,
+    required this.items,
+    required this.emptyText,
+  });
 
   final String label;
-  final String value;
+  final List<String> items;
+  final String emptyText;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 88,
-          child: Text(
-            label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: NihPalette.grayDark,
-            ),
+        Text(
+          label,
+          style: theme.textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: NihPalette.grayDark,
           ),
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              height: 1.3,
+        const SizedBox(height: 6),
+        if (items.isEmpty)
+          Text(
+            emptyText,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: NihPalette.grayDark,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          )
+        else
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [for (final item in items) _ActionChip(label: item)],
+          ),
+      ],
+    );
+  }
+}
+
+class _PlanSkipRow extends StatelessWidget {
+  const _PlanSkipRow({required this.label, required this.item});
+
+  final String label;
+  final String item;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: NihPalette.grayDark,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          item,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: NihPalette.grayDark,
+            decoration: TextDecoration.lineThrough,
+            decorationColor: NihPalette.grayDark,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ActionChip extends StatelessWidget {
+  const _ActionChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: NihPalette.warmSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: NihPalette.borderSoft),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

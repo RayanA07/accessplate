@@ -327,28 +327,41 @@ class DecisionEngine {
     return a.food.id.compareTo(b.food.id);
   }
 
+  // Display scores are presented to users as a 0-100 "fit" badge. Mapping the
+  // best candidate to a perfect 100 (and near-ties to 99) looks artificially
+  // inflated and reads as if the engine is not differentiating. Instead we map
+  // quality into a believable band below 100 and add a small rank-aware
+  // separation so consecutive top picks show meaningful variation.
+  static const double _displayCeiling = 94.0;
+  static const double _displayFloor = 58.0;
+
   List<ScoredFood> _applyDisplayScaling(List<ScoredFood> ranked) {
     if (ranked.isEmpty) {
       return ranked;
     }
     if (ranked.length == 1) {
-      return [ranked.first.copyWith(displayScore: 75)];
+      return [ranked.first.copyWith(displayScore: 86)];
     }
 
     final high = ranked.first.composite;
     final low = ranked.last.composite;
     final range = high - low;
-    if (range.abs() < 1e-9) {
-      return ranked.map((item) => item.copyWith(displayScore: 75)).toList();
-    }
 
-    return ranked
-        .map(
-          (item) => item.copyWith(
-            displayScore: 100 * ((item.composite - low) / range),
-          ),
-        )
-        .toList();
+    final result = <ScoredFood>[];
+    for (var index = 0; index < ranked.length; index++) {
+      final item = ranked[index];
+      final normalized = range.abs() < 1e-9
+          ? 1.0
+          : (item.composite - low) / range;
+      final quality =
+          _displayFloor + (_displayCeiling - _displayFloor) * normalized;
+      // Pull successive items down a few points so near-identical composites do
+      // not collapse to the same score. Capped so it never reorders ranking.
+      final separation = (index * 3.0).clamp(0.0, 12.0);
+      final display = (quality - separation).clamp(_displayFloor, _displayCeiling);
+      result.add(item.copyWith(displayScore: display));
+    }
+    return result;
   }
 
   List<ScoredFood> _attachComparables(List<ScoredFood> foods) {

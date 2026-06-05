@@ -1076,7 +1076,7 @@
   },
   {
     "id": 96,
-    "name": "Canned tortillas",
+    "name": "Bean and cheese wrap",
     "category": "vegetable_starchy",
     "cuisine": "mediterranean",
     "servingG": 266,
@@ -5313,7 +5313,7 @@
   },
   {
     "id": 179,
-    "name": "Dollar store nut mix",
+    "name": "Trail mix snack pack",
     "category": "prepared_meal",
     "cuisine": "asian",
     "servingG": 313,
@@ -5718,7 +5718,7 @@
   },
   {
     "id": 187,
-    "name": "Dollar store refried beans",
+    "name": "Refried bean bowl",
     "category": "protein_plant",
     "cuisine": "mediterranean",
     "servingG": 206,

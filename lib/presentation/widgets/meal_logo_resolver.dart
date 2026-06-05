@@ -81,7 +81,7 @@ abstract final class MealLogoResolver {
       return fastFoodLogo;
     }
 
-    return _storeLogo(food: food, plan: plan, constraints: constraints);
+    return _storeLogo(plan: plan);
   }
 
   static MealLogoSelection? _fastFoodLogo({
@@ -123,37 +123,31 @@ abstract final class MealLogoResolver {
     return _logosByBrandKey[brandKey];
   }
 
-  static MealLogoSelection? _storeLogo({
-    required Food food,
-    MealShoppingPlan? plan,
-    UserConstraints? constraints,
-  }) {
-    final context = plan?.offlineAvailabilityContext;
+  static MealLogoSelection? _storeLogo({MealShoppingPlan? plan}) {
     final chosenStore = plan?.chosenStore;
     final liveStore = plan?.liveProductMatch?.lookup.store;
-    final savedStore = constraints?.feasibility.groceryStore;
 
+    // Only surface a store-brand logo for a store we have actually matched this
+    // meal to (a verified live product store or the chosen nearby store). The
+    // user's *saved* grocery store is deliberately NOT used here: showing, say,
+    // the Safeway logo on a dollar-store item is a brand mismatch. When nothing
+    // is verified we return null and the thumbnail falls back to neutral meal
+    // art rather than a misleading store brand.
     final directMatch =
         _logoForText(liveStore?.name) ??
         _logoForText(chosenStore?.linkedGroceryStore?.name) ??
-        _logoForText(chosenStore?.name) ??
-        _logoForText(savedStore?.name);
+        _logoForText(chosenStore?.name);
     if (directMatch != null) {
       return directMatch;
     }
 
-    final groceryLike =
-        context == AvailabilityContext.grocery ||
+    final chosenIsGrocery =
         chosenStore?.primaryCategory == AvailabilityContext.grocery ||
-        chosenStore?.categories.contains(AvailabilityContext.grocery) == true ||
-        food.availability.contains(AvailabilityContext.grocery);
-    if (!groceryLike) {
-      return null;
-    }
-
+        chosenStore?.categories.contains(AvailabilityContext.grocery) == true;
     if (liveStore?.retailer == GroceryRetailer.kroger ||
-        chosenStore?.linkedGroceryStore?.retailer == GroceryRetailer.kroger ||
-        savedStore?.retailer == GroceryRetailer.kroger) {
+        (chosenIsGrocery &&
+            chosenStore?.linkedGroceryStore?.retailer ==
+                GroceryRetailer.kroger)) {
       return _kroger;
     }
 

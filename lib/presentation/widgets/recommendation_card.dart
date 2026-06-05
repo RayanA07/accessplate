@@ -147,13 +147,16 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                               ?.copyWith(color: NihPalette.grayDark),
                         ),
                       ],
-                      if (_backupSummary(displayedPlan)
-                          case final backupSummary?) ...[
+                      if (_backupStoresFor(displayedPlan)
+                          case final backups?
+                          when availabilityMode.isOnline) ...[
                         const SizedBox(height: 12),
-                        Text(
-                          backupSummary,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: NihPalette.grayDark),
+                        _AlsoAvailableNearby(
+                          label: copy.choose(
+                            'Also available nearby:',
+                            'Tambien disponible cerca:',
+                          ),
+                          storeNames: backups,
                         ),
                       ],
                     ],
@@ -341,9 +344,6 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     if (ingredientPlan?.isOrderOnly == true) {
       return copy.choose('Order', 'Pide');
     }
-    if (ingredientPlan?.hasEstimatedToBuy == true) {
-      return copy.choose('Estimated buy items', 'Compra estimada');
-    }
     return copy.choose('Buy list', 'Lista de compra');
   }
 
@@ -377,12 +377,12 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     return parts.join(' | ');
   }
 
-  String? _backupSummary(MealShoppingPlan? plan) {
+  List<String>? _backupStoresFor(MealShoppingPlan? plan) {
     final backups = plan?.backupStores ?? const <NearbyStore>[];
     if (backups.isEmpty) {
       return null;
     }
-    return 'Backups: ${backups.map((store) => store.name).join(' | ')}';
+    return backups.map((store) => store.name).toList(growable: false);
   }
 
   Future<void> _showScoreBreakdownSheet(
@@ -445,6 +445,60 @@ class _VerifiedBadge extends StatelessWidget {
           color: NihPalette.primaryDarkest,
           fontWeight: FontWeight.w800,
         ),
+      ),
+    );
+  }
+}
+
+class _AlsoAvailableNearby extends StatelessWidget {
+  const _AlsoAvailableNearby({required this.label, required this.storeNames});
+
+  final String label;
+  final List<String> storeNames;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: NihPalette.grayDark),
+        ),
+        const SizedBox(height: 6),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final name in storeNames) _StoreChip(label: name),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _StoreChip extends StatelessWidget {
+  const _StoreChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: NihPalette.warmSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: NihPalette.borderSoft),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(
+          context,
+        ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }

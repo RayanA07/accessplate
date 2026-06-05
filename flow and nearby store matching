@@ -1,0 +1,15 @@
+warning: in the working copy of 'lib/presentation/copy/app_copy.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/presentation/widgets/compact_action_plan_section.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'test/widget/recommendations_screen_test.dart', LF will be replaced by CRLF the next time Git touches it
+ assets/reference/foods_supplement.json             |   6 [32m+[m[31m-[m
+ lib/data/local/app_database.dart                   |  11 [32m+[m[31m-[m
+ .../open_street_map_store_locator_repository.dart  |  24 [32m++[m[31m-[m
+ lib/domain/engine/decision_engine.dart             |  35 [32m++[m[31m--[m
+ lib/presentation/copy/app_copy.dart                |   4 [32m+[m
+ .../providers/nearby_store_providers.dart          |  12 [32m++[m
+ .../recommendations/recommendations_screen.dart    |   3 [31m-[m
+ .../widgets/compact_action_plan_section.dart       | 199 [32m++++++++++++[m[31m---------[m
+ lib/presentation/widgets/meal_logo_resolver.dart   |  34 [32m++[m[31m--[m
+ lib/presentation/widgets/recommendation_card.dart  |  76 [32m++++++[m[31m--[m
+ test/widget/recommendations_screen_test.dart       |   8 [32m+[m[31m-[m
+ 11 files changed, 274 insertions(+), 138 deletions(-)
