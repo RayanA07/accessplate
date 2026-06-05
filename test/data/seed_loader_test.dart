@@ -121,4 +121,53 @@ void main() {
       );
     }
   });
+
+  test(
+    'ingredient availability catalog covers every bundled meal ingredient',
+    () async {
+      final loader = SeedLoader();
+      final foods = await loader.loadFoods();
+      final catalog = await loader.loadIngredientAvailabilityCatalog();
+
+      for (final item in foods) {
+        final rawIngredients = item['ingredients'] as List<dynamic>?;
+        final ingredients = rawIngredients == null || rawIngredients.isEmpty
+            ? _derivedIngredients(item['name'] as String)
+            : rawIngredients
+                  .map((value) => value.toString().trim().toLowerCase())
+                  .where((value) => value.isNotEmpty)
+                  .toSet()
+                  .toList(growable: false);
+        for (final ingredient in ingredients) {
+          expect(
+            catalog.contextsFor(ingredient),
+            isNotEmpty,
+            reason:
+                'Expected offline source coverage for ingredient $ingredient',
+          );
+        }
+      }
+    },
+  );
+}
+
+List<String> _derivedIngredients(String name) {
+  const stopWords = {
+    'with',
+    'and',
+    'plain',
+    'cup',
+    'whole',
+    'grain',
+    'mixed',
+    'small',
+    'large',
+  };
+  return name
+      .toLowerCase()
+      .split(RegExp(r'[^a-z0-9]+'))
+      .where((token) => token.isNotEmpty && token.length > 2)
+      .where((token) => !stopWords.contains(token))
+      .toSet()
+      .toList(growable: false);
 }

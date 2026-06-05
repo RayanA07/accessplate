@@ -55,9 +55,10 @@ class DecisionEngine {
     int limit = 10,
   }) async {
     final stopwatch = Stopwatch()..start();
+    final effectiveAllergens = user.safety.effectiveAllergens;
 
     final fetched = await repo.findCandidates(
-      excludeAllergens: user.safety.allergens,
+      excludeAllergens: effectiveAllergens,
       religion: user.safety.religion,
       medicalAvoid: user.safety.medicalAvoid,
       maxCost: user.feasibility.maxCostPerMeal,
@@ -220,7 +221,7 @@ class DecisionEngine {
     UserConstraints user,
   ) async {
     final relaxedBudget = await repo.countCandidates(
-      excludeAllergens: user.safety.allergens,
+      excludeAllergens: user.safety.effectiveAllergens,
       religion: user.safety.religion,
       medicalAvoid: user.safety.medicalAvoid,
       maxCost: user.feasibility.maxCostPerMeal * 1.5,
@@ -229,7 +230,7 @@ class DecisionEngine {
     );
 
     final relaxedEnvironment = await repo.countCandidates(
-      excludeAllergens: user.safety.allergens,
+      excludeAllergens: user.safety.effectiveAllergens,
       religion: user.safety.religion,
       medicalAvoid: user.safety.medicalAvoid,
       maxCost: user.feasibility.maxCostPerMeal,
@@ -238,7 +239,7 @@ class DecisionEngine {
     );
 
     final relaxedAvailability = await repo.countCandidates(
-      excludeAllergens: user.safety.allergens,
+      excludeAllergens: user.safety.effectiveAllergens,
       religion: user.safety.religion,
       medicalAvoid: user.safety.medicalAvoid,
       maxCost: user.feasibility.maxCostPerMeal,

@@ -1,5 +1,6 @@
 import '../entities/demographics.dart';
 import '../entities/user_constraints.dart';
+import '../value_objects/medical_restriction.dart';
 import 'government_nutrition_guidance.dart';
 import 'scoring/composite_scorer.dart';
 import 'scoring/macro_scorer.dart';
@@ -96,7 +97,10 @@ class PenaltyConfigBuilder {
 }
 
 class ScoreConfigProvider {
-  const ScoreConfigProvider(this.tables, {this.guidance = const GovernmentNutritionGuidance()});
+  const ScoreConfigProvider(
+    this.tables, {
+    this.guidance = const GovernmentNutritionGuidance(),
+  });
 
   final ReferenceTables tables;
   final GovernmentNutritionGuidance guidance;
@@ -128,7 +132,7 @@ class ScoreConfigProvider {
     }
 
     final activeConditions = <String>{
-      ...user.safety.medicalLimit.map((value) => '${value.code}_limit'),
+      ...user.safety.medicalLimit.map(_medicalModifierKey),
       if (user.demographics.concerns.contains(HealthConcern.hypertension))
         'hypertension',
     };
@@ -186,6 +190,17 @@ class ScoreConfigProvider {
     }
 
     return normalized;
+  }
+
+  String _medicalModifierKey(MedicalRestriction restriction) {
+    final limitKey = '${restriction.code}_limit';
+    if (tables.medicalModifiers.containsKey(limitKey)) {
+      return limitKey;
+    }
+    if (tables.medicalModifiers.containsKey(restriction.code)) {
+      return restriction.code;
+    }
+    return limitKey;
   }
 
   CompositeWeights _scaledWeights(

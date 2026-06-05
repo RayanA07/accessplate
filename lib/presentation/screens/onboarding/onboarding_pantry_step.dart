@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/user_constraints.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
@@ -74,20 +75,42 @@ class _OnboardingPantryStepState extends ConsumerState<OnboardingPantryStep> {
               children: [
                 OnboardingMetaLabel(copy.pantryCommonItemsLabel),
                 const SizedBox(height: 8),
-                Text(copy.pantryCycleHint),
+                Container(
+                  key: const ValueKey('pantry-cycle-hint'),
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: NihPalette.white,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: NihPalette.borderSoft),
+                  ),
+                  child: Text(
+                    copy.pantryCycleHint,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      height: 1.42,
+                      fontWeight: FontWeight.w600,
+                      color: NihPalette.base,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: _commonStaples.map((item) {
                     final status = pantry.stockFor(item);
-                    final label = status == null
-                        ? item
-                        : '$item - ${_statusLabel(copy, status)}';
-                    return FilterChip(
-                      selected: status != null,
-                      label: Text(label),
-                      onSelected: (_) => controller.updatePantryItemState(
+                    final semanticsLabel = status == null
+                        ? '$item, ${copy.choose('not selected', 'sin marcar')}'
+                        : '$item, ${_statusLabel(copy, status)}';
+                    return _PantryStateChip(
+                      item: item,
+                      status: status,
+                      semanticsLabel: semanticsLabel,
+                      onTap: () => controller.updatePantryItemState(
                         item,
                         _nextStockLevel(status),
                       ),
@@ -217,4 +240,103 @@ class _InventorySection extends StatelessWidget {
       ],
     );
   }
+}
+
+class _PantryStateChip extends StatelessWidget {
+  const _PantryStateChip({
+    required this.item,
+    required this.status,
+    required this.semanticsLabel,
+    required this.onTap,
+  });
+
+  final String item;
+  final PantryStockLevel? status;
+  final String semanticsLabel;
+  final VoidCallback onTap;
+
+  static const _restockColor = Color(0xFFE57D22);
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _styleFor(status);
+    return Semantics(
+      button: true,
+      label: semanticsLabel,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: onTap,
+        child: AnimatedContainer(
+          key: ValueKey('pantry-chip-$item'),
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          decoration: BoxDecoration(
+            color: style.backgroundColor,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: style.borderColor),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (style.icon != null) ...[
+                Icon(style.icon, size: 16, color: style.textColor),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                item,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: style.textColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  _PantryChipStyle _styleFor(PantryStockLevel? status) {
+    return switch (status) {
+      null => const _PantryChipStyle(
+        backgroundColor: NihPalette.white,
+        borderColor: NihPalette.borderSoft,
+        textColor: NihPalette.grayDark,
+      ),
+      PantryStockLevel.enough => const _PantryChipStyle(
+        backgroundColor: NihPalette.success,
+        borderColor: NihPalette.success,
+        textColor: NihPalette.white,
+        icon: Icons.check_rounded,
+      ),
+      PantryStockLevel.low => const _PantryChipStyle(
+        backgroundColor: NihPalette.warning,
+        borderColor: NihPalette.warning,
+        textColor: NihPalette.base,
+        icon: Icons.warning_amber_rounded,
+      ),
+      PantryStockLevel.out => const _PantryChipStyle(
+        backgroundColor: _restockColor,
+        borderColor: _restockColor,
+        textColor: NihPalette.white,
+        icon: Icons.autorenew_rounded,
+      ),
+    };
+  }
+}
+
+class _PantryChipStyle {
+  const _PantryChipStyle({
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.textColor,
+    this.icon,
+  });
+
+  final Color backgroundColor;
+  final Color borderColor;
+  final Color textColor;
+  final IconData? icon;
 }

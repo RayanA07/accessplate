@@ -22,10 +22,7 @@ class OnboardingMedicalStep extends ConsumerWidget {
     final controller = ref.read(profileControllerProvider.notifier);
 
     return OnboardingStepLayout(
-      title: copy.choose(
-        'Medical\nrestrictions',
-        'Restricciones\nmedicas',
-      ),
+      title: copy.choose('Medical\nrestrictions', 'Restricciones\nmedicas'),
       subtitle: copy.choose(
         'Use Avoid for hard exclusions and Limit when something should count against the score.',
         'Usa Evitar para exclusiones fuertes y Limitar cuando algo solo debe contar en contra.',
@@ -91,6 +88,7 @@ class _RestrictionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SectionCard(
+      key: ValueKey('medical-card-${restriction.code}'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -103,10 +101,7 @@ class _RestrictionCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            copy.choose(
-              'Choose how strongly this restriction should affect food choices.',
-              'Elige que tan fuerte debe afectar esta restriccion a las opciones de comida.',
-            ),
+            copy.medicalRestrictionDetail(restriction),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: const Color(0xFF8F8F95),
               fontWeight: FontWeight.w500,
@@ -118,6 +113,7 @@ class _RestrictionCard extends StatelessWidget {
             options: _RestrictionMode.values,
             labelBuilder: (mode) => _modeLabel(mode),
             onChanged: onSelected,
+            minOptionHeight: 40,
           ),
         ],
       ),
@@ -136,8 +132,4 @@ class _RestrictionCard extends StatelessWidget {
   }
 }
 
-enum _RestrictionMode {
-  off,
-  limit,
-  avoid;
-}
+enum _RestrictionMode { off, limit, avoid }

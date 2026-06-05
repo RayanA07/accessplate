@@ -12,6 +12,7 @@ class HomeTabHeader extends StatelessWidget {
     this.eyebrow,
     this.trailing,
     this.tintColor,
+    this.fillColor,
   });
 
   final String title;
@@ -20,12 +21,14 @@ class HomeTabHeader extends StatelessWidget {
   final String? eyebrow;
   final Widget? trailing;
   final Color? tintColor;
+  final Color? fillColor;
 
   @override
   Widget build(BuildContext context) {
     final iconTint = tintColor ?? NihPalette.primary;
     return SectionCard(
       tintColor: iconTint.withValues(alpha: 0.18),
+      fillColor: fillColor,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

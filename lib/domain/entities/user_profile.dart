@@ -30,15 +30,15 @@ enum OnboardingStage {
       case 'age':
         return OnboardingStage.age;
       case 'height':
-        return OnboardingStage.height;
+        return OnboardingStage.age;
       case 'weight':
-        return OnboardingStage.weight;
+        return OnboardingStage.age;
       case 'profile':
         return OnboardingStage.profile;
       case 'allergens':
-        return OnboardingStage.allergens;
+        return OnboardingStage.dietaryStyle;
       case 'religion':
-        return OnboardingStage.religion;
+        return OnboardingStage.dietaryStyle;
       case 'medical':
         return OnboardingStage.medical;
       case 'budget':
@@ -52,7 +52,7 @@ enum OnboardingStage {
       case 'dietaryStyle':
         return OnboardingStage.dietaryStyle;
       case 'mealTiming':
-        return OnboardingStage.allergens;
+        return OnboardingStage.dietaryStyle;
       case 'cuisine':
       case 'dislikes':
         return OnboardingStage.pantry;
@@ -62,7 +62,7 @@ enum OnboardingStage {
         return OnboardingStage.targets;
       // Legacy stage names from the earlier bundled-screen flow.
       case 'safety':
-        return OnboardingStage.allergens;
+        return OnboardingStage.dietaryStyle;
       case 'feasibility':
         return OnboardingStage.budget;
       case 'preference':

@@ -6,12 +6,14 @@ class SectionCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(20),
     this.tintColor,
+    this.fillColor,
     this.borderRadius = 30,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
   final Color? tintColor;
+  final Color? fillColor;
   final double borderRadius;
 
   @override
@@ -19,9 +21,11 @@ class SectionCard extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final tint = tintColor;
     final baseFill = scheme.surface;
-    final fill = tint == null
-        ? baseFill
-        : Color.lerp(baseFill, tint, 0.16) ?? baseFill;
+    final fill =
+        fillColor ??
+        (tint == null
+            ? baseFill
+            : Color.lerp(baseFill, tint, 0.16) ?? baseFill);
 
     return DecoratedBox(
       decoration: BoxDecoration(

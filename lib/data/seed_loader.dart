@@ -2,16 +2,20 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
+import '../domain/entities/ingredient_availability_catalog.dart';
 import '../domain/entities/local_access.dart';
 import '../domain/engine/score_config_provider.dart';
 
 class SeedLoader {
   Future<List<Map<String, dynamic>>> loadFoods() async {
     final bundled = await _loadFoodAsset('assets/reference/foods.json');
+    final supplement = await _loadFoodAsset(
+      'assets/reference/foods_supplement.json',
+    );
     final fastFoodMenus = await _loadFoodAsset(
       'assets/reference/fast_food_menus.json',
     );
-    return [...bundled, ...fastFoodMenus];
+    return [...bundled, ...supplement, ...fastFoodMenus];
   }
 
   Future<List<Map<String, dynamic>>> _loadFoodAsset(String assetPath) async {
@@ -81,6 +85,16 @@ class SeedLoader {
       'assets/reference/local_access_profiles.json',
     );
     return LocalAccessCatalog.fromJson(
+      Map<String, dynamic>.from(jsonDecode(raw) as Map<String, dynamic>),
+    );
+  }
+
+  Future<IngredientAvailabilityCatalog>
+  loadIngredientAvailabilityCatalog() async {
+    final raw = await rootBundle.loadString(
+      'assets/reference/ingredient_store_types.json',
+    );
+    return IngredientAvailabilityCatalog.fromJson(
       Map<String, dynamic>.from(jsonDecode(raw) as Map<String, dynamic>),
     );
   }

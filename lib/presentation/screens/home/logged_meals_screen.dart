@@ -25,10 +25,12 @@ class LoggedMealsScreen extends ConsumerWidget {
     final dailyTargets = _guidance.dailyTargetsFor(
       profile.constraints.demographics,
     );
-    final loggedTimes =
-        profile.constraints.recentlyActed.values.where(_isToday).toList()
-          ..sort((a, b) => b.compareTo(a));
-    final lastLogged = loggedTimes.isEmpty ? null : loggedTimes.first;
+    final loggedMeals =
+        profile.constraints.loggedMeals
+            .where((entry) => _isToday(entry.loggedAt))
+            .toList()
+          ..sort((a, b) => b.loggedAt.compareTo(a.loggedAt));
+    final lastLogged = loggedMeals.isEmpty ? null : loggedMeals.first.loggedAt;
     final remainingCalories =
         (dailyTargets.calories - (todayIntake['calories_kcal'] ?? 0)).clamp(
           0,
@@ -52,6 +54,7 @@ class LoggedMealsScreen extends ConsumerWidget {
               ),
               icon: Icons.receipt_long_rounded,
               tintColor: NihPalette.primary,
+              fillColor: NihPalette.white,
             ),
             const SizedBox(height: 14),
             Row(
@@ -59,7 +62,7 @@ class LoggedMealsScreen extends ConsumerWidget {
                 Expanded(
                   child: _LoggedStatCard(
                     label: copy.choose('Meals logged', 'Comidas guardadas'),
-                    value: '${loggedTimes.length}',
+                    value: '${loggedMeals.length}',
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -145,7 +148,7 @@ class LoggedMealsScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (loggedTimes.isEmpty)
+                  if (loggedMeals.isEmpty)
                     Text(
                       copy.choose(
                         'Nothing has been logged yet today. Use Log meal on a meal card to start your daily totals.',
@@ -158,17 +161,17 @@ class LoggedMealsScreen extends ConsumerWidget {
                       children: [
                         for (
                           var index = 0;
-                          index < loggedTimes.length;
+                          index < loggedMeals.length;
                           index++
                         ) ...[
                           _TimelineEntry(
-                            label: copy.choose(
-                              'Meal logged',
-                              'Comida guardada',
+                            label: loggedMeals[index].mealName,
+                            value: _formatTime(
+                              loggedMeals[index].loggedAt,
+                              copy,
                             ),
-                            value: _formatTime(loggedTimes[index], copy),
                           ),
-                          if (index < loggedTimes.length - 1)
+                          if (index < loggedMeals.length - 1)
                             const SizedBox(height: 10),
                         ],
                       ],
@@ -346,6 +349,8 @@ class _TimelineEntry extends StatelessWidget {
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(width: 10),

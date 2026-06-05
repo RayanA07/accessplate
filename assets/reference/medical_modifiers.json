@@ -47,6 +47,36 @@
           "multiplier": 1.3
         }
       }
+    },
+    "high_cholesterol_limit": {
+      "thresholds": {
+        "saturated_fat_g": {
+          "multiplier": 0.7
+        }
+      },
+      "weights": {
+        "saturated_fat_g": {
+          "multiplier": 1.7
+        }
+      }
+    },
+    "heart_disease_cardiovascular_risk_limit": {
+      "thresholds": {
+        "sodium_mg": {
+          "multiplier": 0.65
+        },
+        "saturated_fat_g": {
+          "multiplier": 0.65
+        }
+      },
+      "weights": {
+        "sodium_mg": {
+          "multiplier": 1.5
+        },
+        "saturated_fat_g": {
+          "multiplier": 1.8
+        }
+      }
     }
   },
   "microPriorityElevations": {

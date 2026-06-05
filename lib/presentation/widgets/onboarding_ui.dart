@@ -111,12 +111,14 @@ class OnboardingSegmentedControl<T> extends StatelessWidget {
     required this.options,
     required this.labelBuilder,
     required this.onChanged,
+    this.minOptionHeight = 40,
   });
 
   final T value;
   final List<T> options;
   final String Function(T) labelBuilder;
   final ValueChanged<T> onChanged;
+  final double minOptionHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -141,14 +143,20 @@ class OnboardingSegmentedControl<T> extends StatelessWidget {
                       : NihPalette.secondaryLight,
                 ),
               ),
-              child: Text(
-                labelBuilder(option),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: option == value
-                      ? Colors.white
-                      : NihPalette.primaryDarker,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: minOptionHeight),
+                child: Center(
+                  child: Text(
+                    labelBuilder(option),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: option == value
+                          ? Colors.white
+                          : NihPalette.primaryDarker,
+                    ),
+                  ),
                 ),
               ),
             ),

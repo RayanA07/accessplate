@@ -6,6 +6,7 @@ import '../../../domain/entities/user_profile.dart';
 import '../../../domain/value_objects/allergen.dart';
 import '../../../domain/value_objects/medical_restriction.dart';
 import '../../../domain/value_objects/religion.dart';
+import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/section_card.dart';
 
@@ -18,6 +19,7 @@ class OnboardingSafetyStep extends ConsumerWidget {
         ref.watch(profileControllerProvider).valueOrNull ??
         UserProfile.defaults();
     final safety = profile.constraints.safety;
+    final copy = AppCopy(profile.constraints.access.language);
     final controller = ref.read(profileControllerProvider.notifier);
 
     return Column(
@@ -49,7 +51,7 @@ class OnboardingSafetyStep extends ConsumerWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: Allergen.values.map((allergen) {
+                children: Allergen.displayOrder.map((allergen) {
                   final selected = safety.allergens.contains(allergen);
                   return FilterChip(
                     selected: selected,
@@ -125,8 +127,13 @@ class OnboardingSafetyStep extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        restriction.label,
+                        copy.medicalRestrictionLabel(restriction),
                         style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        copy.medicalRestrictionDetail(restriction),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: 8),
                       Wrap(

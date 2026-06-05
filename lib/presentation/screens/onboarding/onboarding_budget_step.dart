@@ -28,7 +28,7 @@ class OnboardingBudgetStep extends ConsumerWidget {
         'Set the maximum you want the engine to spend on one meal.',
         'Pon el maximo que quieres gastar en una comida.',
       ),
-      topSpacing: 44,
+      topSpacing: 18,
       children: [
         SectionCard(
           child: Column(
@@ -56,6 +56,26 @@ class OnboardingBudgetStep extends ConsumerWidget {
                 value: feasibility.maxCostPerMeal.clamp(1, 30),
                 onChanged: controller.updateBudget,
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  children: [
+                    Text(
+                      '\$1',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '\$30',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 copy.choose(
@@ -67,6 +87,17 @@ class OnboardingBudgetStep extends ConsumerWidget {
                   color: const Color(0xFF8F8F95),
                   fontWeight: FontWeight.w500,
                 ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                copy.choose(
+                  'Set to \$0-\$5 if you rely on a food pantry or SNAP.',
+                  'Ponlo entre \$0 y \$5 si dependes de despensa de alimentos o SNAP.',
+                ),
+                textAlign: TextAlign.center,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),

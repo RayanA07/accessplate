@@ -9,6 +9,7 @@ import '../../providers/profile_controller.dart';
 import '../../widgets/daily_nutrition_card.dart';
 import '../../widgets/home_tab_header.dart';
 import '../../widgets/section_card.dart';
+import '../../widgets/weekly_tracker_section.dart';
 
 class MacroTargetsScreen extends ConsumerWidget {
   const MacroTargetsScreen({super.key});
@@ -43,9 +44,17 @@ class MacroTargetsScreen extends ConsumerWidget {
               ),
               icon: Icons.donut_large_rounded,
               tintColor: NihPalette.success,
+              fillColor: NihPalette.white,
             ),
             const SizedBox(height: 14),
             DailyNutritionCard(profile: profile),
+            if (profile.constraints.loggedMealHistory.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              WeeklyTrackerSection(
+                profile: profile,
+                dailyTargetCalories: dailyTargets.calories,
+              ),
+            ],
             const SizedBox(height: 14),
             SectionCard(
               tintColor: NihPalette.secondaryLight,

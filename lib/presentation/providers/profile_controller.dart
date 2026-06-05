@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/engine/scoring/composite_scorer.dart';
 import '../../domain/engine/government_nutrition_guidance.dart';
 import '../../domain/entities/demographics.dart';
+import '../../domain/entities/demo_location_seed.dart';
 import '../../domain/entities/grocery.dart';
 import '../../domain/entities/local_login.dart';
 import '../../domain/entities/nutrients.dart';
 import '../../domain/entities/recommendation.dart';
+import '../../domain/entities/store_search.dart';
 import '../../domain/entities/user_constraints.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/value_objects/availability_context.dart';
@@ -49,6 +51,39 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       current.copyWith(
         onboardingComplete: true,
         onboardingStage: OnboardingStage.targets,
+      ),
+    );
+  }
+
+  Future<void> applyEmergencyQuickSetup() async {
+    final defaults = UserConstraints.defaults();
+    final name = current.localLogin.displayName.trim().isEmpty
+        ? 'Guest'
+        : current.localLogin.displayName.trim();
+    await _persist(
+      current.copyWith(
+        onboardingComplete: true,
+        onboardingStage: OnboardingStage.targets,
+        localLogin: current.localLogin.copyWith(displayName: name),
+        constraints: defaults.copyWith(
+          feasibility: defaults.feasibility.copyWith(
+            maxCostPerMeal: 8,
+            environment: PrepEnvironment.none,
+            availability: {
+              AvailabilityContext.convenience,
+              AvailabilityContext.dollarStore,
+              AvailabilityContext.fastFood,
+              AvailabilityContext.foodPantry,
+            },
+          ),
+          access: defaults.access.copyWith(
+            emergencyMode: true,
+            transportation: TransportationMode.limited,
+            maxTravelMinutes: 15,
+            plainLanguage: true,
+          ),
+          preference: defaults.preference.copyWith(mealType: MealType.any),
+        ),
       ),
     );
   }
@@ -161,6 +196,24 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     return updateAccess(access);
   }
 
+  Future<void> updateNearbyStoreCache(CachedNearbyStoreLookup? cache) {
+    final currentCache = current.constraints.cachedNearbyStoreLookup;
+    if (cache == null && currentCache == null) {
+      return Future.value();
+    }
+    if (cache != null &&
+        currentCache != null &&
+        currentCache.samePayload(cache)) {
+      return Future.value();
+    }
+
+    final nextConstraints = current.constraints.copyWith(
+      cachedNearbyStoreLookup: cache,
+      clearCachedNearbyStoreLookup: cache == null,
+    );
+    return _persist(current.copyWith(constraints: nextConstraints));
+  }
+
   Future<void> updateTransportation(TransportationMode transportation) {
     final access = current.constraints.access.copyWith(
       transportation: transportation,
@@ -255,6 +308,8 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       current.constraints,
       nutrients: recommendation.nutrients,
       actedIds: {recommendation.food.id},
+      mealName: recommendation.food.name,
+      caloriesKcal: recommendation.nutrients.caloriesKcal,
     );
     return _persist(current.copyWith(constraints: next));
   }
@@ -265,6 +320,8 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       current.constraints,
       nutrients: basket.totalNutrients,
       actedIds: actedIds,
+      mealName: basket.title,
+      caloriesKcal: basket.totalNutrients.caloriesKcal,
     );
     return _persist(current.copyWith(constraints: next));
   }
@@ -276,6 +333,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
         constraints: current.constraints.copyWith(
           todayIntake: const {},
           todayIntakeDate: DateTime(now.year, now.month, now.day),
+          loggedMeals: const [],
         ),
       ),
     );
@@ -306,7 +364,7 @@ class ProfileController extends AsyncNotifier<UserProfile> {
 
   UserProfile _normalizedProfile(UserProfile profile) {
     final baseConstraints = _normalizedBudget(
-      _normalizedTracking(profile.constraints),
+      _normalizedAccess(_normalizedTracking(profile.constraints)),
     );
     final normalizedPreference = _normalizedPreference(
       baseConstraints.preference,
@@ -341,16 +399,34 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     return constraints.copyWith(targets: mealTargets);
   }
 
-  UserConstraints _normalizedTracking(UserConstraints constraints) {
-    final trackingDate = constraints.todayIntakeDate;
-    if (trackingDate == null ||
-        _sameCalendarDay(trackingDate, DateTime.now())) {
+  UserConstraints _normalizedAccess(UserConstraints constraints) {
+    final normalizedPostalCode = resolvedAccessPostalCode(
+      constraints.access.postalCode,
+    );
+    if (normalizedPostalCode == constraints.access.postalCode) {
       return constraints;
     }
-    final today = DateTime.now();
+    return constraints.copyWith(
+      access: constraints.access.copyWith(postalCode: normalizedPostalCode),
+    );
+  }
+
+  UserConstraints _normalizedTracking(UserConstraints constraints) {
+    final now = DateTime.now();
+    final todaysLoggedMeals = constraints.loggedMeals
+        .where((entry) => _sameCalendarDay(entry.loggedAt, now))
+        .toList(growable: false);
+    final trackingDate = constraints.todayIntakeDate;
+    if (trackingDate == null || _sameCalendarDay(trackingDate, now)) {
+      if (todaysLoggedMeals.length == constraints.loggedMeals.length) {
+        return constraints;
+      }
+      return constraints.copyWith(loggedMeals: todaysLoggedMeals);
+    }
     return constraints.copyWith(
       todayIntake: const {},
-      todayIntakeDate: DateTime(today.year, today.month, today.day),
+      todayIntakeDate: DateTime(now.year, now.month, now.day),
+      loggedMeals: const [],
     );
   }
 
@@ -382,8 +458,6 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       case OnboardingStage.splash:
       case OnboardingStage.name:
       case OnboardingStage.age:
-      case OnboardingStage.height:
-      case OnboardingStage.weight:
       case OnboardingStage.profile:
       case OnboardingStage.budget:
       case OnboardingStage.environment:
@@ -391,13 +465,16 @@ class ProfileController extends AsyncNotifier<UserProfile> {
       case OnboardingStage.access:
       case OnboardingStage.dietaryStyle:
       case OnboardingStage.pantry:
-      case OnboardingStage.allergens:
-      case OnboardingStage.religion:
       case OnboardingStage.medical:
       case OnboardingStage.targets:
         return stage;
+      case OnboardingStage.height:
+      case OnboardingStage.weight:
+        return OnboardingStage.age;
+      case OnboardingStage.allergens:
+      case OnboardingStage.religion:
       case OnboardingStage.mealTiming:
-        return OnboardingStage.allergens;
+        return OnboardingStage.dietaryStyle;
     }
   }
 
@@ -405,6 +482,8 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     UserConstraints constraints, {
     required Nutrients nutrients,
     required Set<int> actedIds,
+    required String mealName,
+    required double caloriesKcal,
   }) {
     final now = DateTime.now();
     final baseDate = DateTime(now.year, now.month, now.day);
@@ -418,6 +497,22 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     for (final entry in nutrients.toIntakeMap().entries) {
       merged[entry.key] = (merged[entry.key] ?? 0) + entry.value;
     }
+    final entry = LoggedMealEntry(
+      mealName: mealName.trim(),
+      loggedAt: now,
+      caloriesKcal: caloriesKcal,
+      foodIds: actedIds.toList(growable: false)..sort(),
+    );
+    final currentLoggedMeals = isFreshDay
+        ? constraints.loggedMeals
+              .where((entry) => _sameCalendarDay(entry.loggedAt, now))
+              .toList(growable: false)
+        : const <LoggedMealEntry>[];
+    final nextLoggedMeals = <LoggedMealEntry>[entry, ...currentLoggedMeals];
+    final nextLoggedMealHistory = <LoggedMealEntry>[
+      entry,
+      ...constraints.loggedMealHistory,
+    ];
     final recentlyActed = <int, DateTime>{...constraints.recentlyActed};
     for (final id in actedIds) {
       recentlyActed[id] = now;
@@ -425,6 +520,8 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     return constraints.copyWith(
       todayIntake: merged,
       todayIntakeDate: baseDate,
+      loggedMeals: nextLoggedMeals,
+      loggedMealHistory: nextLoggedMealHistory,
       recentlyActed: recentlyActed,
     );
   }

@@ -6,6 +6,8 @@ import '../../domain/entities/food.dart';
 import '../../domain/entities/meal_shopping.dart';
 import '../../domain/entities/recommendation.dart';
 import '../../domain/entities/store_search.dart';
+import '../../domain/entities/user_constraints.dart';
+import '../../domain/value_objects/availability_context.dart';
 import '../../domain/value_objects/user_language.dart';
 import '../copy/app_copy.dart';
 import '../providers/nearby_store_providers.dart';
@@ -18,12 +20,14 @@ class RecommendationCard extends ConsumerStatefulWidget {
     required this.recommendation,
     required this.onExplain,
     required this.onTrack,
+    this.constraints,
     this.language = UserLanguage.english,
   });
 
   final ScoredFood recommendation;
   final VoidCallback onExplain;
   final VoidCallback onTrack;
+  final UserConstraints? constraints;
   final UserLanguage language;
 
   @override
@@ -39,19 +43,25 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     final recommendation = widget.recommendation;
     final food = recommendation.food;
     final copy = AppCopy(widget.language);
+    final constraints = widget.constraints ?? UserConstraints.defaults();
     final accent = _accentFor(food.id);
     final summaryPlan = ref.watch(mealShoppingSummaryProvider(food.id));
-    final prefetchedPlans = ref
-            .watch(prefetchedLiveMealShoppingPlansProvider)
-            .valueOrNull ??
+    final prefetchedPlans =
+        ref.watch(prefetchedLiveMealShoppingPlansProvider).valueOrNull ??
         const <int, MealShoppingPlan>{};
     final prefetchedPlan = prefetchedPlans[food.id];
-    final locationState = ref.watch(shoppingLocationStateProvider);
+    final availabilityMode = ref.watch(storeAvailabilityModeProvider);
     final livePlanAsync = _requestedLivePlan && prefetchedPlan == null
         ? ref.watch(liveMealShoppingPlanProvider(food.id))
         : null;
     final displayedPlan =
         livePlanAsync?.valueOrNull ?? prefetchedPlan ?? summaryPlan;
+    final scoreBreakdown = _scoreBreakdownModelFor(
+      recommendation: recommendation,
+      plan: displayedPlan,
+      constraints: constraints,
+      copy: copy,
+    );
 
     return SectionCard(
       borderRadius: 28,
@@ -71,24 +81,50 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        food.name,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          height: 1.1,
-                        ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              food.name,
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.1,
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          _ScoreBadge(
+                            score: scoreBreakdown.overallScore.round(),
+                            onTap: () => _showScoreBreakdownSheet(
+                              context,
+                              scoreBreakdown,
+                            ),
+                            semanticLabel: copy.choose(
+                              'Open score breakdown',
+                              'Abrir detalle del puntaje',
+                            ),
+                            key: ValueKey('score-badge-${food.id}'),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        _storeHeadline(
+                      _StoreSummary(
+                        headline: _storeHeadline(
                           plan: displayedPlan,
-                          locationState: locationState,
+                          availabilityMode: availabilityMode,
                           copy: copy,
                         ),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: NihPalette.grayDark,
-                          height: 1.35,
-                        ),
+                        verified:
+                            availabilityMode.isOnline &&
+                            displayedPlan?.chosenStore != null,
+                        verifiedLabel: copy.choose('Verified', 'Verificado'),
+                        textStyle: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(
+                              color: NihPalette.grayDark,
+                              height: 1.35,
+                            ),
                       ),
                       const SizedBox(height: 12),
                       _LabelBlock(
@@ -97,22 +133,22 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                           items: _collapsedBuyItems(displayedPlan, food),
                         ),
                       ),
-                      if (_collapsedLiveExample(displayedPlan) case final liveExample?) ...[
+                      if (_collapsedLiveExample(displayedPlan)
+                          case final liveExample?) ...[
                         const SizedBox(height: 12),
                         Text(
                           liveExample,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: NihPalette.grayDark,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: NihPalette.grayDark),
                         ),
                       ],
-                      if (_backupSummary(displayedPlan) case final backupSummary?) ...[
+                      if (_backupSummary(displayedPlan)
+                          case final backupSummary?) ...[
                         const SizedBox(height: 12),
                         Text(
                           backupSummary,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: NihPalette.grayDark,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: NihPalette.grayDark),
                         ),
                       ],
                     ],
@@ -164,6 +200,7 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                 plan: displayedPlan,
                 copy: copy,
                 shoppingLoading: livePlanAsync?.isLoading ?? false,
+                availabilityMode: availabilityMode,
               ),
             ],
           ],
@@ -174,31 +211,74 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
 
   String _storeHeadline({
     required MealShoppingPlan? plan,
-    required ShoppingLocationState locationState,
+    required StoreAvailabilityModeState availabilityMode,
     required AppCopy copy,
   }) {
-    if (plan?.chosenStore case final store?) {
-      return '${store.name} | ${_travelLabel(store.travelMetric)}';
+    if (availabilityMode.isOnline) {
+      final store = plan?.chosenStore;
+      if (store != null) {
+        return '${store.name} | ${_travelLabel(store.travelMetric)}';
+      }
     }
-    if (!locationState.apiConfigured) {
+    if (!availabilityMode.apiConfigured) {
       return copy.choose(
         'Nearby store search is unavailable right now.',
         'La busqueda de tiendas cercanas no esta disponible ahora.',
       );
     }
-    if (locationState.location == null) {
+    if (availabilityMode.isSearching) {
       return copy.choose(
-        'Add a location to verify nearby stores and approximate distance.',
-        'Agrega una ubicacion para verificar tiendas cercanas y distancia aproximada.',
+        'Searching nearby stores for this meal...',
+        'Buscando tiendas cercanas para esta comida...',
+      );
+    }
+    if (availabilityMode.isOffline) {
+      final context = plan?.offlineAvailabilityContext;
+      if (context != null) {
+        return _offlineAvailabilityHeadline(context, copy);
+      }
+    }
+    if (availabilityMode.location == null) {
+      return copy.choose(
+        'Offline — showing meals from your saved settings.',
+        'Sin conexion: mostrando comidas segun tus ajustes guardados.',
       );
     }
     if (plan?.storeStatusNote case final note?) {
       return note;
     }
     return copy.choose(
-      'Store verification is still loading.',
-      'La verificacion de tiendas sigue cargando.',
+      'Using your saved store access settings for this meal.',
+      'Usando tus ajustes guardados de acceso para esta comida.',
     );
+  }
+
+  String _offlineAvailabilityHeadline(
+    AvailabilityContext context,
+    AppCopy copy,
+  ) {
+    return switch (context) {
+      AvailabilityContext.grocery => copy.choose(
+        'Available at: Grocery store',
+        'Disponible en: Supermercado',
+      ),
+      AvailabilityContext.convenience => copy.choose(
+        'Available at: Corner store item',
+        'Disponible en: Tienda de esquina',
+      ),
+      AvailabilityContext.dollarStore => copy.choose(
+        'Available at: Dollar store',
+        'Disponible en: Tienda de dolar',
+      ),
+      AvailabilityContext.foodPantry => copy.choose(
+        'Available at: Food pantry',
+        'Disponible en: Despensa de alimentos',
+      ),
+      AvailabilityContext.fastFood => copy.choose(
+        'Available at: Fast-food counter',
+        'Disponible en: Comida rapida',
+      ),
+    };
   }
 
   String _collapsedBuyTitle(AppCopy copy, MealShoppingPlan? plan) {
@@ -249,6 +329,70 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
     }
     return 'Backups: ${backups.map((store) => store.name).join(' | ')}';
   }
+
+  Future<void> _showScoreBreakdownSheet(
+    BuildContext context,
+    _ScoreBreakdownModel model,
+  ) {
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _ScoreBreakdownSheet(model: model),
+    );
+  }
+}
+
+class _StoreSummary extends StatelessWidget {
+  const _StoreSummary({
+    required this.headline,
+    required this.verified,
+    required this.verifiedLabel,
+    this.textStyle,
+  });
+
+  final String headline;
+  final bool verified;
+  final String verifiedLabel;
+  final TextStyle? textStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        Text(headline, style: textStyle),
+        if (verified) _VerifiedBadge(label: verifiedLabel),
+      ],
+    );
+  }
+}
+
+class _VerifiedBadge extends StatelessWidget {
+  const _VerifiedBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8F5E9),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFF8BC68F)),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: NihPalette.primaryDarkest,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
 }
 
 class _ExpandedPlan extends StatelessWidget {
@@ -256,47 +400,67 @@ class _ExpandedPlan extends StatelessWidget {
     required this.plan,
     required this.copy,
     required this.shoppingLoading,
+    required this.availabilityMode,
   });
 
   final MealShoppingPlan? plan;
   final AppCopy copy;
   final bool shoppingLoading;
+  final StoreAvailabilityModeState availabilityMode;
 
   @override
   Widget build(BuildContext context) {
     final ingredientPlan = plan?.ingredients;
+    final preparationSteps = _preparationStepsFor(plan?.food.name);
     final verifiedTotal = plan?.liveProductMatch?.lookup.verifiedTotalCost;
-    final structuredToBuy = ingredientPlan?.toBuy
+    final structuredToBuy =
+        ingredientPlan?.toBuy
             .where((item) => item.isStructured || item.isMenuItem)
             .toList(growable: false) ??
         const <IngredientRequirement>[];
-    final estimatedToBuy = ingredientPlan?.toBuy
+    final estimatedToBuy =
+        ingredientPlan?.toBuy
             .where((item) => item.isEstimated)
             .toList(growable: false) ??
         const <IngredientRequirement>[];
+    final chosenStore = plan?.chosenStore;
+    final offlineContext = plan?.offlineAvailabilityContext;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (shoppingLoading) const Padding(
-          padding: EdgeInsets.only(bottom: 12),
-          child: LinearProgressIndicator(),
-        ),
-        if (plan?.chosenStore case final store?) ...[
+        if (shoppingLoading)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
+            child: LinearProgressIndicator(),
+          ),
+        if (availabilityMode.isOnline && chosenStore != null) ...[
           _LabelBlock(
             title: copy.choose('Go to', 'Ve a'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${store.name} | ${_travelLabel(store.travelMetric)}',
+                  '${chosenStore.name} | ${_travelLabel(chosenStore.travelMetric)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(store.address),
+                Text(chosenStore.address),
               ],
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (availabilityMode.isOffline && offlineContext != null) ...[
+          _LabelBlock(
+            title: copy.choose('Available at', 'Disponible en'),
+            child: Text(
+              _offlineAvailabilityLabel(offlineContext),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(height: 12),
@@ -326,10 +490,7 @@ class _ExpandedPlan extends StatelessWidget {
         ],
         if (estimatedToBuy.isNotEmpty) ...[
           _LabelBlock(
-            title: copy.choose(
-              'If still needed',
-              'Si todavia hace falta',
-            ),
+            title: copy.choose('If still needed', 'Si todavia hace falta'),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -342,18 +503,40 @@ class _ExpandedPlan extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        if (ingredientPlan?.atHome.isNotEmpty == true) ...[
+        if (preparationSteps.isNotEmpty) ...[
           _LabelBlock(
-            title: copy.choose('Use from home', 'Usa de casa'),
-            child: Text(
-              ingredientPlan!.atHome
-                  .map(_displayIngredient)
-                  .join(' | '),
+            title: copy.choose('How to prepare', 'Como prepararlo'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (
+                  var index = 0;
+                  index < preparationSteps.length;
+                  index++
+                ) ...[
+                  _NumberedPlanLine(
+                    number: index + 1,
+                    text: preparationSteps[index],
+                  ),
+                  if (index < preparationSteps.length - 1)
+                    const SizedBox(height: 8),
+                ],
+              ],
             ),
           ),
           const SizedBox(height: 12),
         ],
-        if (plan?.backupStores.isNotEmpty == true) ...[
+        if (ingredientPlan?.atHome.isNotEmpty == true) ...[
+          _LabelBlock(
+            title: copy.choose('Use from home', 'Usa de casa'),
+            child: Text(
+              ingredientPlan!.atHome.map(_displayIngredient).join(' | '),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (availabilityMode.isOnline &&
+            plan?.backupStores.isNotEmpty == true) ...[
           _LabelBlock(
             title: copy.choose('Backup store', 'Tienda de respaldo'),
             child: Column(
@@ -374,10 +557,10 @@ class _ExpandedPlan extends StatelessWidget {
         ],
         if (plan?.storeStatusNote case final note?) ...[
           Text(
-            note,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: NihPalette.grayDark,
-            ),
+            plan?.chosenStore == null ? _offlineStoreGuidance() : note,
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: NihPalette.grayDark),
           ),
         ],
         if (verifiedTotal != null) ...[
@@ -387,9 +570,9 @@ class _ExpandedPlan extends StatelessWidget {
               'Matched total: \$${verifiedTotal.toStringAsFixed(2)}',
               'Total verificado: \$${verifiedTotal.toStringAsFixed(2)}',
             ),
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ],
@@ -397,8 +580,12 @@ class _ExpandedPlan extends StatelessWidget {
   }
 
   String _storeName(MealShoppingPlan? plan) {
-    return plan?.chosenStore?.name ??
-        copy.choose('this store', 'esta tienda');
+    if (availabilityMode.isOffline &&
+        plan?.offlineAvailabilityContext != null) {
+      final context = plan!.offlineAvailabilityContext!;
+      return _offlineAvailabilityLabel(context);
+    }
+    return plan?.chosenStore?.name ?? copy.choose('this store', 'esta tienda');
   }
 
   String _plannedItemLine(IngredientRequirement item) {
@@ -442,6 +629,83 @@ class _ExpandedPlan extends StatelessWidget {
     }
     return '${item.label} | ${item.quantityLabel}';
   }
+
+  String _offlineStoreGuidance() {
+    return copy.choose(
+      'Store data unavailable offline. Use your access settings to find this at a nearby store.',
+      'Datos de tienda no disponibles sin conexion. Usa tu configuracion de acceso para encontrar esto en una tienda cercana.',
+    );
+  }
+
+  String _offlineAvailabilityLabel(AvailabilityContext context) {
+    return switch (context) {
+      AvailabilityContext.grocery => copy.choose(
+        'Grocery store',
+        'Supermercado',
+      ),
+      AvailabilityContext.convenience => copy.choose(
+        'Corner store item',
+        'Tienda de esquina',
+      ),
+      AvailabilityContext.dollarStore => copy.choose(
+        'Dollar store',
+        'Tienda de dolar',
+      ),
+      AvailabilityContext.foodPantry => copy.choose(
+        'Food pantry',
+        'Despensa de alimentos',
+      ),
+      AvailabilityContext.fastFood => copy.choose(
+        'Fast-food counter',
+        'Comida rapida',
+      ),
+    };
+  }
+
+  List<String> _preparationStepsFor(String? foodName) {
+    final normalized = (foodName ?? '').trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return const [];
+    }
+    if (normalized == 'tuna salad on whole-wheat') {
+      return const [
+        'Open tuna pouch and drain',
+        'Mix with any available condiment (mayo, mustard, or hot sauce)',
+        'Spread on whole-wheat bread',
+        'Serve immediately - no cooking needed',
+      ];
+    }
+    if (_isBeanAndRiceMeal(normalized)) {
+      return const [
+        'Cook instant rice per packet (microwave: 90 seconds)',
+        'Open and drain canned beans',
+        'Combine in bowl',
+        'Season with salt if available',
+      ];
+    }
+    if (_isPeanutButterSandwichMeal(normalized)) {
+      return const ['Spread peanut butter on bread', 'No cooking needed'];
+    }
+    return const [];
+  }
+
+  bool _isBeanAndRiceMeal(String normalizedName) {
+    final hasBean =
+        normalizedName.contains('bean') || normalizedName.contains('beans');
+    final hasRice = normalizedName.contains('rice');
+    final hasBowlOrCup =
+        normalizedName.contains('bowl') ||
+        normalizedName.contains('cup') ||
+        normalizedName.contains('bag');
+    return hasBean && hasRice && hasBowlOrCup;
+  }
+
+  bool _isPeanutButterSandwichMeal(String normalizedName) {
+    return normalizedName.contains('peanut butter') &&
+        (normalizedName.contains('sandwich') ||
+            normalizedName.contains('whole wheat') ||
+            normalizedName.contains('whole-wheat'));
+  }
 }
 
 class _PlanLine extends StatelessWidget {
@@ -469,6 +733,289 @@ class _PlanLine extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _NumberedPlanLine extends StatelessWidget {
+  const _NumberedPlanLine({required this.number, required this.text});
+
+  final int number;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 20,
+          child: Text(
+            '$number.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: NihPalette.primaryDarkest,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: NihPalette.primaryDarkest,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ScoreBadge extends StatelessWidget {
+  const _ScoreBadge({
+    super.key,
+    required this.score,
+    required this.onTap,
+    required this.semanticLabel,
+  });
+
+  final int score;
+  final VoidCallback onTap;
+  final String semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: Ink(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: NihPalette.primaryDarkest,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Text(
+              '$score',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: NihPalette.white,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScoreBreakdownSheet extends StatelessWidget {
+  const _ScoreBreakdownSheet({required this.model});
+
+  final _ScoreBreakdownModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: NihPalette.white,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: NihPalette.borderSoft),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x22000000),
+                blurRadius: 28,
+                offset: Offset(0, 12),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  model.title,
+                  key: const ValueKey('score-sheet-title'),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 16),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.68,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (
+                          var index = 0;
+                          index < model.dimensions.length;
+                          index++
+                        ) ...[
+                          _ScoreBreakdownRow(
+                            dimension: model.dimensions[index],
+                          ),
+                          if (index < model.dimensions.length - 1)
+                            const SizedBox(height: 14),
+                        ],
+                        const SizedBox(height: 16),
+                        const Divider(height: 1),
+                        const SizedBox(height: 16),
+                        Text(
+                          model.overallLabel,
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(
+                                color: NihPalette.grayDark,
+                                fontWeight: FontWeight.w700,
+                              ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Text(
+                              '${model.overallScore.round()}',
+                              key: const ValueKey('score-sheet-overall-score'),
+                              style: Theme.of(context).textTheme.headlineMedium
+                                  ?.copyWith(fontWeight: FontWeight.w900),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                model.overallDetail,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: NihPalette.grayDark),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(model.closeLabel),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScoreBreakdownRow extends StatelessWidget {
+  const _ScoreBreakdownRow({required this.dimension});
+
+  final _ScoreDimension dimension;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                dimension.label,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '${dimension.score.round()}',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: dimension.color,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: SizedBox(
+            height: 10,
+            child: LinearProgressIndicator(
+              value: (dimension.score / 100).clamp(0.0, 1.0),
+              backgroundColor: NihPalette.grayLight,
+              valueColor: AlwaysStoppedAnimation<Color>(dimension.color),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          dimension.detail,
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: NihPalette.grayDark),
+        ),
+      ],
+    );
+  }
+}
+
+class _ScoreBreakdownModel {
+  const _ScoreBreakdownModel({
+    required this.title,
+    required this.dimensions,
+    required this.overallScore,
+    required this.overallLabel,
+    required this.overallDetail,
+    required this.closeLabel,
+  });
+
+  final String title;
+  final List<_ScoreDimension> dimensions;
+  final double overallScore;
+  final String overallLabel;
+  final String overallDetail;
+  final String closeLabel;
+}
+
+class _ScoreDimension {
+  const _ScoreDimension({
+    required this.label,
+    required this.detail,
+    required this.score,
+    required this.weight,
+    required this.color,
+  });
+
+  final String label;
+  final String detail;
+  final double score;
+  final double weight;
+  final Color color;
+
+  _ScoreDimension copyWith({double? score}) {
+    return _ScoreDimension(
+      label: label,
+      detail: detail,
+      score: score ?? this.score,
+      weight: weight,
+      color: color,
     );
   }
 }
@@ -521,9 +1068,9 @@ class _IngredientChipWrap extends StatelessWidget {
                 item.quantityLabel == null
                     ? item.label
                     : '${item.label} | ${item.quantityLabel}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           )
@@ -532,21 +1079,372 @@ class _IngredientChipWrap extends StatelessWidget {
   }
 }
 
-List<IngredientRequirement> _fallbackBuyItems(Food food) {
-  final tokens = food.ingredients.take(4).map((ingredient) {
-    final label = ingredient
-        .split(RegExp(r'[_ ]+'))
-        .where((part) => part.isNotEmpty)
-        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
-        .join(' ');
-    return IngredientRequirement(
-      key: ingredient,
-      label: label,
-      searchTerms: [ingredient],
-      pantryAliases: [ingredient],
-      evidence: IngredientEvidence.estimated,
+_ScoreBreakdownModel _scoreBreakdownModelFor({
+  required ScoredFood recommendation,
+  required MealShoppingPlan? plan,
+  required UserConstraints constraints,
+  required AppCopy copy,
+}) {
+  final nutritionScore =
+      recommendation.breakdown.macro.clamp(0.0, 1.0).toDouble() * 100;
+  final budgetScore =
+      (1 - recommendation.breakdown.cost).clamp(0.0, 1.0).toDouble() * 100;
+  final accessScore =
+      (_baseAccessScore(
+        recommendation: recommendation,
+        plan: plan,
+        constraints: constraints,
+      ) *
+      100);
+  final safetyScore =
+      (_isFullySafe(food: recommendation.food, constraints: constraints)
+      ? 100.0
+      : 0.0);
+  final pantryScore =
+      (_pantryOverlapScore(
+        food: recommendation.food,
+        plan: plan,
+        constraints: constraints,
+      ) *
+      100);
+
+  final dimensions = <_ScoreDimension>[
+    _ScoreDimension(
+      label: copy.choose('Nutrition fit', 'Ajuste nutricional'),
+      detail: _nutritionDetail(copy, nutritionScore),
+      score: nutritionScore,
+      weight: 0.32,
+      color: NihPalette.primaryAltDark,
+    ),
+    _ScoreDimension(
+      label: copy.choose('Budget fit', 'Ajuste al presupuesto'),
+      detail: copy.choose(
+        '\$${recommendation.food.costEstimate.toStringAsFixed(2)} against your \$${constraints.feasibility.maxCostPerMeal.toStringAsFixed(0)} meal limit.',
+        '\$${recommendation.food.costEstimate.toStringAsFixed(2)} contra tu limite de \$${constraints.feasibility.maxCostPerMeal.toStringAsFixed(0)} por comida.',
+      ),
+      score: budgetScore,
+      weight: 0.22,
+      color: const Color(0xFFC98734),
+    ),
+    _ScoreDimension(
+      label: copy.choose('Access fit', 'Ajuste de acceso'),
+      detail: _accessDetail(copy, plan: plan),
+      score: accessScore,
+      weight: 0.20,
+      color: NihPalette.primary,
+    ),
+    _ScoreDimension(
+      label: copy.choose('Dietary safety', 'Seguridad alimentaria'),
+      detail: _safetyDetail(copy, safe: safetyScore >= 100),
+      score: safetyScore,
+      weight: 0.18,
+      color: NihPalette.success,
+    ),
+    _ScoreDimension(
+      label: copy.choose('Pantry overlap', 'Coincidencia con despensa'),
+      detail: _pantryDetail(
+        copy,
+        food: recommendation.food,
+        plan: plan,
+        constraints: constraints,
+      ),
+      score: pantryScore,
+      weight: 0.08,
+      color: NihPalette.secondaryDark,
+    ),
+  ];
+
+  final targetOverall = recommendation.displayScore > 0
+      ? recommendation.displayScore.clamp(0.0, 100.0).toDouble()
+      : _weightedAverageScore(dimensions);
+  final normalized = _normalizeDimensionsToOverall(
+    dimensions,
+    targetOverall: targetOverall,
+  );
+  final overallScore = _weightedAverageScore(normalized);
+
+  return _ScoreBreakdownModel(
+    title: copy.choose('How this was scored.', 'Como se calculo este puntaje.'),
+    dimensions: normalized,
+    overallScore: overallScore,
+    overallLabel: copy.choose(
+      'Overall fit score.',
+      'Puntaje general de ajuste.',
+    ),
+    overallDetail: copy.choose(
+      'Weighted average of the five fit checks above.',
+      'Promedio ponderado de las cinco revisiones de arriba.',
+    ),
+    closeLabel: copy.choose('Got it.', 'Entendido.'),
+  );
+}
+
+List<_ScoreDimension> _normalizeDimensionsToOverall(
+  List<_ScoreDimension> dimensions, {
+  required double targetOverall,
+}) {
+  final scores = dimensions
+      .map((item) => item.score.clamp(0.0, 100.0))
+      .toList();
+  final currentOverall = _weightedAverageScore([
+    for (var index = 0; index < dimensions.length; index++)
+      dimensions[index].copyWith(score: scores[index]),
+  ]);
+  final delta = targetOverall - currentOverall;
+  if (delta.abs() < 0.25) {
+    return [
+      for (var index = 0; index < dimensions.length; index++)
+        dimensions[index].copyWith(score: scores[index]),
+    ];
+  }
+
+  const lockedIndexes = {3};
+  if (delta > 0) {
+    var availableGain = 0.0;
+    for (var index = 0; index < dimensions.length; index++) {
+      if (lockedIndexes.contains(index)) {
+        continue;
+      }
+      availableGain += dimensions[index].weight * (100 - scores[index]);
+    }
+    if (availableGain > 0) {
+      final factor = (delta / availableGain).clamp(0.0, 1.0);
+      for (var index = 0; index < dimensions.length; index++) {
+        if (lockedIndexes.contains(index)) {
+          continue;
+        }
+        scores[index] = scores[index] + ((100 - scores[index]) * factor);
+      }
+    }
+  } else {
+    var availableDrop = 0.0;
+    for (var index = 0; index < dimensions.length; index++) {
+      if (lockedIndexes.contains(index)) {
+        continue;
+      }
+      availableDrop += dimensions[index].weight * scores[index];
+    }
+    if (availableDrop > 0) {
+      final factor = ((-delta) / availableDrop).clamp(0.0, 1.0);
+      for (var index = 0; index < dimensions.length; index++) {
+        if (lockedIndexes.contains(index)) {
+          continue;
+        }
+        scores[index] = scores[index] - (scores[index] * factor);
+      }
+    }
+  }
+
+  return [
+    for (var index = 0; index < dimensions.length; index++)
+      dimensions[index].copyWith(score: scores[index].clamp(0.0, 100.0)),
+  ];
+}
+
+double _weightedAverageScore(List<_ScoreDimension> dimensions) {
+  var totalWeight = 0.0;
+  var weightedSum = 0.0;
+  for (final dimension in dimensions) {
+    totalWeight += dimension.weight;
+    weightedSum += dimension.score * dimension.weight;
+  }
+  if (totalWeight <= 0) {
+    return 0.0;
+  }
+  return weightedSum / totalWeight;
+}
+
+double _baseAccessScore({
+  required ScoredFood recommendation,
+  required MealShoppingPlan? plan,
+  required UserConstraints constraints,
+}) {
+  final rankingSignal = ((recommendation.breakdown.access + 0.18) / 0.26).clamp(
+    0.0,
+    1.0,
+  );
+  final enabledSources = constraints.feasibility.availability;
+  final sourceMatches = recommendation.food.availability
+      .where(enabledSources.contains)
+      .length;
+  final sourceSignal = enabledSources.isEmpty
+      ? 0.55
+      : (sourceMatches / enabledSources.length).clamp(0.0, 1.0);
+
+  double planSignal;
+  if (plan?.chosenStore case final store?) {
+    final maxTravel = constraints.access.maxTravelMinutes <= 0
+        ? 20.0
+        : constraints.access.maxTravelMinutes.toDouble();
+    final duration = store.travelMetric.durationMinutes?.toDouble();
+    final distance = store.travelMetric.distanceMiles;
+    final normalizedTravel = duration != null
+        ? (1 - (duration / (maxTravel * 1.15))).clamp(0.0, 1.0)
+        : distance != null
+        ? (1 - (distance / 6.0)).clamp(0.0, 1.0)
+        : 0.65;
+    planSignal = 0.60 + (normalizedTravel * 0.30);
+    if (plan?.hasLiveProducts == true) {
+      planSignal += 0.10;
+    }
+  } else if (plan?.storeStatusNote != null) {
+    planSignal = 0.35;
+  } else {
+    planSignal = 0.45;
+  }
+
+  return ((rankingSignal * 0.45) + (sourceSignal * 0.20) + (planSignal * 0.35))
+      .clamp(0.0, 1.0);
+}
+
+bool _isFullySafe({required Food food, required UserConstraints constraints}) {
+  final allergenConflict = food.allergens.any(
+    constraints.safety.effectiveAllergens.contains,
+  );
+  if (allergenConflict) {
+    return false;
+  }
+
+  final religion = constraints.safety.religion;
+  if (religion.code != 'none' &&
+      food.religionExcluded.any((rule) => rule.religion == religion)) {
+    return false;
+  }
+
+  final medicalConflict = food.medicalRules.any(
+    (rule) =>
+        rule.severity == MedicalRuleSeverity.avoid &&
+        constraints.safety.medicalAvoid.contains(rule.restriction),
+  );
+  return !medicalConflict;
+}
+
+double _pantryOverlapScore({
+  required Food food,
+  required MealShoppingPlan? plan,
+  required UserConstraints constraints,
+}) {
+  final ingredientPlan = plan?.ingredients;
+  if (ingredientPlan != null) {
+    final total = ingredientPlan.atHome.length + ingredientPlan.toBuy.length;
+    if (total > 0) {
+      return (ingredientPlan.atHome.length / total).clamp(0.0, 1.0);
+    }
+  }
+
+  final ingredients = food.ingredients;
+  if (ingredients.isEmpty) {
+    return 0.0;
+  }
+  final onHandCount = ingredients.where((item) {
+    final stock = constraints.pantry.stockFor(item);
+    return stock == PantryStockLevel.enough || stock == PantryStockLevel.low;
+  }).length;
+  return (onHandCount / ingredients.length).clamp(0.0, 1.0);
+}
+
+String _nutritionDetail(AppCopy copy, double nutritionScore) {
+  if (nutritionScore >= 85) {
+    return copy.choose(
+      'Macros land close to your saved meal target.',
+      'Los macros quedan cerca de tu meta guardada por comida.',
     );
-  }).toList(growable: false);
+  }
+  if (nutritionScore >= 65) {
+    return copy.choose(
+      'Macros are usable but not a perfect target match.',
+      'Los macros sirven, pero no coinciden por completo con tu meta.',
+    );
+  }
+  return copy.choose(
+    'Macros drift away from your saved meal target.',
+    'Los macros se alejan de tu meta guardada por comida.',
+  );
+}
+
+String _accessDetail(AppCopy copy, {required MealShoppingPlan? plan}) {
+  if (plan?.chosenStore case final store?) {
+    if (store.travelMetric.durationMinutes case final minutes?) {
+      return copy.choose(
+        '${store.name} fits within your current travel settings at about $minutes minutes away.',
+        '${store.name} encaja con tu configuracion actual de viaje a unos $minutes minutos.',
+      );
+    }
+    return copy.choose(
+      '${store.name} matches your current store and transport settings.',
+      '${store.name} coincide con tu configuracion actual de tiendas y transporte.',
+    );
+  }
+  if (plan?.storeStatusNote != null) {
+    return copy.choose(
+      'Live store verification is unavailable, so reachability is estimated from your settings.',
+      'La verificacion en vivo de tiendas no esta disponible, asi que el acceso se estima con tu configuracion.',
+    );
+  }
+  return copy.choose(
+    'Access is estimated from your enabled food sources and travel limit.',
+    'El acceso se estima con tus fuentes de comida activadas y tu limite de viaje.',
+  );
+}
+
+String _safetyDetail(AppCopy copy, {required bool safe}) {
+  return safe
+      ? copy.choose(
+          'No allergen, religious, or medical restriction conflicts were detected.',
+          'No se detectaron conflictos con alergias ni restricciones religiosas o medicas.',
+        )
+      : copy.choose(
+          'This meal conflicts with a saved safety restriction.',
+          'Esta comida entra en conflicto con una restriccion de seguridad guardada.',
+        );
+}
+
+String _pantryDetail(
+  AppCopy copy, {
+  required Food food,
+  required MealShoppingPlan? plan,
+  required UserConstraints constraints,
+}) {
+  final ingredientPlan = plan?.ingredients;
+  if (ingredientPlan != null) {
+    final total = ingredientPlan.atHome.length + ingredientPlan.toBuy.length;
+    if (total > 0) {
+      return copy.choose(
+        '${ingredientPlan.atHome.length} of $total needed items are already at home.',
+        '${ingredientPlan.atHome.length} de $total articulos necesarios ya estan en casa.',
+      );
+    }
+  }
+
+  final totalIngredients = food.ingredients.length;
+  final overlapCount = food.ingredients.where((item) {
+    final stock = constraints.pantry.stockFor(item);
+    return stock == PantryStockLevel.enough || stock == PantryStockLevel.low;
+  }).length;
+  return copy.choose(
+    '$overlapCount of $totalIngredients ingredients are already marked in your pantry.',
+    '$overlapCount de $totalIngredients ingredientes ya estan marcados en tu despensa.',
+  );
+}
+
+List<IngredientRequirement> _fallbackBuyItems(Food food) {
+  final tokens = food.ingredients
+      .take(4)
+      .map((ingredient) {
+        final label = ingredient
+            .split(RegExp(r'[_ ]+'))
+            .where((part) => part.isNotEmpty)
+            .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+            .join(' ');
+        return IngredientRequirement(
+          key: ingredient,
+          label: label,
+          searchTerms: [ingredient],
+          pantryAliases: [ingredient],
+          evidence: IngredientEvidence.estimated,
+        );
+      })
+      .toList(growable: false);
 
   if (tokens.isNotEmpty) {
     return tokens;

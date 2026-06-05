@@ -34,10 +34,11 @@ class OnboardingEnvironmentStep extends ConsumerWidget {
             icon: switch (environment) {
               PrepEnvironment.none => Icons.flash_on_rounded,
               PrepEnvironment.microwave => Icons.microwave_rounded,
-              PrepEnvironment.stoveTop => Icons.soup_kitchen_rounded,
+              PrepEnvironment.stoveTop => Icons.local_fire_department_rounded,
               PrepEnvironment.fullKitchen => Icons.kitchen_rounded,
             },
             selected: feasibility.environment == environment,
+            visualStyle: SelectionTileVisualStyle.prominentRadio,
             onTap: () => controller.updateEnvironment(environment),
           ),
           if (environment != PrepEnvironment.values.last)

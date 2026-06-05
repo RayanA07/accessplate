@@ -8,8 +8,10 @@ import '../value_objects/prep_environment.dart';
 import '../value_objects/religion.dart';
 import '../value_objects/transportation_mode.dart';
 import '../value_objects/user_language.dart';
+import 'demo_location_seed.dart';
 import 'demographics.dart';
 import 'grocery.dart';
+import 'store_search.dart';
 
 class SafetyConstraints {
   const SafetyConstraints({
@@ -23,6 +25,16 @@ class SafetyConstraints {
   final Religion religion;
   final Set<MedicalRestriction> medicalAvoid;
   final Set<MedicalRestriction> medicalLimit;
+
+  Set<Allergen> get effectiveAllergens {
+    final derived = <Allergen>{...allergens};
+    if (medicalAvoid.contains(
+      MedicalRestriction.celiacDiseaseGlutenIntolerance,
+    )) {
+      derived.addAll(const {Allergen.gluten, Allergen.wheat});
+    }
+    return derived;
+  }
 
   SafetyConstraints copyWith({
     Set<Allergen>? allergens,
@@ -190,7 +202,7 @@ class PreferenceConstraints {
 
 class AccessConstraints {
   const AccessConstraints({
-    this.postalCode = '',
+    this.postalCode = demoSeedPostalCode,
     this.transportation = TransportationMode.walk,
     this.maxTravelMinutes = 20,
     this.benefitPrograms = const {},
@@ -241,7 +253,7 @@ class AccessConstraints {
 
   factory AccessConstraints.fromJson(Map<String, dynamic> json) {
     return AccessConstraints(
-      postalCode: json['postalCode'] as String? ?? '',
+      postalCode: resolvedAccessPostalCode(json['postalCode'] as String?),
       transportation: TransportationMode.fromCode(
         json['transportation'] as String? ?? TransportationMode.walk.code,
       ),
@@ -404,6 +416,54 @@ class NutritionalTargets {
   }
 }
 
+class LoggedMealEntry {
+  const LoggedMealEntry({
+    required this.mealName,
+    required this.loggedAt,
+    this.caloriesKcal = 0,
+    this.foodIds = const [],
+  });
+
+  final String mealName;
+  final DateTime loggedAt;
+  final double caloriesKcal;
+  final List<int> foodIds;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'mealName': mealName,
+      'loggedAt': loggedAt.toIso8601String(),
+      'caloriesKcal': caloriesKcal,
+      'foodIds': foodIds,
+    };
+  }
+
+  static LoggedMealEntry? maybeFromJson(Object? raw) {
+    if (raw is! Map) {
+      return null;
+    }
+    final json = Map<String, dynamic>.from(raw);
+    final mealName = (json['mealName'] as String? ?? '').trim();
+    final loggedAtRaw = json['loggedAt'] as String?;
+    final loggedAt = loggedAtRaw == null
+        ? null
+        : DateTime.tryParse(loggedAtRaw);
+    if (mealName.isEmpty || loggedAt == null) {
+      return null;
+    }
+    final foodIds = (json['foodIds'] as List<dynamic>? ?? const [])
+        .map((value) => value is int ? value : int.tryParse(value.toString()))
+        .whereType<int>()
+        .toList(growable: false);
+    return LoggedMealEntry(
+      mealName: mealName,
+      loggedAt: loggedAt,
+      caloriesKcal: (json['caloriesKcal'] as num?)?.toDouble() ?? 0,
+      foodIds: foodIds,
+    );
+  }
+}
+
 class UserConstraints {
   const UserConstraints({
     required this.safety,
@@ -415,6 +475,9 @@ class UserConstraints {
     required this.demographics,
     this.todayIntake = const {},
     this.todayIntakeDate,
+    this.loggedMeals = const [],
+    this.loggedMealHistory = const [],
+    this.cachedNearbyStoreLookup,
     this.recentlyActed = const {},
   });
 
@@ -427,6 +490,9 @@ class UserConstraints {
   final Demographics demographics;
   final Map<String, double> todayIntake;
   final DateTime? todayIntakeDate;
+  final List<LoggedMealEntry> loggedMeals;
+  final List<LoggedMealEntry> loggedMealHistory;
+  final CachedNearbyStoreLookup? cachedNearbyStoreLookup;
   final Map<int, DateTime> recentlyActed;
 
   factory UserConstraints.defaults() {
@@ -451,6 +517,10 @@ class UserConstraints {
     Demographics? demographics,
     Map<String, double>? todayIntake,
     DateTime? todayIntakeDate,
+    List<LoggedMealEntry>? loggedMeals,
+    List<LoggedMealEntry>? loggedMealHistory,
+    CachedNearbyStoreLookup? cachedNearbyStoreLookup,
+    bool clearCachedNearbyStoreLookup = false,
     Map<int, DateTime>? recentlyActed,
   }) {
     return UserConstraints(
@@ -463,6 +533,11 @@ class UserConstraints {
       demographics: demographics ?? this.demographics,
       todayIntake: todayIntake ?? this.todayIntake,
       todayIntakeDate: todayIntakeDate ?? this.todayIntakeDate,
+      loggedMeals: loggedMeals ?? this.loggedMeals,
+      loggedMealHistory: loggedMealHistory ?? this.loggedMealHistory,
+      cachedNearbyStoreLookup: clearCachedNearbyStoreLookup
+          ? null
+          : cachedNearbyStoreLookup ?? this.cachedNearbyStoreLookup,
       recentlyActed: recentlyActed ?? this.recentlyActed,
     );
   }
@@ -478,6 +553,11 @@ class UserConstraints {
       'demographics': demographics.toJson(),
       'todayIntake': todayIntake,
       'todayIntakeDate': todayIntakeDate?.toIso8601String(),
+      'loggedMeals': loggedMeals.map((entry) => entry.toJson()).toList(),
+      'loggedMealHistory': loggedMealHistory
+          .map((entry) => entry.toJson())
+          .toList(),
+      'cachedNearbyStoreLookup': cachedNearbyStoreLookup?.toJson(),
       'recentlyActed': recentlyActed.map(
         (key, value) => MapEntry(key.toString(), value.toIso8601String()),
       ),
@@ -506,6 +586,16 @@ class UserConstraints {
         )
         .toSet();
 
+    final loggedMeals = (json['loggedMeals'] as List<dynamic>? ?? const [])
+        .map(LoggedMealEntry.maybeFromJson)
+        .whereType<LoggedMealEntry>()
+        .toList(growable: false);
+    final loggedMealHistory =
+        (json['loggedMealHistory'] as List<dynamic>? ?? const [])
+            .map(LoggedMealEntry.maybeFromJson)
+            .whereType<LoggedMealEntry>()
+            .toList(growable: false);
+
     return UserConstraints(
       safety: SafetyConstraints.fromJson(
         Map<String, dynamic>.from(json['safety'] as Map? ?? const {}),
@@ -529,6 +619,13 @@ class UserConstraints {
       todayIntakeDate: (json['todayIntakeDate'] as String?) == null
           ? null
           : DateTime.tryParse(json['todayIntakeDate'] as String),
+      loggedMeals: loggedMeals,
+      loggedMealHistory: loggedMealHistory.isEmpty
+          ? loggedMeals
+          : loggedMealHistory,
+      cachedNearbyStoreLookup: CachedNearbyStoreLookup.maybeFromJson(
+        json['cachedNearbyStoreLookup'],
+      ),
       recentlyActed:
           (json['recentlyActed'] as Map<String, dynamic>? ?? const {}).map(
             (key, value) =>

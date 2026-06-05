@@ -27,7 +27,7 @@ class OnboardingAllergensStep extends ConsumerWidget {
         'Marca cualquier alergeno que nunca deba aparecer en tus opciones de comida.',
       ),
       children: [
-        for (final allergen in Allergen.values) ...[
+        for (final allergen in Allergen.displayOrder) ...[
           SelectionTile(
             title: copy.allergenLabel(allergen),
             subtitle: copy.choose(
@@ -45,7 +45,8 @@ class OnboardingAllergensStep extends ConsumerWidget {
               controller.updateSafety(safety.copyWith(allergens: next));
             },
           ),
-          if (allergen != Allergen.values.last) const SizedBox(height: 14),
+          if (allergen != Allergen.displayOrder.last)
+            const SizedBox(height: 14),
         ],
       ],
     );

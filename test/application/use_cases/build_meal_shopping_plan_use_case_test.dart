@@ -4,6 +4,7 @@ import 'package:access_plate/application/use_cases/build_meal_shopping_plan_use_
 import 'package:access_plate/application/use_cases/lookup_live_ingredient_products_use_case.dart';
 import 'package:access_plate/domain/entities/food.dart';
 import 'package:access_plate/domain/entities/grocery.dart';
+import 'package:access_plate/domain/entities/ingredient_availability_catalog.dart';
 import 'package:access_plate/domain/entities/user_constraints.dart';
 import 'package:access_plate/domain/entities/store_search.dart';
 import 'package:access_plate/domain/repositories/grocery_catalog_repository.dart';
@@ -29,6 +30,7 @@ void main() {
           liveProductLookupUseCase: LookupLiveIngredientProductsUseCase(
             repository,
           ),
+          ingredientAvailabilityCatalog: _ingredientAvailabilityCatalog,
         );
 
         final basePlan = useCase.buildSummary(
@@ -78,6 +80,7 @@ void main() {
           liveProductLookupUseCase: LookupLiveIngredientProductsUseCase(
             repository,
           ),
+          ingredientAvailabilityCatalog: _ingredientAvailabilityCatalog,
         );
 
         final basePlan = useCase.buildSummary(
@@ -110,8 +113,34 @@ void main() {
         expect(enriched.liveProductMatch?.lookup.unmatchedIngredients, isEmpty);
       },
     );
+
+    test('adds an offline source context from the bundled ingredient map', () {
+      final useCase = BuildMealShoppingPlanUseCase(
+        liveProductLookupUseCase: LookupLiveIngredientProductsUseCase(
+          _FakeGroceryCatalogRepository(productsByStoreAndTerm: const {}),
+        ),
+        ingredientAvailabilityCatalog: _ingredientAvailabilityCatalog,
+      );
+
+      final plan = useCase.buildSummary(
+        food: _groceryMeal(),
+        constraints: _constraints(),
+        nearbyStores: const [],
+      );
+
+      expect(plan.chosenStore, isNull);
+      expect(plan.offlineAvailabilityContext, AvailabilityContext.grocery);
+    });
   });
 }
+
+final _ingredientAvailabilityCatalog = IngredientAvailabilityCatalog.fromJson(
+  const {
+    'black beans': ['grocery', 'dollar_store', 'food_pantry'],
+    'brown rice': ['grocery', 'dollar_store', 'food_pantry'],
+    'salsa': ['grocery'],
+  },
+);
 
 UserConstraints _constraints() {
   return UserConstraints.defaults().copyWith(

@@ -24,7 +24,7 @@ class AccessPlateApp extends ConsumerWidget {
       themeMode: switch (themePreference) {
         AppThemePreference.light => ThemeMode.light,
         AppThemePreference.dark => ThemeMode.dark,
-        AppThemePreference.system => ThemeMode.light,
+        AppThemePreference.system => ThemeMode.system,
       },
       theme: AccessPlateTheme.light(),
       darkTheme: AccessPlateTheme.dark(),

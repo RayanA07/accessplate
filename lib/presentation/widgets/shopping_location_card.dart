@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_palette.dart';
 import '../../domain/entities/store_search.dart';
+import '../../domain/entities/user_profile.dart';
+import '../copy/app_copy.dart';
 import '../providers/nearby_store_providers.dart';
+import '../providers/profile_controller.dart';
 import 'section_card.dart';
 
 class ShoppingLocationCard extends ConsumerWidget {
@@ -11,71 +14,76 @@ class ShoppingLocationCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profile =
+        ref.watch(profileControllerProvider).valueOrNull ??
+        UserProfile.defaults();
+    final copy = AppCopy(profile.constraints.access.language);
     final state = ref.watch(shoppingLocationStateProvider);
-    final nearbyAsync = ref.watch(nearbyStoresProvider);
-    final nearbyCount = nearbyAsync.valueOrNull?.length ?? 0;
+    final availabilityMode = ref.watch(storeAvailabilityModeProvider);
+    final nearbyCount = availabilityMode.nearbyStores.length;
     final theme = Theme.of(context);
-    final location = state.location;
+    final location = availabilityMode.location;
 
     return SectionCard(
       tintColor: NihPalette.secondaryLightest,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      borderRadius: 26,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Verified nearby stores',
-            style: theme.textTheme.titleLarge?.copyWith(
+            copy.nearbyStoresTitle,
+            style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            !state.apiConfigured
-                ? 'Nearby store search is unavailable right now.'
-                : location == null
-                ? 'Location is set during onboarding. Nearby store verification will appear here after that setup is complete.'
-                : _summaryLine(location, nearbyCount),
-            style: theme.textTheme.bodyMedium,
-          ),
-          if (location != null) ...[
-            const SizedBox(height: 12),
+          const SizedBox(height: 6),
+          if (availabilityMode.isOffline)
+            Text(copy.nearbyStoresOfflineBody, style: theme.textTheme.bodySmall)
+          else ...[
+            Text(
+              location == null
+                  ? copy.nearbyStoresPendingBody
+                  : _summaryLine(copy, location, nearbyCount),
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 10),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                _StatusChip(
-                  label: switch (location.kind) {
-                    SearchLocationKind.device => 'Device location',
-                    SearchLocationKind.address => 'Address search',
-                    SearchLocationKind.zipCentroid => 'ZIP fallback',
-                  },
-                ),
-                _StatusChip(
-                  label: location.isApproximate ? 'Approximate' : 'Live',
-                ),
-                if (nearbyAsync.isLoading) const _StatusChip(label: 'Loading'),
-                if (nearbyCount > 0) _StatusChip(label: '$nearbyCount stores'),
+                if (availabilityMode.usingDeviceLocation)
+                  _StatusChip(label: copy.nearbyStoresDeviceLocationChip),
+                if (availabilityMode.isSearching)
+                  _StatusChip(
+                    label: copy.nearbyStoresSearchingChip,
+                    spinner: true,
+                  )
+                else
+                  _StatusChip(label: copy.nearbyStoresLiveChip),
               ],
             ),
           ],
           if (state.error != null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               state.error!,
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.error,
               ),
             ),
           ],
-          if (state.loading || nearbyAsync.isLoading) ...[
-            const SizedBox(height: 12),
-            const LinearProgressIndicator(),
-          ],
           if (location != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
+                style: TextButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 onPressed: state.loading
                     ? null
                     : () {
@@ -83,7 +91,7 @@ class ShoppingLocationCard extends ConsumerWidget {
                             .read(shoppingLocationControllerProvider.notifier)
                             .clear();
                       },
-                child: const Text('Clear'),
+                child: Text(copy.nearbyStoresClearAction),
               ),
             ),
           ],
@@ -92,37 +100,55 @@ class ShoppingLocationCard extends ConsumerWidget {
     );
   }
 
-  String _summaryLine(SearchLocation location, int nearbyCount) {
-    final countText = nearbyCount == 0
-        ? 'No nearby stores verified yet.'
-        : '$nearbyCount nearby stores verified.';
+  String _summaryLine(AppCopy copy, SearchLocation location, int nearbyCount) {
     if (location.isApproximate) {
-      return '${location.label} is being used as an approximate search origin. $countText';
+      return copy.nearbyStoresApproximateLine(location.label, nearbyCount);
     }
-    return '${location.label} is the live search origin. $countText';
+    return copy.nearbyStoresLiveLine(location.label, nearbyCount);
   }
 }
 
 class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.label});
+  const _StatusChip({required this.label, this.spinner = false});
 
   final String label;
+  final bool spinner;
 
   @override
   Widget build(BuildContext context) {
+    const backgroundColor = Color(0xB3FFFFFF);
+    const borderColor = NihPalette.borderSoft;
+    const textColor = NihPalette.primaryDarkest;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.7),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: NihPalette.borderSoft),
+        border: Border.all(color: borderColor),
       ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: NihPalette.primaryDarkest,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (spinner) ...[
+            const SizedBox(
+              width: 12,
+              height: 12,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(textColor),
+              ),
+            ),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: textColor,
+            ),
+          ),
+        ],
       ),
     );
   }

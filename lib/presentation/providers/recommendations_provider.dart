@@ -1,11 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/entities/explanation.dart';
+import '../../domain/entities/ingredient_availability_catalog.dart';
 import '../../domain/entities/recommendation.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/value_objects/availability_context.dart';
 import '../copy/app_copy.dart';
 import 'app_bootstrap.dart';
+import 'nearby_store_providers.dart';
 import 'profile_controller.dart';
 
 final recommendationsProvider = FutureProvider<RecommendationResult>((
@@ -13,8 +15,17 @@ final recommendationsProvider = FutureProvider<RecommendationResult>((
 ) async {
   final bootstrap = await ref.watch(appBootstrapProvider.future);
   final profile = await ref.watch(profileControllerProvider.future);
+  final availabilityMode = ref.watch(storeAvailabilityModeProvider);
   final result = await bootstrap.recommendUseCase.execute(profile);
-  return _sanitizeUserFacingResult(result, profile);
+  final sanitized = _sanitizeUserFacingResult(result, profile);
+  if (!availabilityMode.isOffline) {
+    return sanitized;
+  }
+  return _filterForOfflineMode(
+    sanitized,
+    profile,
+    bootstrap.ingredientAvailabilityCatalog,
+  );
 });
 
 RecommendationResult _sanitizeUserFacingResult(
@@ -34,8 +45,36 @@ RecommendationResult _sanitizeUserFacingResult(
     candidatePoolSize: result.candidatePoolSize,
     elapsedMs: result.elapsedMs,
     baskets: result.baskets,
-    sourceTripPlan: null,
-    todayPlan: null,
+    sourceTripPlan: result.sourceTripPlan,
+    todayPlan: result.todayPlan,
+    diagnostic: result.diagnostic,
+  );
+}
+
+RecommendationResult _filterForOfflineMode(
+  RecommendationResult result,
+  UserProfile profile,
+  IngredientAvailabilityCatalog ingredientAvailabilityCatalog,
+) {
+  final filteredRecommendations = result.recommendations
+      .where(
+        (recommendation) =>
+            ingredientAvailabilityCatalog.preferredContextForMeal(
+              food: recommendation.food,
+              enabledContexts: profile.constraints.feasibility.availability,
+            ) !=
+            null,
+      )
+      .toList(growable: false);
+
+  return RecommendationResult(
+    recommendations: filteredRecommendations,
+    preferenceRelaxed: result.preferenceRelaxed,
+    candidatePoolSize: filteredRecommendations.length,
+    elapsedMs: result.elapsedMs,
+    baskets: result.baskets,
+    sourceTripPlan: result.sourceTripPlan,
+    todayPlan: result.todayPlan,
     diagnostic: result.diagnostic,
   );
 }
@@ -79,13 +118,16 @@ Explanation? _sanitizeExplanation(Explanation? explanation, AppCopy copy) {
 String _userFacingAccessSummary(AppCopy copy, Explanation explanation) {
   final tags = explanation.accessTags;
   final pantryMatch = tags.any(
-    (tag) => tag.contains('Pantry match') || tag.contains('Coincide con despensa'),
+    (tag) =>
+        tag.contains('Pantry match') || tag.contains('Coincide con despensa'),
   );
   final restockCue = tags.any(
     (tag) => tag.contains('Restock cue') || tag.contains('reposicion'),
   );
   final noPurchase = tags.any(
-    (tag) => tag.contains('No purchase needed') || tag.contains('Sin compra necesaria'),
+    (tag) =>
+        tag.contains('No purchase needed') ||
+        tag.contains('Sin compra necesaria'),
   );
 
   if (noPurchase) {

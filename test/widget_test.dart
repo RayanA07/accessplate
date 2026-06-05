@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:access_plate/core/theme/app_palette.dart';
 import 'package:access_plate/core/theme/app_theme.dart';
+import 'package:access_plate/domain/entities/demographics.dart';
 import 'package:access_plate/domain/entities/explanation.dart';
 import 'package:access_plate/domain/entities/food.dart';
 import 'package:access_plate/domain/entities/grocery.dart';
@@ -10,6 +12,7 @@ import 'package:access_plate/domain/entities/meal_shopping.dart';
 import 'package:access_plate/domain/entities/nutrients.dart';
 import 'package:access_plate/domain/entities/recommendation.dart';
 import 'package:access_plate/domain/entities/store_search.dart';
+import 'package:access_plate/domain/entities/user_constraints.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:access_plate/domain/value_objects/meal_type.dart';
 import 'package:access_plate/presentation/providers/nearby_store_providers.dart';
@@ -54,6 +57,61 @@ void main() {
 
     expect(selectedDecoration.color, const Color(0xFFF5F8EE));
     expect(unselectedDecoration.color, const Color(0xFFFEFBF5));
+  });
+
+  testWidgets('selection tile prominent radio style uses green accent state', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AccessPlateTheme.light(),
+        home: Scaffold(
+          body: Column(
+            children: [
+              SelectionTile(
+                title: 'Selected',
+                selected: true,
+                visualStyle: SelectionTileVisualStyle.prominentRadio,
+                onTap: () {},
+              ),
+              SelectionTile(
+                title: 'Unselected',
+                selected: false,
+                visualStyle: SelectionTileVisualStyle.prominentRadio,
+                onTap: () {},
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final inks = tester.widgetList<Ink>(find.byType(Ink)).toList();
+    final selectedDecoration = inks.first.decoration! as BoxDecoration;
+    final unselectedDecoration = inks.last.decoration! as BoxDecoration;
+    final indicators = find.byType(AnimatedContainer);
+    final selectedIndicator = tester
+        .widgetList<AnimatedContainer>(indicators)
+        .first;
+    final unselectedIndicator = tester
+        .widgetList<AnimatedContainer>(indicators)
+        .last;
+    final selectedIndicatorDecoration =
+        selectedIndicator.decoration! as BoxDecoration;
+    final unselectedIndicatorDecoration =
+        unselectedIndicator.decoration! as BoxDecoration;
+
+    expect(selectedDecoration.color, const Color(0xFFE8F5E9));
+    expect(unselectedDecoration.color, NihPalette.white);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is ColoredBox && widget.color == NihPalette.success,
+      ),
+      findsOneWidget,
+    );
+    expect(tester.getSize(indicators.first), const Size(24, 24));
+    expect(selectedIndicatorDecoration.color, NihPalette.success);
+    expect(unselectedIndicatorDecoration.color, Colors.transparent);
   });
 
   testWidgets('today plan card renders summary and steps', (tester) async {
@@ -219,6 +277,9 @@ void main() {
           shoppingLocationStateProvider.overrideWith(
             (ref) => const ShoppingLocationState(apiConfigured: true),
           ),
+          storeAvailabilityModeProvider.overrideWith(
+            (ref) => _onlineStoreAvailabilityMode(),
+          ),
           mealShoppingSummariesProvider.overrideWith(
             (ref) async => {
               recommendation.food.id: _shoppingPlanFor(recommendation.food),
@@ -259,80 +320,482 @@ void main() {
     expect(find.textContaining('Store Brand'), findsWidgets);
   });
 
-  testWidgets('recommendation card shows approximate distance when only straight-line data exists', (
-    tester,
-  ) async {
-    final recommendation = _sampleFood(2);
-    final approximatePlan = _shoppingPlanFor(
-      recommendation.food,
-      metric: const TravelMetric(
-        source: TravelMetricSource.straightLineApproximate,
-        distanceMiles: 0.8,
-      ),
-    );
+  testWidgets(
+    'recommendation card shows approximate distance when only straight-line data exists',
+    (tester) async {
+      final recommendation = _sampleFood(2);
+      final approximatePlan = _shoppingPlanFor(
+        recommendation.food,
+        metric: const TravelMetric(
+          source: TravelMetricSource.straightLineApproximate,
+          distanceMiles: 0.8,
+        ),
+      );
 
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          shoppingLocationStateProvider.overrideWith(
-            (ref) => const ShoppingLocationState(
-              apiConfigured: true,
-              location: SearchLocation(
-                kind: SearchLocationKind.address,
-                label: '123 Main St',
-                latitude: 39.10,
-                longitude: -84.51,
-                verification: DataVerification.live,
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            shoppingLocationStateProvider.overrideWith(
+              (ref) => const ShoppingLocationState(
+                apiConfigured: true,
+                location: SearchLocation(
+                  kind: SearchLocationKind.address,
+                  label: '123 Main St',
+                  latitude: 39.10,
+                  longitude: -84.51,
+                  verification: DataVerification.live,
+                ),
+              ),
+            ),
+            storeAvailabilityModeProvider.overrideWith(
+              (ref) => _onlineStoreAvailabilityMode(
+                location: const SearchLocation(
+                  kind: SearchLocationKind.address,
+                  label: '123 Main St',
+                  latitude: 39.10,
+                  longitude: -84.51,
+                  verification: DataVerification.live,
+                ),
+              ),
+            ),
+            mealShoppingSummariesProvider.overrideWith(
+              (ref) async => {recommendation.food.id: approximatePlan},
+            ),
+            prefetchedLiveMealShoppingPlansProvider.overrideWith(
+              (ref) async => {recommendation.food.id: approximatePlan},
+            ),
+          ],
+          child: MaterialApp(
+            theme: AccessPlateTheme.light(),
+            home: Scaffold(
+              body: RecommendationCard(
+                recommendation: recommendation,
+                onExplain: () {},
+                onTrack: () {},
               ),
             ),
           ),
-          mealShoppingSummariesProvider.overrideWith(
-            (ref) async => {recommendation.food.id: approximatePlan},
-          ),
-          prefetchedLiveMealShoppingPlansProvider.overrideWith(
-            (ref) async => {recommendation.food.id: approximatePlan},
-          ),
-        ],
-        child: MaterialApp(
-          theme: AccessPlateTheme.light(),
-          home: Scaffold(
-            body: RecommendationCard(
-              recommendation: recommendation,
-              onExplain: () {},
-              onTrack: () {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Approx. 0.8 mi'), findsOneWidget);
+      expect(find.textContaining('min'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'recommendation card keeps unavailable store note in subtitle only',
+    (tester) async {
+      final recommendation = _sampleFood(3);
+      final unavailablePlan = _shoppingPlanWithoutStore(recommendation.food);
+      const unavailableNote =
+          'Nearby store verification is unavailable for this meal.';
+      const expandedGuidance =
+          'Store data unavailable offline. Use your access settings to find this at a nearby store.';
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            shoppingLocationStateProvider.overrideWith(
+              (ref) => const ShoppingLocationState(
+                apiConfigured: true,
+                location: SearchLocation(
+                  kind: SearchLocationKind.device,
+                  label: '4001 W Chicago Ave, Chicago, IL 60651',
+                  latitude: 41.8955,
+                  longitude: -87.7261,
+                  verification: DataVerification.live,
+                ),
+              ),
+            ),
+            storeAvailabilityModeProvider.overrideWith(
+              (ref) => _onlineStoreAvailabilityMode(),
+            ),
+            mealShoppingSummariesProvider.overrideWith(
+              (ref) async => {recommendation.food.id: unavailablePlan},
+            ),
+            prefetchedLiveMealShoppingPlansProvider.overrideWith(
+              (ref) async => {recommendation.food.id: unavailablePlan},
+            ),
+          ],
+          child: MaterialApp(
+            theme: AccessPlateTheme.light(),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: RecommendationCard(
+                  recommendation: recommendation,
+                  onExplain: () {},
+                  onTrack: () {},
+                ),
+              ),
             ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.textContaining('Approx. 0.8 mi'), findsOneWidget);
-    expect(find.textContaining('min'), findsNothing);
-  });
+      expect(find.text(unavailableNote), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Plan'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(unavailableNote), findsOneWidget);
+      expect(find.text(expandedGuidance), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'recommendation card shows simple preparation steps for demo meals',
+    (tester) async {
+      final recommendations = [
+        _sampleFood(
+          11,
+          name: 'Tuna salad on whole-wheat',
+          ingredients: const {'tuna', 'whole-wheat bread'},
+        ),
+        _sampleFood(
+          12,
+          name: 'Bean and rice bowl',
+          servingLabel: '1 bowl',
+          ingredients: const {'beans', 'rice'},
+        ),
+        _sampleFood(
+          13,
+          name: 'Peanut butter on whole wheat',
+          ingredients: const {'peanut butter', 'whole wheat bread'},
+        ),
+      ];
+      final shoppingPlans = {
+        for (final recommendation in recommendations)
+          recommendation.food.id: _shoppingPlanFor(recommendation.food),
+      };
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            shoppingLocationStateProvider.overrideWith(
+              (ref) => const ShoppingLocationState(apiConfigured: true),
+            ),
+            storeAvailabilityModeProvider.overrideWith(
+              (ref) => _onlineStoreAvailabilityMode(),
+            ),
+            mealShoppingSummariesProvider.overrideWith(
+              (ref) async => shoppingPlans,
+            ),
+            prefetchedLiveMealShoppingPlansProvider.overrideWith(
+              (ref) async => shoppingPlans,
+            ),
+          ],
+          child: MaterialApp(
+            theme: AccessPlateTheme.light(),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (final recommendation in recommendations)
+                      RecommendationCard(
+                        recommendation: recommendation,
+                        onExplain: () {},
+                        onTrack: () {},
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      for (var index = 0; index < recommendations.length; index++) {
+        final button = find.widgetWithText(TextButton, 'Plan').first;
+        await tester.ensureVisible(button);
+        await tester.tap(button);
+        await tester.pumpAndSettle();
+      }
+
+      expect(find.text('How to prepare'), findsNWidgets(3));
+      expect(find.text('Open tuna pouch and drain'), findsOneWidget);
+      expect(
+        find.text(
+          'Mix with any available condiment (mayo, mustard, or hot sauce)',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Cook instant rice per packet (microwave: 90 seconds)'),
+        findsOneWidget,
+      );
+      expect(find.text('Open and drain canned beans'), findsOneWidget);
+      expect(find.text('Spread peanut butter on bread'), findsOneWidget);
+      expect(find.text('No cooking needed'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'score badge opens a distinct score breakdown sheet for each demo meal',
+    (tester) async {
+      const constraints = UserConstraints(
+        safety: SafetyConstraints(),
+        feasibility: FeasibilityConstraints(
+          maxCostPerMeal: 8,
+          availability: {
+            AvailabilityContext.grocery,
+            AvailabilityContext.convenience,
+          },
+        ),
+        preference: PreferenceConstraints(),
+        access: AccessConstraints(maxTravelMinutes: 20),
+        pantry: PantryConstraints(),
+        targets: NutritionalTargets(),
+        demographics: Demographics(sex: Sex.female, ageYears: 30),
+      );
+      final recommendations = [
+        _sampleFood(
+          21,
+          name: 'Tuna salad on whole-wheat',
+          servingLabel: '1 sandwich',
+          ingredients: const {'tuna', 'whole-wheat bread', 'mustard'},
+          costEstimate: 3.5,
+          prepMethod: 'none',
+          prepTimeMin: 0,
+          displayScore: 96,
+          breakdown: const ScoreBreakdown(
+            macro: 0.9,
+            micro: 0.58,
+            penalty: 0.05,
+            cost: 0.08,
+            preference: 0.52,
+            access: 0.05,
+          ),
+        ),
+        _sampleFood(
+          22,
+          name: 'Bean and rice bowl',
+          servingLabel: '1 bowl',
+          ingredients: const {'beans', 'rice'},
+          costEstimate: 2.25,
+          displayScore: 82,
+          breakdown: const ScoreBreakdown(
+            macro: 0.7,
+            micro: 0.46,
+            penalty: 0.1,
+            cost: 0.18,
+            preference: 0.48,
+            access: -0.02,
+          ),
+        ),
+        _sampleFood(
+          23,
+          name: 'Peanut butter on whole wheat',
+          servingLabel: '1 sandwich',
+          ingredients: const {'peanut butter', 'whole wheat bread'},
+          costEstimate: 1.75,
+          displayScore: 74,
+          breakdown: const ScoreBreakdown(
+            macro: 0.52,
+            micro: 0.34,
+            penalty: 0.12,
+            cost: 0.28,
+            preference: 0.44,
+            access: -0.08,
+          ),
+        ),
+      ];
+      final shoppingPlans = {
+        recommendations[0].food.id: _shoppingPlanFor(
+          recommendations[0].food,
+          metric: const TravelMetric(
+            source: TravelMetricSource.liveRoute,
+            distanceMiles: 1.0,
+            durationMinutes: 5,
+          ),
+          atHome: const [
+            IngredientRequirement(
+              key: 'mustard',
+              label: 'Mustard',
+              searchTerms: ['mustard'],
+              pantryAliases: ['mustard'],
+              evidence: IngredientEvidence.structured,
+            ),
+          ],
+          toBuy: const [
+            IngredientRequirement(
+              key: 'tuna',
+              label: 'Tuna pouch',
+              searchTerms: ['tuna'],
+              pantryAliases: ['tuna'],
+              evidence: IngredientEvidence.structured,
+            ),
+            IngredientRequirement(
+              key: 'bread',
+              label: 'Whole-wheat bread',
+              searchTerms: ['whole wheat bread'],
+              pantryAliases: ['bread'],
+              evidence: IngredientEvidence.structured,
+            ),
+          ],
+        ),
+        recommendations[1].food.id: _shoppingPlanFor(
+          recommendations[1].food,
+          metric: const TravelMetric(
+            source: TravelMetricSource.liveRoute,
+            distanceMiles: 2.1,
+            durationMinutes: 12,
+          ),
+          atHome: const [
+            IngredientRequirement(
+              key: 'rice',
+              label: 'Instant rice',
+              searchTerms: ['rice'],
+              pantryAliases: ['rice'],
+              evidence: IngredientEvidence.structured,
+            ),
+          ],
+          toBuy: const [
+            IngredientRequirement(
+              key: 'beans',
+              label: 'Canned beans',
+              searchTerms: ['beans'],
+              pantryAliases: ['beans'],
+              evidence: IngredientEvidence.structured,
+            ),
+          ],
+        ),
+        recommendations[2].food.id: _shoppingPlanFor(
+          recommendations[2].food,
+          metric: const TravelMetric(
+            source: TravelMetricSource.liveRoute,
+            distanceMiles: 3.4,
+            durationMinutes: 18,
+          ),
+          atHome: const [],
+          toBuy: const [
+            IngredientRequirement(
+              key: 'peanut_butter',
+              label: 'Peanut butter',
+              searchTerms: ['peanut butter'],
+              pantryAliases: ['peanut butter'],
+              evidence: IngredientEvidence.structured,
+            ),
+            IngredientRequirement(
+              key: 'bread',
+              label: 'Whole-wheat bread',
+              searchTerms: ['whole wheat bread'],
+              pantryAliases: ['bread'],
+              evidence: IngredientEvidence.structured,
+            ),
+          ],
+        ),
+      };
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            shoppingLocationStateProvider.overrideWith(
+              (ref) => const ShoppingLocationState(apiConfigured: true),
+            ),
+            storeAvailabilityModeProvider.overrideWith(
+              (ref) => _onlineStoreAvailabilityMode(),
+            ),
+            mealShoppingSummariesProvider.overrideWith(
+              (ref) async => shoppingPlans,
+            ),
+            prefetchedLiveMealShoppingPlansProvider.overrideWith(
+              (ref) async => shoppingPlans,
+            ),
+          ],
+          child: MaterialApp(
+            theme: AccessPlateTheme.light(),
+            home: Scaffold(
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (final recommendation in recommendations)
+                      RecommendationCard(
+                        recommendation: recommendation,
+                        constraints: constraints,
+                        onExplain: () {},
+                        onTrack: () {},
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      for (final recommendation in recommendations) {
+        await tester.tap(
+          find.byKey(ValueKey('score-badge-${recommendation.food.id}')),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const ValueKey('score-sheet-title')), findsOneWidget);
+        expect(find.text('How this was scored.'), findsOneWidget);
+        expect(find.text('Nutrition fit'), findsOneWidget);
+        expect(find.text('Budget fit'), findsOneWidget);
+        expect(find.text('Access fit'), findsOneWidget);
+        expect(find.text('Dietary safety'), findsOneWidget);
+        expect(find.text('Pantry overlap'), findsOneWidget);
+        expect(find.text('Overall fit score.'), findsOneWidget);
+        expect(
+          tester
+              .widget<Text>(
+                find.byKey(const ValueKey('score-sheet-overall-score')),
+              )
+              .data,
+          '${recommendation.displayScore.round()}',
+        );
+
+        await tester.tap(find.widgetWithText(FilledButton, 'Got it.'));
+        await tester.pumpAndSettle();
+      }
+    },
+  );
 }
 
-ScoredFood _sampleFood(int id) {
+ScoredFood _sampleFood(
+  int id, {
+  String name = 'Oatmeal cup',
+  String servingLabel = '1 cup',
+  Set<String> ingredients = const {'oatmeal', 'oats'},
+  double costEstimate = 1.25,
+  String prepMethod = 'microwave',
+  int prepTimeMin = 2,
+  Set<AvailabilityContext> availability = const {
+    AvailabilityContext.grocery,
+    AvailabilityContext.convenience,
+  },
+  double displayScore = 88,
+  ScoreBreakdown breakdown = const ScoreBreakdown(
+    macro: 0.72,
+    micro: 0.44,
+    penalty: 0.08,
+    cost: 0.12,
+    preference: 0.5,
+  ),
+}) {
   return ScoredFood(
     food: Food(
       id: id,
-      name: 'Oatmeal cup',
+      name: name,
       category: 'grain_whole',
       servingG: 64,
-      servingLabel: '1 cup',
-      costEstimate: 1.25,
+      servingLabel: servingLabel,
+      costEstimate: costEstimate,
       costConfidence: 'medium',
-      prepMethod: 'microwave',
-      prepTimeMin: 2,
+      prepMethod: prepMethod,
+      prepTimeMin: prepTimeMin,
       mealTypes: const {MealType.breakfast},
-      availability: const {
-        AvailabilityContext.grocery,
-        AvailabilityContext.convenience,
-      },
+      availability: availability,
       allergens: const {},
       religionExcluded: const [],
       medicalRules: const [],
-      ingredients: const {'oatmeal', 'oats'},
+      ingredients: ingredients,
       source: 'bundled_reference',
     ),
     nutrients: const Nutrients(
@@ -357,19 +820,35 @@ ScoredFood _sampleFood(int id) {
       folateMcgDfe: 18,
     ),
     composite: 0.7,
-    displayScore: 88,
-    breakdown: const ScoreBreakdown(
-      macro: 0.72,
-      micro: 0.44,
-      penalty: 0.08,
-      cost: 0.12,
-      preference: 0.5,
-    ),
+    displayScore: displayScore,
+    breakdown: breakdown,
+  );
+}
+
+StoreAvailabilityModeState _onlineStoreAvailabilityMode({
+  SearchLocation? location,
+}) {
+  return StoreAvailabilityModeState(
+    mode: StoreAvailabilityMode.online,
+    apiConfigured: true,
+    hasInternet: true,
+    location:
+        location ??
+        const SearchLocation(
+          kind: SearchLocationKind.device,
+          label: '4001 W Chicago Ave, Chicago, IL 60651',
+          latitude: 41.8955,
+          longitude: -87.7261,
+          verification: DataVerification.live,
+          postalCode: '60651',
+        ),
   );
 }
 
 MealShoppingPlan _shoppingPlanFor(
   Food food, {
+  List<IngredientRequirement> atHome = const [],
+  List<IngredientRequirement>? toBuy,
   TravelMetric metric = const TravelMetric(
     source: TravelMetricSource.liveRoute,
     distanceMiles: 1.4,
@@ -398,10 +877,59 @@ MealShoppingPlan _shoppingPlanFor(
     linkedGroceryStore: groceryStore,
   );
   final ingredient = IngredientRequirement(
-    key: 'oatmeal',
-    label: 'Oatmeal cup',
-    searchTerms: const ['oatmeal'],
-    pantryAliases: const ['oatmeal'],
+    key: food.name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_'),
+    label: food.name,
+    searchTerms: [food.name.toLowerCase()],
+    pantryAliases: [food.name.toLowerCase()],
+    evidence: IngredientEvidence.structured,
+    quantityLabel: food.servingLabel,
+  );
+  final buyItems = toBuy ?? [ingredient];
+  return MealShoppingPlan(
+    food: food,
+    ingredients: IngredientPlan(
+      atHome: atHome,
+      toBuy: buyItems,
+      buySummary: buyItems.map((item) => item.label).join(', '),
+    ),
+    chosenStore: chosenStore,
+    backupStores: const [],
+    candidateStores: [chosenStore],
+    liveProductMatch: LiveStoreMatch(
+      store: chosenStore,
+      lookup: LiveIngredientLookupResult(
+        store: groceryStore,
+        matches: [
+          for (final item in buyItems)
+            IngredientProductMatch(
+              ingredient: item,
+              products: [
+                GroceryProduct(
+                  retailer: GroceryRetailer.kroger,
+                  productId: 'p-${food.id}-${item.key}',
+                  description: item.label,
+                  brand: 'Store Brand',
+                  size: item.quantityLabel ?? food.servingLabel,
+                  regularPrice: 1.25,
+                ),
+              ],
+            ),
+        ],
+        unmatchedIngredients: const [],
+      ),
+    ),
+    liveLookupAttempted: true,
+    storeStatusNote: null,
+    offlineAvailabilityContext: AvailabilityContext.grocery,
+  );
+}
+
+MealShoppingPlan _shoppingPlanWithoutStore(Food food) {
+  final ingredient = IngredientRequirement(
+    key: food.name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_'),
+    label: food.name,
+    searchTerms: [food.name.toLowerCase()],
+    pantryAliases: [food.name.toLowerCase()],
     evidence: IngredientEvidence.structured,
     quantityLabel: food.servingLabel,
   );
@@ -412,32 +940,12 @@ MealShoppingPlan _shoppingPlanFor(
       toBuy: [ingredient],
       buySummary: ingredient.label,
     ),
-    chosenStore: chosenStore,
+    chosenStore: null,
     backupStores: const [],
-    candidateStores: [chosenStore],
-    liveProductMatch: LiveStoreMatch(
-      store: chosenStore,
-      lookup: LiveIngredientLookupResult(
-        store: groceryStore,
-        matches: [
-          IngredientProductMatch(
-            ingredient: ingredient,
-            products: const [
-              GroceryProduct(
-                retailer: GroceryRetailer.kroger,
-                productId: 'p-1',
-                description: 'Oatmeal cup',
-                brand: 'Store Brand',
-                size: '1 cup',
-                regularPrice: 1.25,
-              ),
-            ],
-          ),
-        ],
-        unmatchedIngredients: const [],
-      ),
-    ),
-    liveLookupAttempted: true,
-    storeStatusNote: null,
+    candidateStores: const [],
+    liveProductMatch: null,
+    liveLookupAttempted: false,
+    storeStatusNote: 'Nearby store verification is unavailable for this meal.',
+    offlineAvailabilityContext: AvailabilityContext.grocery,
   );
 }

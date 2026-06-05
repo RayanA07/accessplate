@@ -318,7 +318,7 @@ class _GroceryStorePickerSheetState
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: copy.choose('ZIP code', 'Codigo postal'),
-                  hintText: '45211',
+                  hintText: '60651',
                 ),
                 onSubmitted: (_) => _search(),
               ),

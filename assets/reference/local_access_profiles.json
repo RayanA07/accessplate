@@ -273,6 +273,486 @@
           "sameDayConfidence": 0.59
         }
       }
+    },
+    {
+      "postalCode": "30309",
+      "profileId": "atlanta_midtown",
+      "label": "Bundled snapshot for Midtown Atlanta",
+      "communityLabel": "Atlanta",
+      "stateCode": "GA",
+      "lowAccessArea": true,
+      "communityType": "dense_urban",
+      "walkSupport": 0.62,
+      "transitSupport": 0.71,
+      "groceryGapSeverity": 0.68,
+      "notes": "Bundled low-resource access snapshot for Atlanta, GA.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "48201",
+      "profileId": "detroit_midtown",
+      "label": "Bundled snapshot for Midtown Detroit",
+      "communityLabel": "Detroit",
+      "stateCode": "MI",
+      "lowAccessArea": true,
+      "communityType": "auto_spread",
+      "walkSupport": 0.48,
+      "transitSupport": 0.52,
+      "groceryGapSeverity": 0.81,
+      "notes": "Bundled low-resource access snapshot for Detroit, MI.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "10029",
+      "profileId": "nyc_east_harlem",
+      "label": "Bundled snapshot for East Harlem",
+      "communityLabel": "East Harlem",
+      "stateCode": "NY",
+      "lowAccessArea": true,
+      "communityType": "dense_urban",
+      "walkSupport": 0.9,
+      "transitSupport": 0.93,
+      "groceryGapSeverity": 0.52,
+      "notes": "Bundled low-resource access snapshot for East Harlem, NY.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "02115",
+      "profileId": "boston_fenway",
+      "label": "Bundled snapshot for Fenway, Boston",
+      "communityLabel": "Fenway",
+      "stateCode": "MA",
+      "lowAccessArea": true,
+      "communityType": "dense_urban",
+      "walkSupport": 0.88,
+      "transitSupport": 0.86,
+      "groceryGapSeverity": 0.55,
+      "notes": "Bundled low-resource access snapshot for Fenway, MA.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "63101",
+      "profileId": "st_louis_downtown",
+      "label": "Bundled snapshot for Downtown St. Louis",
+      "communityLabel": "Downtown St. Louis",
+      "stateCode": "MO",
+      "lowAccessArea": true,
+      "communityType": "auto_spread",
+      "walkSupport": 0.56,
+      "transitSupport": 0.6,
+      "groceryGapSeverity": 0.76,
+      "notes": "Bundled low-resource access snapshot for Downtown St. Louis, MO.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "85004",
+      "profileId": "phoenix_downtown",
+      "label": "Bundled snapshot for Downtown Phoenix",
+      "communityLabel": "Downtown Phoenix",
+      "stateCode": "AZ",
+      "lowAccessArea": true,
+      "communityType": "auto_spread",
+      "walkSupport": 0.43,
+      "transitSupport": 0.47,
+      "groceryGapSeverity": 0.8,
+      "notes": "Bundled low-resource access snapshot for Downtown Phoenix, AZ.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "70112",
+      "profileId": "new_orleans_cbd",
+      "label": "Bundled snapshot for Central Business District, New Orleans",
+      "communityLabel": "Central New Orleans",
+      "stateCode": "LA",
+      "lowAccessArea": true,
+      "communityType": "inner_neighborhood",
+      "walkSupport": 0.7,
+      "transitSupport": 0.62,
+      "groceryGapSeverity": 0.74,
+      "notes": "Bundled low-resource access snapshot for Central New Orleans, LA.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "53204",
+      "profileId": "milwaukee_south",
+      "label": "Bundled snapshot for South Side Milwaukee",
+      "communityLabel": "South Milwaukee",
+      "stateCode": "WI",
+      "lowAccessArea": true,
+      "communityType": "inner_neighborhood",
+      "walkSupport": 0.74,
+      "transitSupport": 0.67,
+      "groceryGapSeverity": 0.71,
+      "notes": "Bundled low-resource access snapshot for South Milwaukee, WI.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "44103",
+      "profileId": "cleveland_glenville",
+      "label": "Bundled snapshot for Glenville, Cleveland",
+      "communityLabel": "Glenville",
+      "stateCode": "OH",
+      "lowAccessArea": true,
+      "communityType": "inner_neighborhood",
+      "walkSupport": 0.72,
+      "transitSupport": 0.66,
+      "groceryGapSeverity": 0.73,
+      "notes": "Bundled low-resource access snapshot for Glenville, OH.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "38109",
+      "profileId": "memphis_southwest",
+      "label": "Bundled snapshot for Southwest Memphis",
+      "communityLabel": "Southwest Memphis",
+      "stateCode": "TN",
+      "lowAccessArea": true,
+      "communityType": "auto_spread",
+      "walkSupport": 0.42,
+      "transitSupport": 0.46,
+      "groceryGapSeverity": 0.82,
+      "notes": "Bundled low-resource access snapshot for Southwest Memphis, TN.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "75216",
+      "profileId": "dallas_south",
+      "label": "Bundled snapshot for South Dallas",
+      "communityLabel": "South Dallas",
+      "stateCode": "TX",
+      "lowAccessArea": true,
+      "communityType": "auto_spread",
+      "walkSupport": 0.46,
+      "transitSupport": 0.5,
+      "groceryGapSeverity": 0.79,
+      "notes": "Bundled low-resource access snapshot for South Dallas, TX.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
+    },
+    {
+      "postalCode": "28205",
+      "profileId": "charlotte_noDa",
+      "label": "Bundled snapshot for NoDa, Charlotte",
+      "communityLabel": "NoDa",
+      "stateCode": "NC",
+      "lowAccessArea": true,
+      "communityType": "inner_neighborhood",
+      "walkSupport": 0.68,
+      "transitSupport": 0.58,
+      "groceryGapSeverity": 0.67,
+      "notes": "Bundled low-resource access snapshot for NoDa, NC.",
+      "sources": {
+        "food_pantry": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 10,
+          "sameDayConfidence": 0.79
+        },
+        "dollar_store": {
+          "nearbyOptions": 3,
+          "typicalTravelMinutes": 8,
+          "sameDayConfidence": 0.86
+        },
+        "convenience": {
+          "nearbyOptions": 5,
+          "typicalTravelMinutes": 7,
+          "sameDayConfidence": 0.9
+        },
+        "fast_food": {
+          "nearbyOptions": 4,
+          "typicalTravelMinutes": 12,
+          "sameDayConfidence": 0.84
+        },
+        "grocery": {
+          "nearbyOptions": 1,
+          "typicalTravelMinutes": 26,
+          "sameDayConfidence": 0.6
+        }
+      }
     }
   ],
   "prefixes": [

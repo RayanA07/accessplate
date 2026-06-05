@@ -4,16 +4,29 @@ enum Allergen {
   dairy('dairy', 'Dairy / milk'),
   egg('egg', 'Egg'),
   soy('soy', 'Soy'),
-  wheat('wheat', 'Wheat'),
-  gluten('gluten', 'Gluten'),
   fish('fish', 'Fish'),
   shellfish('shellfish', 'Shellfish'),
-  sesame('sesame', 'Sesame');
+  sesame('sesame', 'Sesame'),
+  wheat('wheat', 'Wheat'),
+  gluten('gluten', 'Gluten');
 
   const Allergen(this.code, this.label);
 
   final String code;
   final String label;
+
+  static const List<Allergen> displayOrder = [
+    Allergen.peanut,
+    Allergen.treeNut,
+    Allergen.dairy,
+    Allergen.egg,
+    Allergen.soy,
+    Allergen.fish,
+    Allergen.shellfish,
+    Allergen.sesame,
+    Allergen.wheat,
+    Allergen.gluten,
+  ];
 
   static Allergen fromCode(String code) {
     return values.firstWhere(

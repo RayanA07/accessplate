@@ -22,6 +22,7 @@ import '../../data/remote/kroger_catalog_repository.dart';
 import '../../data/remote/open_street_map_api_config.dart';
 import '../../data/remote/open_street_map_store_locator_repository.dart';
 import '../../data/seed_loader.dart';
+import '../../domain/entities/ingredient_availability_catalog.dart';
 import '../../domain/entities/local_access.dart';
 import '../../domain/engine/access_advisor.dart';
 import '../../domain/engine/decision_engine.dart';
@@ -36,6 +37,7 @@ class AppBootstrap {
   AppBootstrap({
     required this.database,
     required this.referenceTables,
+    required this.ingredientAvailabilityCatalog,
     required this.localAccessCatalog,
     required this.foodRepository,
     required this.profileRepository,
@@ -54,6 +56,7 @@ class AppBootstrap {
 
   final Database database;
   final ReferenceTables referenceTables;
+  final IngredientAvailabilityCatalog ingredientAvailabilityCatalog;
   final LocalAccessCatalog localAccessCatalog;
   final FoodRepository foodRepository;
   final ProfileRepository profileRepository;
@@ -74,6 +77,8 @@ final appBootstrapProvider = FutureProvider<AppBootstrap>((ref) async {
   final seedLoader = SeedLoader();
   final database = await AppDatabase(seedLoader: seedLoader).open();
   final referenceTables = await seedLoader.loadReferenceTables();
+  final ingredientAvailabilityCatalog = await seedLoader
+      .loadIngredientAvailabilityCatalog();
   final localAccessCatalog = await seedLoader.loadLocalAccessCatalog();
   final foodDao = FoodDao(database);
   final profileDao = ProfileDao(database);
@@ -109,6 +114,7 @@ final appBootstrapProvider = FutureProvider<AppBootstrap>((ref) async {
   return AppBootstrap(
     database: database,
     referenceTables: referenceTables,
+    ingredientAvailabilityCatalog: ingredientAvailabilityCatalog,
     localAccessCatalog: localAccessCatalog,
     foodRepository: foodRepository,
     profileRepository: profileRepository,
@@ -131,11 +137,14 @@ final appBootstrapProvider = FutureProvider<AppBootstrap>((ref) async {
     lookupLiveIngredientProductsUseCase: liveIngredientLookupUseCase,
     buildMealShoppingPlanUseCase: BuildMealShoppingPlanUseCase(
       liveProductLookupUseCase: liveIngredientLookupUseCase,
+      ingredientAvailabilityCatalog: ingredientAvailabilityCatalog,
     ),
   );
 });
 
-final localAccessCatalogProvider = FutureProvider<LocalAccessCatalog>((ref) async {
+final localAccessCatalogProvider = FutureProvider<LocalAccessCatalog>((
+  ref,
+) async {
   final bootstrap = await ref.watch(appBootstrapProvider.future);
   return bootstrap.localAccessCatalog;
 });

@@ -67,20 +67,23 @@ class AppCopy {
     'AccessPlate helps you decide what to use from home, what to buy first, and where to go first when money, travel, and cooking setup are tight.',
     'AccessPlate te ayuda a decidir que usar de casa, que comprar primero y a donde ir primero cuando el dinero, el viaje y la cocina estan limitados.',
   );
-  String get splashAccessTitle => choose('Real-world access', 'Acceso real');
+  String get splashAccessTitle =>
+      choose('Built for real budgets', 'Hecho para presupuestos reales');
   String get splashAccessDetail => choose(
-    'Pantry food, benefits, travel limits, and low-resource food sources shape every decision directly.',
-    'La despensa, los beneficios, los limites de viaje y las fuentes de comida de bajos recursos cambian cada decision.',
+    'Pantry food, benefits, and travel limits shape every recommendation from the start.',
+    'La despensa, los beneficios y los limites de viaje moldean cada recomendacion desde el principio.',
   );
-  String get splashExplainableTitle => choose('Explainable', 'Explicable');
+  String get splashExplainableTitle =>
+      choose('Explains every pick', 'Explica cada opcion');
   String get splashExplainableDetail => choose(
     'Each plan shows why it fits today, what to buy first, and what tradeoffs still matter.',
-    'Cada plan muestra por que sirve hoy, que comprar primero y que costos o limites siguen importando.',
+    'Cada plan muestra por que sirve hoy, que comprar primero y que limites todavia importan.',
   );
-  String get splashLocalFirstTitle => choose('Local-first', 'Primero local');
+  String get splashLocalFirstTitle =>
+      choose('Works offline', 'Funciona sin internet');
   String get splashLocalFirstDetail => choose(
-    'The app still works from saved foods when bandwidth is limited and keeps sensitive profile data local.',
-    'La app sigue funcionando con comida guardada cuando hay poco internet y mantiene tus datos locales.',
+    'Saved foods keep recommendations usable when service is limited and your profile stays on-device.',
+    'La comida guardada mantiene utiles las recomendaciones cuando hay poco servicio y tu perfil se queda en el telefono.',
   );
   String get splashLocalDataTitle =>
       choose('What stays local', 'Lo que se queda local');
@@ -132,6 +135,103 @@ class AppCopy {
       choose('Built around', 'Hecho alrededor de');
   String get todayPlanLeadOptionLabel =>
       choose('Lead option', 'Opcion principal');
+  String get actionPlanDoThisFirstTitle =>
+      choose('Do this first today', 'Haz esto primero hoy');
+  String get actionPlanDoThisNowTitle =>
+      choose('Do this now', 'Haz esto ahora');
+  String get actionPlanEmergencyHint => choose(
+    'Emergency mode — fastest practical path.',
+    'Modo de emergencia — ruta practica mas rapida.',
+  );
+  String get actionPlanDefaultHint => choose(
+    'Your next stop, home food, and buy order for today.',
+    'Tu siguiente parada, comida en casa y orden de compra para hoy.',
+  );
+  String get actionPlanGoFirstLabel => choose('Go first', 'Ve primero');
+  String get actionPlanUseFromHomeLabel =>
+      choose('Use from home', 'Usa de casa');
+  String get actionPlanBuyFirstLabel => choose('Buy first', 'Compra primero');
+  String get actionPlanSkipFirstLabel =>
+      choose('Skip first', 'Deja para despues');
+  String get actionPlanBackupLabel => choose('Backup', 'Respaldo');
+  String get actionPlanDetailsTitle =>
+      choose('Plan details', 'Detalles del plan');
+  String get actionPlanNoPurchaseYet => choose(
+    'No purchase needed yet',
+    'Todavia no hace falta comprar',
+  );
+  String get actionPlanNoSkipYet => choose(
+    'No clear skip item yet',
+    'Todavia no hay algo claro para dejar',
+  );
+  String get actionPlanNoPantryStep => choose(
+    'No pantry step listed yet',
+    'Todavia no hay un paso claro de despensa',
+  );
+  String get actionPlanNoBackupYet => choose(
+    'No backup listed yet',
+    'Todavia no hay respaldo listado',
+  );
+  String get offlineMealsBanner => choose(
+    'Offline — showing meals from your saved settings',
+    'Sin internet — mostrando comidas segun tu configuracion guardada',
+  );
+  String get nearbyStoresTitle =>
+      choose('Nearby stores', 'Tiendas cercanas');
+  String get nearbyStoresOfflineBody => choose(
+    'Using your saved store access — connect to internet for live store lookup',
+    'Usando tu acceso guardado — conecta internet para buscar tiendas en vivo',
+  );
+  String get nearbyStoresPendingBody => choose(
+    'Location is set during onboarding. Nearby store results will appear here after setup.',
+    'La ubicacion se configura al inicio. Las tiendas cercanas apareceran aqui despues del setup.',
+  );
+  String nearbyStoresCountLine(int count) => count == 0
+      ? choose(
+          'No nearby stores matched yet.',
+          'Todavia no hay tiendas cercanas coincidentes.',
+        )
+      : choose(
+          '$count nearby stores matched.',
+          '$count tiendas cercanas coincidentes.',
+        );
+  String nearbyStoresApproximateLine(String label, int count) => choose(
+    '$label is the approximate search origin. ${nearbyStoresCountLine(count)}',
+    '$label es el origen de busqueda aproximado. ${nearbyStoresCountLine(count)}',
+  );
+  String nearbyStoresLiveLine(String label, int count) => choose(
+    '$label is the live search origin. ${nearbyStoresCountLine(count)}',
+    '$label es el origen de busqueda en vivo. ${nearbyStoresCountLine(count)}',
+  );
+  String get nearbyStoresDeviceLocationChip =>
+      choose('Device location', 'Ubicacion del dispositivo');
+  String get nearbyStoresSearchingChip =>
+      choose('Searching...', 'Buscando...');
+  String get nearbyStoresLiveChip => choose('Live', 'En vivo');
+  String get nearbyStoresClearAction => choose('Clear', 'Borrar');
+  String get onboardingEmergencySetupLabel => choose(
+    'Emergency day — quick setup',
+    'Dia de emergencia — setup rapido',
+  );
+  String get onboardingEmergencySetupDetail => choose(
+    'Skip long setup and jump to fast, low-travel meal options.',
+    'Salta el setup largo y ve directo a comidas rapidas y de poco viaje.',
+  );
+  String get legalDocumentsTitle =>
+      choose('Privacy and terms', 'Privacidad y terminos');
+  String get privacyPolicyTitle =>
+      choose('Privacy policy', 'Politica de privacidad');
+  String get termsOfUseTitle => choose('Terms of use', 'Terminos de uso');
+  String get medicalDisclaimerShort => choose(
+    'AccessPlate supports food decisions. It is not medical advice, allergy treatment, or emergency care. Talk with your clinician for medical nutrition guidance.',
+    'AccessPlate apoya decisiones de comida. No es consejo medico, tratamiento de alergias ni atencion de emergencia. Habla con tu clinico para guia medica de nutricion.',
+  );
+  String get researcherSettingsTitle =>
+      choose('Researcher settings', 'Ajustes para investigadores');
+  String get researcherSettingsSubtitle => choose(
+    'Optional scoring weights for demos and validation. Most users can leave these alone.',
+    'Pesos de puntaje opcionales para demos y validacion. La mayoria puede dejarlos asi.',
+  );
   String get accessZipCodeLabel => choose('ZIP code', 'Codigo postal');
   String get accessZipFieldLabel =>
       choose('Home or usual shopping ZIP', 'Codigo postal de casa o compras');
@@ -546,6 +646,58 @@ class AppCopy {
         return choose('Low potassium (CKD)', 'Bajo en potasio (ERC)');
       case MedicalRestriction.hypertension:
         return choose('Hypertension', 'Hipertension');
+      case MedicalRestriction.highCholesterol:
+        return choose('High cholesterol', 'Colesterol alto');
+      case MedicalRestriction.heartDiseaseCardiovascularRisk:
+        return choose(
+          'Heart disease / cardiovascular risk',
+          'Enfermedad cardiaca / riesgo cardiovascular',
+        );
+      case MedicalRestriction.celiacDiseaseGlutenIntolerance:
+        return choose(
+          'Celiac disease / gluten intolerance',
+          'Enfermedad celiaca / intolerancia al gluten',
+        );
+    }
+  }
+
+  String medicalRestrictionDetail(MedicalRestriction restriction) {
+    switch (restriction) {
+      case MedicalRestriction.diabetic:
+        return choose(
+          'Keep added sugar and rapid blood-sugar spikes lower when possible.',
+          'Mantiene mas baja el azucar agregada y los picos rapidos de azucar en sangre cuando se pueda.',
+        );
+      case MedicalRestriction.lowSodium:
+        return choose(
+          'Limit foods with high sodium.',
+          'Limita alimentos con mucho sodio.',
+        );
+      case MedicalRestriction.lowPotassiumCkd:
+        return choose(
+          'Limit high-potassium foods for kidney-related restrictions.',
+          'Limita alimentos altos en potasio para restricciones renales.',
+        );
+      case MedicalRestriction.hypertension:
+        return choose(
+          'Favor lower-sodium options for blood pressure support.',
+          'Favorece opciones con menos sodio para apoyar la presion arterial.',
+        );
+      case MedicalRestriction.highCholesterol:
+        return choose(
+          'Limit saturated fat and dietary cholesterol.',
+          'Limita la grasa saturada y el colesterol alimentario.',
+        );
+      case MedicalRestriction.heartDiseaseCardiovascularRisk:
+        return choose(
+          'Favor heart-healthy options low in sodium and saturated fat.',
+          'Favorece opciones saludables para el corazon, bajas en sodio y grasa saturada.',
+        );
+      case MedicalRestriction.celiacDiseaseGlutenIntolerance:
+        return choose(
+          'Avoid all gluten-containing foods including wheat, barley, and rye.',
+          'Evita todos los alimentos con gluten, incluyendo trigo, cebada y centeno.',
+        );
     }
   }
 

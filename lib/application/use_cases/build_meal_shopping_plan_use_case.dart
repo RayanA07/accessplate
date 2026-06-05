@@ -1,4 +1,5 @@
 import '../../domain/entities/food.dart';
+import '../../domain/entities/ingredient_availability_catalog.dart';
 import '../../domain/entities/meal_shopping.dart';
 import '../../domain/entities/store_search.dart';
 import '../../domain/entities/user_constraints.dart';
@@ -9,11 +10,14 @@ import 'lookup_live_ingredient_products_use_case.dart';
 class BuildMealShoppingPlanUseCase {
   BuildMealShoppingPlanUseCase({
     required LookupLiveIngredientProductsUseCase liveProductLookupUseCase,
+    required IngredientAvailabilityCatalog ingredientAvailabilityCatalog,
     MealIngredientPlanner? ingredientPlanner,
   }) : _liveProductLookupUseCase = liveProductLookupUseCase,
+       _ingredientAvailabilityCatalog = ingredientAvailabilityCatalog,
        _ingredientPlanner = ingredientPlanner ?? const MealIngredientPlanner();
 
   final LookupLiveIngredientProductsUseCase _liveProductLookupUseCase;
+  final IngredientAvailabilityCatalog _ingredientAvailabilityCatalog;
   final MealIngredientPlanner _ingredientPlanner;
 
   MealShoppingPlan buildSummary({
@@ -30,6 +34,12 @@ class BuildMealShoppingPlanUseCase {
         .where((store) => relevantContexts.any(store.supportsCategory))
         .toList(growable: false);
     final chosenStore = candidateStores.isEmpty ? null : candidateStores.first;
+    final offlineAvailabilityContext =
+        _ingredientAvailabilityCatalog.preferredContextForMeal(
+          food: food,
+          enabledContexts: constraints.feasibility.availability,
+        ) ??
+        _preferredRelevantContext(relevantContexts);
 
     return MealShoppingPlan(
       food: food,
@@ -47,6 +57,7 @@ class BuildMealShoppingPlanUseCase {
         relevantContexts: relevantContexts,
         chosenStore: chosenStore,
       ),
+      offlineAvailabilityContext: offlineAvailabilityContext,
     );
   }
 
@@ -124,6 +135,23 @@ class BuildMealShoppingPlanUseCase {
         .where((store) => store.placeId != chosenStore?.placeId)
         .take(2)
         .toList(growable: false);
+  }
+
+  AvailabilityContext? _preferredRelevantContext(
+    Set<AvailabilityContext> relevantContexts,
+  ) {
+    for (final context in const [
+      AvailabilityContext.grocery,
+      AvailabilityContext.foodPantry,
+      AvailabilityContext.dollarStore,
+      AvailabilityContext.convenience,
+      AvailabilityContext.fastFood,
+    ]) {
+      if (relevantContexts.contains(context)) {
+        return context;
+      }
+    }
+    return null;
   }
 
   String? _storeStatusNote({

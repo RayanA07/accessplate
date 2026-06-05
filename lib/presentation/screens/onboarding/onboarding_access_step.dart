@@ -87,10 +87,7 @@ class _OnboardingAccessStepState extends ConsumerState<OnboardingAccessStep> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          copy.choose(
-                            'Location saved',
-                            'Ubicacion guardada',
-                          ),
+                          copy.choose('Location saved', 'Ubicacion guardada'),
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w700),
                         ),
@@ -185,30 +182,54 @@ class _OnboardingAccessStepState extends ConsumerState<OnboardingAccessStep> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: BenefitProgram.values.map((program) {
-                    final selected = access.benefitPrograms.contains(program);
-                    return FilterChip(
-                      selected: selected,
-                      label: Text(program.label),
-                      onSelected: (value) {
-                        final next = {...access.benefitPrograms};
-                        value ? next.add(program) : next.remove(program);
-                        controller.updateBenefitPrograms(next);
-                      },
-                    );
-                  }).toList(),
+                _InlineChoiceTile(
+                  title: copy.choose('SNAP / EBT', 'SNAP / EBT'),
+                  subtitle: copy.choose(
+                    "We'll only show foods purchasable with SNAP benefits.",
+                    'Solo mostraremos alimentos que se puedan comprar con beneficios SNAP.',
+                  ),
+                  icon: Icons.credit_card_rounded,
+                  selected: access.benefitPrograms.contains(
+                    BenefitProgram.snap,
+                  ),
+                  onTap: () {
+                    final next = {...access.benefitPrograms};
+                    if (!next.remove(BenefitProgram.snap)) {
+                      next.add(BenefitProgram.snap);
+                    }
+                    controller.updateBenefitPrograms(next);
+                  },
+                ),
+                const SizedBox(height: 10),
+                _InlineChoiceTile(
+                  title: copy.choose('WIC', 'WIC'),
+                  subtitle: copy.choose(
+                    "We'll filter to WIC-approved foods only.",
+                    'Filtraremos solo a alimentos aprobados por WIC.',
+                  ),
+                  icon: Icons.child_care_rounded,
+                  selected: access.benefitPrograms.contains(BenefitProgram.wic),
+                  onTap: () {
+                    final next = {...access.benefitPrograms};
+                    if (!next.remove(BenefitProgram.wic)) {
+                      next.add(BenefitProgram.wic);
+                    }
+                    controller.updateBenefitPrograms(next);
+                  },
+                ),
+                const SizedBox(height: 10),
+                _InlineChoiceTile(
+                  title: copy.emergencyModeTitle,
+                  subtitle: copy.choose(
+                    'Extreme budget and travel constraints. Only the most accessible options shown.',
+                    'Restricciones extremas de presupuesto y viaje. Solo se muestran las opciones mas accesibles.',
+                  ),
+                  icon: Icons.bolt_rounded,
+                  selected: access.emergencyMode,
+                  onTap: () =>
+                      controller.updateEmergencyMode(!access.emergencyMode),
                 ),
                 const SizedBox(height: 14),
-                SwitchListTile(
-                  value: access.emergencyMode,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(copy.emergencyModeTitle),
-                  subtitle: Text(copy.emergencyModeSubtitle),
-                  onChanged: controller.updateEmergencyMode,
-                ),
                 SwitchListTile(
                   value: access.plainLanguage,
                   contentPadding: EdgeInsets.zero,
@@ -238,12 +259,14 @@ class _InlineChoiceTile extends StatelessWidget {
     required this.subtitle,
     required this.selected,
     required this.onTap,
+    this.icon,
   });
 
   final String title;
   final String subtitle;
   final bool selected;
   final VoidCallback onTap;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -269,6 +292,14 @@ class _InlineChoiceTile extends StatelessWidget {
           ),
           child: Row(
             children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 22,
+                  color: selected ? NihPalette.primary : NihPalette.grayDark,
+                ),
+                const SizedBox(width: 12),
+              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

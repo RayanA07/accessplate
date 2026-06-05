@@ -1,0 +1,702 @@
+{
+  "almond": [
+    "convenience",
+    "grocery"
+  ],
+  "almonds": [
+    "fast_food"
+  ],
+  "apple": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "bacon": [
+    "fast_food"
+  ],
+  "bagel": [
+    "convenience",
+    "grocery"
+  ],
+  "banana": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "bar": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "barley": [
+    "food_pantry",
+    "grocery"
+  ],
+  "basil": [
+    "food_pantry",
+    "grocery"
+  ],
+  "bean": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "beans": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "beef": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "berries": [
+    "convenience",
+    "grocery"
+  ],
+  "berry": [
+    "convenience",
+    "grocery"
+  ],
+  "biscuit": [
+    "fast_food"
+  ],
+  "black": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "blue_cheese": [
+    "fast_food"
+  ],
+  "boiled": [
+    "convenience",
+    "food_pantry",
+    "grocery"
+  ],
+  "bowl": [
+    "dollar_store",
+    "grocery"
+  ],
+  "box": [
+    "convenience",
+    "grocery"
+  ],
+  "bread": [
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "breast": [
+    "grocery"
+  ],
+  "brown": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "bun": [
+    "fast_food",
+    "grocery"
+  ],
+  "burger": [
+    "grocery"
+  ],
+  "burrito": [
+    "grocery"
+  ],
+  "butter": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "cabbage": [
+    "fast_food"
+  ],
+  "caesar": [
+    "fast_food",
+    "grocery"
+  ],
+  "can": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "canned": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "carnitas": [
+    "grocery"
+  ],
+  "carrot": [
+    "convenience",
+    "grocery"
+  ],
+  "carrots": [
+    "convenience",
+    "grocery"
+  ],
+  "cereal": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "cheese": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "grocery"
+  ],
+  "chicken": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "chickpea": [
+    "convenience",
+    "food_pantry",
+    "grocery"
+  ],
+  "chili": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "chip": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "chips": [
+    "fast_food"
+  ],
+  "chocolate": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "coffee": [
+    "fast_food"
+  ],
+  "cookie": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "cottage": [
+    "convenience",
+    "grocery"
+  ],
+  "cracker": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "crackers": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "cream": [
+    "convenience",
+    "fast_food",
+    "grocery"
+  ],
+  "crust": [
+    "fast_food"
+  ],
+  "cucumber": [
+    "fast_food"
+  ],
+  "curry": [
+    "grocery"
+  ],
+  "dal": [
+    "food_pantry",
+    "grocery"
+  ],
+  "edamame": [
+    "dollar_store",
+    "grocery"
+  ],
+  "egg": [
+    "fast_food"
+  ],
+  "eggs": [
+    "convenience",
+    "food_pantry",
+    "grocery"
+  ],
+  "fajita": [
+    "fast_food"
+  ],
+  "feta": [
+    "convenience",
+    "fast_food",
+    "grocery"
+  ],
+  "fillet": [
+    "grocery"
+  ],
+  "fish": [
+    "fast_food"
+  ],
+  "flour": [
+    "fast_food"
+  ],
+  "fry": [
+    "grocery"
+  ],
+  "garlic": [
+    "fast_food"
+  ],
+  "grapes": [
+    "fast_food"
+  ],
+  "greek": [
+    "convenience",
+    "grocery"
+  ],
+  "green bean": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "grilled": [
+    "grocery"
+  ],
+  "guacamole": [
+    "fast_food"
+  ],
+  "hard": [
+    "convenience",
+    "food_pantry",
+    "grocery"
+  ],
+  "hashbrown": [
+    "fast_food"
+  ],
+  "hummus": [
+    "convenience",
+    "grocery"
+  ],
+  "impossible": [
+    "fast_food"
+  ],
+  "instant": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "jacket": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "kale": [
+    "fast_food"
+  ],
+  "ketchup": [
+    "fast_food"
+  ],
+  "kit": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "lentil": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "lettuce": [
+    "fast_food"
+  ],
+  "low": [
+    "food_pantry",
+    "grocery"
+  ],
+  "mango": [
+    "grocery"
+  ],
+  "marinara": [
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "mayonnaise": [
+    "fast_food"
+  ],
+  "meatball": [
+    "fast_food"
+  ],
+  "microwave": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "microwaved": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "milk": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "mix": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "muffin": [
+    "fast_food"
+  ],
+  "mushroom": [
+    "fast_food"
+  ],
+  "mustard": [
+    "fast_food"
+  ],
+  "noodle": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "nuts": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "grocery"
+  ],
+  "oatmeal": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "oats": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "oil": [
+    "fast_food"
+  ],
+  "onion": [
+    "fast_food"
+  ],
+  "packet": [
+    "convenience",
+    "grocery"
+  ],
+  "parmesan": [
+    "fast_food"
+  ],
+  "pasta": [
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "pea": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "peanut": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "pecan": [
+    "fast_food"
+  ],
+  "pepper": [
+    "fast_food"
+  ],
+  "pepperoni": [
+    "fast_food"
+  ],
+  "pickle": [
+    "fast_food"
+  ],
+  "pineapple": [
+    "convenience",
+    "grocery"
+  ],
+  "pizza": [
+    "convenience",
+    "grocery"
+  ],
+  "pork": [
+    "fast_food",
+    "grocery"
+  ],
+  "potato": [
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "pouch": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "pretzels": [
+    "convenience",
+    "grocery"
+  ],
+  "protein": [
+    "fast_food"
+  ],
+  "quesadilla": [
+    "convenience",
+    "grocery"
+  ],
+  "quinoa": [
+    "grocery"
+  ],
+  "raisins": [
+    "fast_food"
+  ],
+  "ramen": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "ranch": [
+    "fast_food"
+  ],
+  "rice": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "roasted": [
+    "grocery"
+  ],
+  "salad": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "salmon": [
+    "grocery"
+  ],
+  "salsa": [
+    "fast_food"
+  ],
+  "salt": [
+    "fast_food"
+  ],
+  "saltines": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "sandwich": [
+    "convenience",
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "sardine": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "sardines": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "sauce": [
+    "dollar_store",
+    "fast_food",
+    "grocery"
+  ],
+  "sausage": [
+    "fast_food"
+  ],
+  "scramble": [
+    "grocery"
+  ],
+  "shelf": [
+    "convenience",
+    "dollar_store",
+    "food_pantry"
+  ],
+  "shelled": [
+    "grocery"
+  ],
+  "shrimp": [
+    "grocery"
+  ],
+  "slice": [
+    "convenience",
+    "grocery"
+  ],
+  "smoothie": [
+    "convenience",
+    "grocery"
+  ],
+  "snack": [
+    "convenience",
+    "grocery"
+  ],
+  "sodium": [
+    "food_pantry",
+    "grocery"
+  ],
+  "sofritas": [
+    "fast_food"
+  ],
+  "soup": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "spinach": [
+    "convenience",
+    "fast_food",
+    "grocery"
+  ],
+  "split": [
+    "dollar_store",
+    "food_pantry",
+    "grocery"
+  ],
+  "stable": [
+    "convenience",
+    "dollar_store",
+    "food_pantry"
+  ],
+  "steak": [
+    "fast_food"
+  ],
+  "sticks": [
+    "convenience",
+    "grocery"
+  ],
+  "sticky": [
+    "grocery"
+  ],
+  "stir": [
+    "grocery"
+  ],
+  "string": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "sugar": [
+    "fast_food"
+  ],
+  "sweet": [
+    "food_pantry",
+    "grocery"
+  ],
+  "tacos": [
+    "grocery"
+  ],
+  "tartar": [
+    "fast_food"
+  ],
+  "toast": [
+    "convenience",
+    "food_pantry",
+    "grocery"
+  ],
+  "tofu": [
+    "grocery"
+  ],
+  "tomato": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "tortilla": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "trail": [
+    "convenience",
+    "dollar_store",
+    "grocery"
+  ],
+  "tuna": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "turkey": [
+    "fast_food"
+  ],
+  "vegetable": [
+    "food_pantry",
+    "grocery"
+  ],
+  "vegetables": [
+    "convenience",
+    "dollar_store",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "wheat": [
+    "convenience",
+    "food_pantry",
+    "grocery"
+  ],
+  "wrap": [
+    "convenience",
+    "fast_food",
+    "food_pantry",
+    "grocery"
+  ],
+  "yogurt": [
+    "convenience",
+    "grocery"
+  ]
+}

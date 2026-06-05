@@ -5,6 +5,7 @@ import '../entities/food.dart';
 import '../entities/local_access.dart';
 import '../entities/recommendation.dart';
 import '../entities/user_constraints.dart';
+import '../value_objects/allergen.dart';
 import '../value_objects/availability_context.dart';
 import '../value_objects/benefit_program.dart';
 import '../value_objects/religion.dart';
@@ -41,14 +42,19 @@ class Explainer {
   ) {
     final satisfied = <SatisfiedConstraint>[];
     final copy = _copy;
+    final effectiveAllergens = user.safety.effectiveAllergens;
 
-    if (user.safety.allergens.isNotEmpty) {
+    if (effectiveAllergens.isNotEmpty) {
+      final allergenLabels = Allergen.displayOrder
+          .where(effectiveAllergens.contains)
+          .map((item) => item.label)
+          .join(', ');
       satisfied.add(
         SatisfiedConstraint(
           category: 'allergen',
           description: copy.choose(
-            'Avoids ${user.safety.allergens.map((item) => item.label).join(', ')}',
-            'Evita ${user.safety.allergens.map((item) => item.label).join(', ')}',
+            'Avoids $allergenLabels',
+            'Evita $allergenLabels',
           ),
         ),
       );

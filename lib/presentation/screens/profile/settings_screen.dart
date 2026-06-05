@@ -11,6 +11,7 @@ import '../../providers/cache_controller.dart';
 import '../../providers/profile_controller.dart';
 import '../../widgets/home_tab_header.dart';
 import '../../widgets/section_card.dart';
+import '../legal/legal_documents_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key, this.embedded = false});
@@ -155,98 +156,118 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const SizedBox(height: 14),
                 SectionCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        copy.choose('Advanced scoring', 'Puntaje avanzado'),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      copy.legalDocumentsTitle,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    subtitle: Text(copy.medicalDisclaimerShort),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const LegalDocumentsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SectionCard(
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors.transparent,
+                    ),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      childrenPadding: const EdgeInsets.only(bottom: 8),
+                      title: Text(
+                        copy.researcherSettingsTitle,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        copy.choose(
-                          'These sliders rebalance how strongly the engine weighs nutrition, cost, and preference.',
-                          'Estos controles cambian cuanto pesa nutricion, costo y preferencia.',
+                      subtitle: Text(copy.researcherSettingsSubtitle),
+                      children: [
+                        _WeightSlider(
+                          label: copy.choose(
+                            'Macro alignment',
+                            'Ajuste de macros',
+                          ),
+                          value: _weights.macro,
+                          displayPercent: normalizedWeights.macro,
+                          onChanged: (value) => setState(() {
+                            _weights = _weights.copyWith(macro: value);
+                          }),
                         ),
-                      ),
-                      const SizedBox(height: 14),
-                      _WeightSlider(
-                        label: copy.choose(
-                          'Macro alignment',
-                          'Ajuste de macros',
+                        _WeightSlider(
+                          label: copy.choose('Micronutrients', 'Micronutrientes'),
+                          value: _weights.micro,
+                          displayPercent: normalizedWeights.micro,
+                          onChanged: (value) => setState(() {
+                            _weights = _weights.copyWith(micro: value);
+                          }),
                         ),
-                        value: _weights.macro,
-                        displayPercent: normalizedWeights.macro,
-                        onChanged: (value) => setState(() {
-                          _weights = _weights.copyWith(macro: value);
-                        }),
-                      ),
-                      _WeightSlider(
-                        label: copy.choose('Micronutrients', 'Micronutrientes'),
-                        value: _weights.micro,
-                        displayPercent: normalizedWeights.micro,
-                        onChanged: (value) => setState(() {
-                          _weights = _weights.copyWith(micro: value);
-                        }),
-                      ),
-                      _WeightSlider(
-                        label: copy.choose(
-                          'Penalty strength',
-                          'Fuerza de penalidad',
+                        _WeightSlider(
+                          label: copy.choose(
+                            'Penalty strength',
+                            'Fuerza de penalidad',
+                          ),
+                          value: _weights.penalty,
+                          displayPercent: normalizedWeights.penalty,
+                          onChanged: (value) => setState(() {
+                            _weights = _weights.copyWith(penalty: value);
+                          }),
                         ),
-                        value: _weights.penalty,
-                        displayPercent: normalizedWeights.penalty,
-                        onChanged: (value) => setState(() {
-                          _weights = _weights.copyWith(penalty: value);
-                        }),
-                      ),
-                      _WeightSlider(
-                        label: copy.choose(
-                          'Cost pressure',
-                          'Presion por costo',
+                        _WeightSlider(
+                          label: copy.choose(
+                            'Cost pressure',
+                            'Presion por costo',
+                          ),
+                          value: _weights.cost,
+                          displayPercent: normalizedWeights.cost,
+                          onChanged: (value) => setState(() {
+                            _weights = _weights.copyWith(cost: value);
+                          }),
                         ),
-                        value: _weights.cost,
-                        displayPercent: normalizedWeights.cost,
-                        onChanged: (value) => setState(() {
-                          _weights = _weights.copyWith(cost: value);
-                        }),
-                      ),
-                      _WeightSlider(
-                        label: copy.choose(
-                          'Preference bonus',
-                          'Bono por preferencia',
+                        _WeightSlider(
+                          label: copy.choose(
+                            'Preference bonus',
+                            'Bono por preferencia',
+                          ),
+                          value: _weights.preference,
+                          displayPercent: normalizedWeights.preference,
+                          onChanged: (value) => setState(() {
+                            _weights = _weights.copyWith(preference: value);
+                          }),
                         ),
-                        value: _weights.preference,
-                        displayPercent: normalizedWeights.preference,
-                        onChanged: (value) => setState(() {
-                          _weights = _weights.copyWith(preference: value);
-                        }),
-                      ),
-                      const SizedBox(height: 8),
-                      FilledButton(
-                        onPressed: () {
-                          controller.updateWeights(_weights);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                copy.choose(
-                                  'Advanced scoring saved',
-                                  'Puntaje avanzado guardado',
+                        const SizedBox(height: 8),
+                        FilledButton(
+                          onPressed: () {
+                            controller.updateWeights(_weights);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  copy.choose(
+                                    'Advanced scoring saved',
+                                    'Puntaje avanzado guardado',
+                                  ),
                                 ),
                               ),
+                            );
+                          },
+                          child: Text(
+                            copy.choose(
+                              'Save advanced scoring',
+                              'Guardar puntaje avanzado',
                             ),
-                          );
-                        },
-                        child: Text(
-                          copy.choose(
-                            'Save advanced scoring',
-                            'Guardar puntaje avanzado',
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),

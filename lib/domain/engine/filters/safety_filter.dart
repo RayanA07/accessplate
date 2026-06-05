@@ -6,10 +6,11 @@ class SafetyFilter {
   const SafetyFilter();
 
   List<FoodRecord> apply(List<FoodRecord> foods, SafetyConstraints safety) {
+    final effectiveAllergens = safety.effectiveAllergens;
     return foods.where((record) {
       final food = record.food;
       final allergenConflict = food.allergens.any(
-        (allergen) => safety.allergens.contains(allergen),
+        (allergen) => effectiveAllergens.contains(allergen),
       );
       if (allergenConflict) {
         return false;

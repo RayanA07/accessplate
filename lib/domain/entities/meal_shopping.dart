@@ -1,6 +1,7 @@
 import 'food.dart';
 import 'grocery.dart';
 import 'store_search.dart';
+import '../value_objects/availability_context.dart';
 
 enum IngredientEvidence { menuItem, structured, estimated }
 
@@ -35,7 +36,8 @@ class IngredientProductMatch {
   final IngredientRequirement ingredient;
   final List<GroceryProduct> products;
 
-  GroceryProduct? get cheapestProduct => products.isEmpty ? null : products.first;
+  GroceryProduct? get cheapestProduct =>
+      products.isEmpty ? null : products.first;
   double? get cheapestPrice => cheapestProduct?.effectivePrice;
 }
 
@@ -89,10 +91,7 @@ class LiveIngredientLookupResult {
 }
 
 class LiveStoreMatch {
-  const LiveStoreMatch({
-    required this.store,
-    required this.lookup,
-  });
+  const LiveStoreMatch({required this.store, required this.lookup});
 
   final NearbyStore store;
   final LiveIngredientLookupResult lookup;
@@ -108,6 +107,7 @@ class MealShoppingPlan {
     required this.liveProductMatch,
     this.liveLookupAttempted = false,
     this.storeStatusNote,
+    this.offlineAvailabilityContext,
   });
 
   final Food food;
@@ -118,6 +118,7 @@ class MealShoppingPlan {
   final LiveStoreMatch? liveProductMatch;
   final bool liveLookupAttempted;
   final String? storeStatusNote;
+  final AvailabilityContext? offlineAvailabilityContext;
 
   bool get hasNearbyStore => chosenStore != null;
   bool get hasLiveProducts =>
@@ -137,6 +138,7 @@ class MealShoppingPlan {
     bool clearLiveProductMatch = false,
     bool? liveLookupAttempted,
     String? storeStatusNote,
+    AvailabilityContext? offlineAvailabilityContext,
   }) {
     return MealShoppingPlan(
       food: food,
@@ -149,6 +151,8 @@ class MealShoppingPlan {
           : liveProductMatch ?? this.liveProductMatch,
       liveLookupAttempted: liveLookupAttempted ?? this.liveLookupAttempted,
       storeStatusNote: storeStatusNote ?? this.storeStatusNote,
+      offlineAvailabilityContext:
+          offlineAvailabilityContext ?? this.offlineAvailabilityContext,
     );
   }
 }

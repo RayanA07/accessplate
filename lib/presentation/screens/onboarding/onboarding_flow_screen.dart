@@ -5,37 +5,23 @@ import '../../../core/theme/app_palette.dart';
 import '../../../domain/entities/user_profile.dart';
 import '../../copy/app_copy.dart';
 import '../../providers/profile_controller.dart';
-import 'onboarding_age_step.dart';
-import 'onboarding_allergens_step.dart';
 import 'onboarding_access_step.dart';
-import 'onboarding_availability_step.dart';
-import 'onboarding_budget_step.dart';
+import 'onboarding_body_stats_step.dart';
 import 'onboarding_dietary_style_step.dart';
-import 'onboarding_environment_step.dart';
-import 'onboarding_height_step.dart';
 import 'onboarding_medical_step.dart';
 import 'onboarding_name_step.dart';
 import 'onboarding_pantry_step.dart';
-import 'onboarding_profile_step.dart';
-import 'onboarding_religion_step.dart';
+import 'onboarding_shopping_setup_step.dart';
 import 'onboarding_splash_step.dart';
 import 'onboarding_targets_step.dart';
-import 'onboarding_weight_step.dart';
 
 const _orderedStages = <OnboardingStage>[
   OnboardingStage.splash,
   OnboardingStage.name,
   OnboardingStage.age,
-  OnboardingStage.height,
-  OnboardingStage.weight,
-  OnboardingStage.profile,
   OnboardingStage.budget,
-  OnboardingStage.environment,
-  OnboardingStage.availability,
   OnboardingStage.access,
   OnboardingStage.dietaryStyle,
-  OnboardingStage.allergens,
-  OnboardingStage.religion,
   OnboardingStage.medical,
   OnboardingStage.pantry,
   OnboardingStage.targets,
@@ -55,7 +41,7 @@ class OnboardingFlowScreen extends ConsumerWidget {
       );
     }
     final controller = ref.read(profileControllerProvider.notifier);
-    final stage = profile.onboardingStage;
+    final stage = _displayStage(profile.onboardingStage);
     final copy = AppCopy(profile.constraints.access.language);
     final progress = stage == OnboardingStage.splash
         ? 0.0
@@ -96,57 +82,65 @@ class OnboardingFlowScreen extends ConsumerWidget {
                                 const OnboardingSplashStep(),
                               OnboardingStage.name =>
                                 const OnboardingNameStep(),
-                              OnboardingStage.age => const OnboardingAgeStep(),
-                              OnboardingStage.height =>
-                                const OnboardingHeightStep(),
+                              OnboardingStage.age ||
+                              OnboardingStage.height ||
                               OnboardingStage.weight =>
-                                const OnboardingWeightStep(),
-                              OnboardingStage.profile =>
-                                const OnboardingProfileStep(),
-                              OnboardingStage.allergens =>
-                                const OnboardingAllergensStep(),
-                              OnboardingStage.religion =>
-                                const OnboardingReligionStep(),
-                              OnboardingStage.medical =>
-                                const OnboardingMedicalStep(),
-                              OnboardingStage.budget =>
-                                const OnboardingBudgetStep(),
-                              OnboardingStage.environment =>
-                                const OnboardingEnvironmentStep(),
+                                const OnboardingBodyStatsStep(),
+                              OnboardingStage.budget ||
+                              OnboardingStage.environment ||
                               OnboardingStage.availability =>
-                                const OnboardingAvailabilityStep(),
+                                const OnboardingShoppingSetupStep(),
                               OnboardingStage.access =>
                                 const OnboardingAccessStep(),
-                              OnboardingStage.dietaryStyle =>
-                                const OnboardingDietaryStyleStep(),
+                              OnboardingStage.dietaryStyle ||
+                              OnboardingStage.allergens ||
+                              OnboardingStage.religion ||
                               OnboardingStage.mealTiming =>
-                                const OnboardingAllergensStep(),
+                                const OnboardingDietaryStyleStep(),
+                              OnboardingStage.medical =>
+                                const OnboardingMedicalStep(),
                               OnboardingStage.pantry =>
                                 const OnboardingPantryStep(),
                               OnboardingStage.targets =>
                                 const OnboardingTargetsStep(),
+                              OnboardingStage.profile =>
+                                const OnboardingBodyStatsStep(),
                             },
                           ),
                         ),
                       ),
                     ),
                     SizedBox(height: compact ? 12 : 18),
-                    _ContinueButton(
-                      label: switch (stage) {
-                        OnboardingStage.splash => copy.choose(
-                          'Get started',
-                          'Empezar',
+                    if (stage == OnboardingStage.splash) ...[
+                      _ContinueButton(
+                        label: copy.choose('Get started', 'Empezar'),
+                        onPressed: () => _goForward(controller, stage),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton(
+                        onPressed: () =>
+                            controller.applyEmergencyQuickSetup(),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
                         ),
-                        OnboardingStage.targets => copy.choose(
-                          'See suggested meals',
-                          'Ver comidas sugeridas',
-                        ),
-                        _ => copy.choose('Continue', 'Continuar'),
-                      },
-                      onPressed: canContinue
-                          ? () => _goForward(controller, stage)
-                          : null,
-                    ),
+                        child: Text(copy.onboardingEmergencySetupLabel),
+                      ),
+                    ] else
+                      _ContinueButton(
+                        label: switch (stage) {
+                          OnboardingStage.targets => copy.choose(
+                            'See my meal suggestions →',
+                            'Ver mis sugerencias de comidas →',
+                          ),
+                          _ => copy.choose('Continue', 'Continuar'),
+                        },
+                        onPressed: canContinue
+                            ? () => _goForward(controller, stage)
+                            : null,
+                      ),
                   ],
                 ),
               ),
@@ -181,6 +175,19 @@ class OnboardingFlowScreen extends ConsumerWidget {
       default:
         return true;
     }
+  }
+
+  OnboardingStage _displayStage(OnboardingStage stage) {
+    return switch (stage) {
+      OnboardingStage.height || OnboardingStage.weight => OnboardingStage.age,
+      OnboardingStage.environment ||
+      OnboardingStage.availability => OnboardingStage.budget,
+      OnboardingStage.profile => OnboardingStage.age,
+      OnboardingStage.allergens ||
+      OnboardingStage.religion ||
+      OnboardingStage.mealTiming => OnboardingStage.dietaryStyle,
+      _ => stage,
+    };
   }
 }
 

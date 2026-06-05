@@ -30,8 +30,9 @@ class DailyNutritionCard extends ConsumerWidget {
     );
 
     return SectionCard(
+      key: const ValueKey('tracker-card'),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      tintColor: NihPalette.primary.withValues(alpha: 0.08),
+      fillColor: NihPalette.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -50,61 +51,41 @@ class DailyNutritionCard extends ConsumerWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final stacked = constraints.maxWidth < 360;
-              final summary = _CalorieRing(
-                current: todayIntake['calories_kcal'] ?? 0,
-                target: todayTargets.calories,
-                label: copy.caloriesLabel,
-              );
-              final side = _MacroColumn(
-                rows: [
-                  _MacroRowData(
-                    color: NihPalette.macroProtein,
-                    label: copy.proteinLabel,
-                    current: todayIntake['protein_g'] ?? 0,
-                    target: todayTargets.proteinG,
-                    unit: 'g',
-                  ),
-                  _MacroRowData(
-                    color: NihPalette.macroCarbs,
-                    label: copy.carbsLabel,
-                    current: todayIntake['carbs_g'] ?? 0,
-                    target: todayTargets.carbsG,
-                    unit: 'g',
-                  ),
-                  _MacroRowData(
-                    color: NihPalette.macroFat,
-                    label: copy.fatLabel,
-                    current: todayIntake['fat_g'] ?? 0,
-                    target: todayTargets.fatG,
-                    unit: 'g',
-                  ),
-                  _MacroRowData(
-                    color: NihPalette.secondary,
-                    label: copy.choose('Fiber', 'Fibra'),
-                    current: todayIntake['fiber_g'] ?? 0,
-                    target: todayTargets.fiberG,
-                    unit: 'g',
-                  ),
-                ],
-              );
-
-              if (stacked) {
-                return Column(
-                  children: [summary, const SizedBox(height: 18), side],
-                );
-              }
-
-              return Row(
-                children: [
-                  summary,
-                  const SizedBox(width: 18),
-                  Expanded(child: side),
-                ],
-              );
-            },
+          Center(
+            child: _CalorieRing(
+              current: todayIntake['calories_kcal'] ?? 0,
+              target: todayTargets.calories,
+              label: copy.caloriesLabel,
+            ),
+          ),
+          const SizedBox(height: 18),
+          _MacroColumn(
+            rows: [
+              _MacroRowData(
+                label: copy.proteinLabel,
+                current: todayIntake['protein_g'] ?? 0,
+                target: todayTargets.proteinG,
+                unit: 'g',
+              ),
+              _MacroRowData(
+                label: copy.carbsLabel,
+                current: todayIntake['carbs_g'] ?? 0,
+                target: todayTargets.carbsG,
+                unit: 'g',
+              ),
+              _MacroRowData(
+                label: copy.fatLabel,
+                current: todayIntake['fat_g'] ?? 0,
+                target: todayTargets.fatG,
+                unit: 'g',
+              ),
+              _MacroRowData(
+                label: copy.choose('Fiber', 'Fibra'),
+                current: todayIntake['fiber_g'] ?? 0,
+                target: todayTargets.fiberG,
+                unit: 'g',
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           Wrap(
@@ -234,7 +215,7 @@ class _MacroColumn extends StatelessWidget {
     return Column(
       children: [
         for (var index = 0; index < rows.length; index++) ...[
-          _MacroRingRow(data: rows[index]),
+          _MacroBarRow(data: rows[index]),
           if (index < rows.length - 1) const SizedBox(height: 10),
         ],
       ],
@@ -244,22 +225,20 @@ class _MacroColumn extends StatelessWidget {
 
 class _MacroRowData {
   const _MacroRowData({
-    required this.color,
     required this.label,
     required this.current,
     required this.target,
     required this.unit,
   });
 
-  final Color color;
   final String label;
   final double current;
   final double target;
   final String unit;
 }
 
-class _MacroRingRow extends StatelessWidget {
-  const _MacroRingRow({required this.data});
+class _MacroBarRow extends StatelessWidget {
+  const _MacroBarRow({required this.data});
 
   final _MacroRowData data;
 
@@ -268,60 +247,44 @@ class _MacroRingRow extends StatelessWidget {
     final progress = data.target <= 0
         ? 0.0
         : (data.current / data.target).clamp(0.0, 1.0);
-    final percentage = data.target <= 0
-        ? 0
-        : ((data.current / data.target) * 100).round();
 
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 34,
-          height: 34,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 34,
-                height: 34,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  strokeWidth: 4,
-                  backgroundColor: data.color.withValues(alpha: 0.14),
-                  valueColor: AlwaysStoppedAnimation<Color>(data.color),
-                  strokeCap: StrokeCap.round,
-                ),
-              ),
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
+        Row(
+          children: [
+            Expanded(
+              child: Text(
                 data.label,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 2),
-              Text(
-                '${data.current.toStringAsFixed(0)}${data.unit} / ${data.target.toStringAsFixed(0)}${data.unit} - $percentage%',
-                style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '${data.current.toStringAsFixed(0)}${data.unit} / ${data.target.toStringAsFixed(0)}${data.unit}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: NihPalette.grayDark,
+                fontWeight: FontWeight.w600,
               ),
-            ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: SizedBox(
+            key: ValueKey('macro-bar-${data.label.toLowerCase()}'),
+            height: 8,
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Theme.of(context).colorScheme.outlineVariant,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                NihPalette.success,
+              ),
+              minHeight: 8,
+            ),
           ),
         ),
       ],

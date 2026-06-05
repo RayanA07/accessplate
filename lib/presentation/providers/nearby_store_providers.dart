@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/device/device_location_service.dart';
+import '../../data/device/network_connectivity_service.dart';
+import '../../domain/entities/demo_location_seed.dart';
 import '../../domain/entities/meal_shopping.dart';
 import '../../domain/entities/store_search.dart';
+import '../../domain/value_objects/availability_context.dart';
 import 'app_bootstrap.dart';
 import 'profile_controller.dart';
 import 'recommendations_provider.dart';
@@ -41,16 +44,53 @@ class ShoppingLocationState {
   }
 }
 
+enum StoreAvailabilityMode { offline, searching, online }
+
+class StoreAvailabilityModeState {
+  const StoreAvailabilityModeState({
+    required this.mode,
+    required this.apiConfigured,
+    required this.hasInternet,
+    this.location,
+    this.nearbyStores = const [],
+  });
+
+  final StoreAvailabilityMode mode;
+  final bool apiConfigured;
+  final bool hasInternet;
+  final SearchLocation? location;
+  final List<NearbyStore> nearbyStores;
+
+  bool get isOffline => mode == StoreAvailabilityMode.offline;
+  bool get isSearching => mode == StoreAvailabilityMode.searching;
+  bool get isOnline => mode == StoreAvailabilityMode.online;
+  bool get hasLocation => location != null;
+  bool get usingDeviceLocation =>
+      location != null &&
+      location!.kind == SearchLocationKind.device &&
+      location!.isLive;
+}
+
 final deviceLocationServiceProvider = Provider<DeviceLocationService>((ref) {
   return const DeviceLocationService();
 });
 
-final shoppingLocationControllerProvider = StateNotifierProvider<
-  ShoppingLocationController,
-  ShoppingLocationState
->((ref) {
-  return ShoppingLocationController(ref);
+final networkConnectivityServiceProvider = Provider<NetworkConnectivityService>(
+  (ref) {
+    return NetworkConnectivityService();
+  },
+);
+
+final hasInternetConnectionProvider = StreamProvider<bool>((ref) {
+  return ref.watch(networkConnectivityServiceProvider).watchIsOnline();
 });
+
+final shoppingLocationControllerProvider =
+    StateNotifierProvider<ShoppingLocationController, ShoppingLocationState>((
+      ref,
+    ) {
+      return ShoppingLocationController(ref);
+    });
 
 final shoppingLocationStateProvider = Provider<ShoppingLocationState>((ref) {
   return ref.watch(shoppingLocationControllerProvider);
@@ -76,7 +116,37 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
     }
 
     final profile = await _ref.read(profileControllerProvider.future);
-    final postalCode = profile.constraints.access.postalCode.trim();
+    final postalCode = resolvedAccessPostalCode(
+      profile.constraints.access.postalCode,
+    );
+    final cachedLookup = profile.constraints.cachedNearbyStoreLookup;
+    if (cachedLookup != null &&
+        (cachedLookup.origin.postalCode == null ||
+            cachedLookup.origin.postalCode == postalCode)) {
+      state = state.copyWith(
+        loading: false,
+        location: cachedLookup.origin,
+        lastQuery: cachedLookup.origin.query ?? cachedLookup.origin.label,
+        clearError: true,
+      );
+      return;
+    }
+    final seededLocation = seededSearchLocationForPostalCode(postalCode);
+    if (seededLocation != null) {
+      state = state.copyWith(
+        loading: false,
+        location: seededLocation,
+        lastQuery: seededLocation.query ?? seededLocation.label,
+        clearError: true,
+      );
+      if (postalCode != profile.constraints.access.postalCode) {
+        await _ref
+            .read(profileControllerProvider.notifier)
+            .updatePostalCode(postalCode);
+      }
+      return;
+    }
+
     if (postalCode.length == 5) {
       await search(postalCode, persistZip: false);
     }
@@ -134,7 +204,9 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
     );
     try {
       final bootstrap = await _ref.read(appBootstrapProvider.future);
-      final location = await bootstrap.storeLocatorRepository.geocodeQuery(query);
+      final location = await bootstrap.storeLocatorRepository.geocodeQuery(
+        query,
+      );
       state = state.copyWith(
         loading: false,
         location: location,
@@ -155,12 +227,15 @@ class ShoppingLocationController extends StateNotifier<ShoppingLocationState> {
     }
   }
 
-  void clear() {
+  Future<void> clear() async {
     state = state.copyWith(
       clearLocation: true,
       clearError: true,
       loading: false,
     );
+    await _ref
+        .read(profileControllerProvider.notifier)
+        .updateNearbyStoreCache(null);
   }
 }
 
@@ -172,11 +247,88 @@ final nearbyStoresProvider = FutureProvider<List<NearbyStore>>((ref) async {
 
   final bootstrap = await ref.watch(appBootstrapProvider.future);
   final profile = await ref.watch(profileControllerProvider.future);
-  return bootstrap.searchNearbyStoresUseCase.execute(
-    origin: locationState.location!,
-    categories: profile.constraints.feasibility.availability,
-    transportationMode: profile.constraints.access.transportation,
-    maxTravelMinutes: profile.constraints.access.maxTravelMinutes,
+  final origin = locationState.location!;
+  final cachedLookup = profile.constraints.cachedNearbyStoreLookup;
+  final hasInternet = ref.watch(hasInternetConnectionProvider).value ?? true;
+  if (!hasInternet) {
+    return _cachedStoresFor(
+      cachedLookup: cachedLookup,
+      origin: origin,
+      categories: profile.constraints.feasibility.availability,
+    );
+  }
+
+  try {
+    final stores = await bootstrap.searchNearbyStoresUseCase.execute(
+      origin: origin,
+      categories: profile.constraints.feasibility.availability,
+      transportationMode: profile.constraints.access.transportation,
+      maxTravelMinutes: profile.constraints.access.maxTravelMinutes,
+    );
+    await ref
+        .read(profileControllerProvider.notifier)
+        .updateNearbyStoreCache(
+          CachedNearbyStoreLookup(
+            origin: origin,
+            stores: stores,
+            cachedAt: DateTime.now().toUtc(),
+          ),
+        );
+    return stores;
+  } catch (_) {
+    return _cachedStoresFor(
+      cachedLookup: cachedLookup,
+      origin: origin,
+      categories: profile.constraints.feasibility.availability,
+    );
+  }
+});
+
+final storeAvailabilityModeProvider = Provider<StoreAvailabilityModeState>((
+  ref,
+) {
+  final locationState = ref.watch(shoppingLocationStateProvider);
+  final nearbyAsync = ref.watch(nearbyStoresProvider);
+  final hasInternet = ref.watch(hasInternetConnectionProvider).value ?? true;
+  final location = locationState.location;
+  final nearbyStores = nearbyAsync.valueOrNull ?? const <NearbyStore>[];
+
+  if (!locationState.apiConfigured || !hasInternet || location == null) {
+    return StoreAvailabilityModeState(
+      mode: StoreAvailabilityMode.offline,
+      apiConfigured: locationState.apiConfigured,
+      hasInternet: hasInternet,
+      location: location,
+      nearbyStores: nearbyStores,
+    );
+  }
+
+  if (nearbyAsync.isLoading) {
+    return StoreAvailabilityModeState(
+      mode: StoreAvailabilityMode.searching,
+      apiConfigured: locationState.apiConfigured,
+      hasInternet: hasInternet,
+      location: location,
+      nearbyStores: nearbyStores,
+    );
+  }
+
+  if (nearbyStores.isEmpty) {
+    return StoreAvailabilityModeState(
+      mode: StoreAvailabilityMode.offline,
+      apiConfigured: locationState.apiConfigured,
+      hasInternet: hasInternet,
+      location: location,
+      nearbyStores: nearbyStores,
+    );
+  }
+
+  return StoreAvailabilityModeState(
+    mode: StoreAvailabilityMode.online,
+    apiConfigured: locationState.apiConfigured,
+    hasInternet: hasInternet,
+    location: location,
+    nearbyStores: nearbyStores,
   );
 });
 
@@ -186,13 +338,17 @@ final mealShoppingSummariesProvider =
       final profile = await ref.watch(profileControllerProvider.future);
       final recommendations = await ref.watch(recommendationsProvider.future);
       final nearbyStores = await ref.watch(nearbyStoresProvider.future);
+      final availabilityMode = ref.read(storeAvailabilityModeProvider);
+      final usableNearbyStores = availabilityMode.isOnline
+          ? nearbyStores
+          : const <NearbyStore>[];
 
       final plans = <int, MealShoppingPlan>{};
       for (final recommendation in recommendations.recommendations) {
         final plan = bootstrap.buildMealShoppingPlanUseCase.buildSummary(
           food: recommendation.food,
           constraints: profile.constraints,
-          nearbyStores: nearbyStores,
+          nearbyStores: usableNearbyStores,
         );
         plans[recommendation.food.id] = plan;
       }
@@ -214,8 +370,9 @@ final prefetchedLiveMealShoppingPlansProvider =
       final summaries = await ref.watch(mealShoppingSummariesProvider.future);
 
       final plans = <int, MealShoppingPlan>{};
-      for (final recommendation
-          in recommendations.recommendations.take(_prefetchedMealPlanCount)) {
+      for (final recommendation in recommendations.recommendations.take(
+        _prefetchedMealPlanCount,
+      )) {
         final basePlan = summaries[recommendation.food.id];
         if (basePlan == null) {
           continue;
@@ -241,3 +398,17 @@ final liveMealShoppingPlanProvider =
     });
 
 const _prefetchedMealPlanCount = 3;
+
+List<NearbyStore> _cachedStoresFor({
+  required CachedNearbyStoreLookup? cachedLookup,
+  required SearchLocation origin,
+  required Set<AvailabilityContext> categories,
+}) {
+  if (cachedLookup == null || !cachedLookup.matchesOrigin(origin)) {
+    return const [];
+  }
+
+  return cachedLookup.stores
+      .where((store) => categories.any(store.supportsCategory))
+      .toList(growable: false);
+}

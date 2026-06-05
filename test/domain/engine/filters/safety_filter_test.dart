@@ -5,6 +5,7 @@ import 'package:access_plate/domain/entities/user_constraints.dart';
 import 'package:access_plate/domain/value_objects/allergen.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:access_plate/domain/value_objects/meal_type.dart';
+import 'package:access_plate/domain/value_objects/medical_restriction.dart';
 import 'package:access_plate/domain/value_objects/religion.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,6 +29,25 @@ void main() {
     expect(result.map((item) => item.food.id), equals([2]));
   });
 
+  test('fish, shellfish, and sesame allergens exclude matching meals', () {
+    const filter = SafetyFilter();
+    final foods = [
+      _food(id: 1, name: 'Tuna salad wrap', allergens: {Allergen.fish}),
+      _food(id: 2, name: 'Shrimp rice bowl', allergens: {Allergen.shellfish}),
+      _food(id: 3, name: 'Sesame noodles', allergens: {Allergen.sesame}),
+      _food(id: 4, name: 'Bean and rice bowl'),
+    ];
+
+    final result = filter.apply(
+      foods,
+      const SafetyConstraints(
+        allergens: {Allergen.fish, Allergen.shellfish, Allergen.sesame},
+      ),
+    );
+
+    expect(result.map((item) => item.food.id), equals([4]));
+  });
+
   test('religious exclusions are enforced', () {
     const filter = SafetyFilter();
     final foods = [
@@ -48,6 +68,24 @@ void main() {
 
     expect(result.map((item) => item.food.id), equals([2]));
   });
+
+  test('celiac avoid derives wheat and gluten exclusions automatically', () {
+    const filter = SafetyFilter();
+    final foods = [
+      _food(id: 1, name: 'Wheat pasta', allergens: {Allergen.wheat}),
+      _food(id: 2, name: 'Barley soup', allergens: {Allergen.gluten}),
+      _food(id: 3, name: 'Rice bowl'),
+    ];
+
+    final result = filter.apply(
+      foods,
+      const SafetyConstraints(
+        medicalAvoid: {MedicalRestriction.celiacDiseaseGlutenIntolerance},
+      ),
+    );
+
+    expect(result.map((item) => item.food.id), equals([3]));
+  });
 }
 
 FoodRecord _food({
@@ -55,6 +93,7 @@ FoodRecord _food({
   required String name,
   Set<Allergen> allergens = const {},
   List<ReligionRule> religionExcluded = const [],
+  List<MedicalRule> medicalRules = const [],
 }) {
   return FoodRecord(
     food: Food(
@@ -71,7 +110,7 @@ FoodRecord _food({
       availability: const {AvailabilityContext.grocery},
       allergens: allergens,
       religionExcluded: religionExcluded,
-      medicalRules: const [],
+      medicalRules: medicalRules,
       ingredients: const {'bread'},
     ),
     nutrients: const Nutrients(

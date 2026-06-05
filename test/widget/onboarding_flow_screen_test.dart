@@ -12,7 +12,7 @@ import 'package:access_plate/presentation/screens/onboarding/onboarding_flow_scr
 
 void main() {
   testWidgets(
-    'dietary style step keeps next action visible on a small viewport',
+    'food restrictions step keeps next action visible on a small viewport',
     (tester) async {
       tester.view.physicalSize = const Size(360, 640);
       tester.view.devicePixelRatio = 1;
@@ -45,7 +45,7 @@ void main() {
       await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Allergens'), findsOneWidget);
+      expect(find.text('Medical\nrestrictions'), findsOneWidget);
     },
   );
 
@@ -71,7 +71,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('See suggested meals'), findsOneWidget);
+    expect(find.text('See my meal suggestions →'), findsOneWidget);
   });
 
   testWidgets('access step shows Spanish onboarding copy when selected', (
@@ -109,7 +109,7 @@ void main() {
     expect(find.text('Espanol'), findsOneWidget);
   });
 
-  testWidgets('dietary style step shows Spanish localized copy', (
+  testWidgets('food restrictions step shows Spanish localized copy', (
     tester,
   ) async {
     final profile = UserProfile.defaults().copyWith(
@@ -136,9 +136,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Estilo de\ncomida'), findsOneWidget);
+    expect(find.text('Restricciones de comida'), findsOneWidget);
+    expect(find.text('Dieta'), findsOneWidget);
+    expect(find.text('Alergenos'), findsOneWidget);
+    expect(find.text('Religion'), findsOneWidget);
     expect(find.text('Sin filtro de dieta'), findsOneWidget);
-    expect(find.text('Vegetariano'), findsOneWidget);
     expect(find.text('Continuar'), findsOneWidget);
   });
 }

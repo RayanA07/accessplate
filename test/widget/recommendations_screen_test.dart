@@ -16,23 +16,34 @@ import 'package:access_plate/presentation/providers/nearby_store_providers.dart'
 import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/providers/recommendations_provider.dart';
 import 'package:access_plate/presentation/screens/recommendations/recommendations_screen.dart';
+import 'package:access_plate/presentation/widgets/compact_action_plan_section.dart';
 import 'package:access_plate/presentation/widgets/recommendation_card.dart';
 
 void main() {
+  setUp(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
+
   testWidgets('recommendations screen shows ranked meal cards', (tester) async {
+    await _setTallViewport(tester);
     await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
     expect(find.text('Meals you can get today'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byType(RecommendationCard).first,
+      200,
+    );
     expect(find.byType(RecommendationCard), findsWidgets);
   });
 
   testWidgets('recommendation details expand in place', (tester) async {
+    await _setTallViewport(tester);
     await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
     final planButton = find.widgetWithText(TextButton, 'Plan').first;
-    await tester.ensureVisible(planButton);
+    await tester.scrollUntilVisible(planButton, 200);
     await tester.pumpAndSettle();
     await tester.tap(planButton, warnIfMissed: false);
     await tester.pumpAndSettle();
@@ -43,25 +54,98 @@ void main() {
   });
 
   testWidgets('logging a meal shows daily tracking feedback', (tester) async {
+    await _setTallViewport(tester);
     await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
     final logButton = find.widgetWithText(FilledButton, 'Log meal').first;
-    await tester.ensureVisible(logButton);
+    await tester.scrollUntilVisible(logButton, 200);
     await tester.pumpAndSettle();
     await tester.tap(logButton, warnIfMissed: false);
     await tester.pumpAndSettle();
 
     expect(find.textContaining('daily tracking'), findsOneWidget);
   });
+
+  testWidgets('recommendations screen shows compact action plan', (tester) async {
+    await tester.pumpWidget(_buildHarness());
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CompactActionPlanSection), findsOneWidget);
+    expect(find.text('Do this first today'), findsOneWidget);
+    expect(find.text('Go first'), findsOneWidget);
+    expect(find.text('Buy first'), findsWidgets);
+    expect(find.text('Start at convenience store'), findsOneWidget);
+  });
+
+  testWidgets(
+    'recommendations screen shows offline banner and store-type headlines in offline mode',
+    (tester) async {
+      await _setTallViewport(tester);
+      final offlinePlans = {
+        for (final recommendation in _result.recommendations)
+          recommendation.food.id: _shoppingPlanWithoutStore(
+            recommendation.food,
+          ),
+      };
+
+      await tester.pumpWidget(
+        _buildHarness(
+          mode: const StoreAvailabilityModeState(
+            mode: StoreAvailabilityMode.offline,
+            apiConfigured: true,
+            hasInternet: false,
+          ),
+          shoppingPlans: offlinePlans,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Offline — showing meals from your saved settings'),
+        findsOneWidget,
+      );
+      expect(find.text('Nearby stores'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.textContaining('Available at: Grocery store').first,
+        200,
+      );
+      expect(find.textContaining('Available at: Grocery store'), findsWidgets);
+      expect(find.text('Verified'), findsNothing);
+    },
+  );
 }
 
-Widget _buildHarness() {
+Widget _buildHarness({
+  StoreAvailabilityModeState? mode,
+  Map<int, MealShoppingPlan>? shoppingPlans,
+}) {
   final profile = UserProfile.defaults().copyWith(onboardingComplete: true);
-  final shoppingPlans = {
-    for (final recommendation in _result.recommendations)
-      recommendation.food.id: _shoppingPlanFor(recommendation.food),
-  };
+  final resolvedPlans =
+      shoppingPlans ??
+      {
+        for (final recommendation in _result.recommendations)
+          recommendation.food.id: _shoppingPlanFor(recommendation.food),
+      };
+  final resolvedMode =
+      mode ??
+      StoreAvailabilityModeState(
+        mode: StoreAvailabilityMode.online,
+        apiConfigured: true,
+        hasInternet: true,
+        location: const SearchLocation(
+          kind: SearchLocationKind.device,
+          label: '4001 W Chicago Ave, Chicago, IL 60651',
+          latitude: 41.8955,
+          longitude: -87.7261,
+          verification: DataVerification.live,
+          postalCode: '60651',
+        ),
+        nearbyStores: resolvedPlans.values
+            .map((plan) => plan.chosenStore)
+            .whereType<NearbyStore>()
+            .toList(growable: false),
+      );
 
   return ProviderScope(
     overrides: [
@@ -69,12 +153,16 @@ Widget _buildHarness() {
         () => _TestProfileController(profile),
       ),
       recommendationsProvider.overrideWith((ref) async => _result),
+      storeAvailabilityModeProvider.overrideWith((ref) => resolvedMode),
       shoppingLocationStateProvider.overrideWith(
-        (ref) => const ShoppingLocationState(apiConfigured: true),
+        (ref) => ShoppingLocationState(
+          apiConfigured: true,
+          location: resolvedMode.location,
+        ),
       ),
-      mealShoppingSummariesProvider.overrideWith((ref) async => shoppingPlans),
+      mealShoppingSummariesProvider.overrideWith((ref) async => resolvedPlans),
       prefetchedLiveMealShoppingPlansProvider.overrideWith(
-        (ref) async => shoppingPlans,
+        (ref) async => resolvedPlans,
       ),
     ],
     child: const MaterialApp(home: RecommendationsScreen()),
@@ -126,11 +214,50 @@ class _TestProfileController extends ProfileController {
   }
 }
 
+Future<void> _setTallViewport(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(430, 1400);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.resetPhysicalSize);
+}
+
+const _sourceTripPlan = SourceTripPlan(
+  mission: SourceTripMission.emergency,
+  primarySource: AvailabilityContext.convenience,
+  title: 'Start at convenience store',
+  summary: 'Lowest travel burden for today.',
+  reasons: ['Close by', 'Open now'],
+  highlights: ['Quick pickup'],
+  backupSource: AvailabilityContext.dollarStore,
+  routeReason: 'Short trip with the fewest stops.',
+);
+
+final _todayPlan = TodayPlan(
+  type: TodayPlanType.emergency,
+  title: 'Emergency meal plan',
+  summary: 'Fastest practical path for today.',
+  steps: const ['Use pantry rice', 'Buy tuna at convenience store'],
+  highlights: const ['Low travel'],
+  leadRecommendation: _buildFood(1),
+  purchases: const [
+    PlannedPurchase(
+      label: 'Canned tuna',
+      priority: PlannedPurchasePriority.buyFirst,
+    ),
+    PlannedPurchase(
+      label: 'Soda',
+      priority: PlannedPurchasePriority.skipFirst,
+    ),
+  ],
+  backupAction: 'Backup: Dollar store for crackers',
+);
+
 final _result = RecommendationResult(
   recommendations: List.generate(4, (index) => _buildFood(index + 1)),
   preferenceRelaxed: false,
   candidatePoolSize: 8,
   elapsedMs: 28,
+  sourceTripPlan: _sourceTripPlan,
+  todayPlan: _todayPlan,
 );
 
 MealShoppingPlan _shoppingPlanFor(Food food) {
@@ -226,6 +353,33 @@ MealShoppingPlan _shoppingPlanFor(Food food) {
     ),
     liveLookupAttempted: true,
     storeStatusNote: null,
+    offlineAvailabilityContext: AvailabilityContext.grocery,
+  );
+}
+
+MealShoppingPlan _shoppingPlanWithoutStore(Food food) {
+  return MealShoppingPlan(
+    food: food,
+    ingredients: const IngredientPlan(
+      atHome: [],
+      toBuy: [
+        IngredientRequirement(
+          key: 'meal',
+          label: 'Meal item',
+          searchTerms: ['meal'],
+          pantryAliases: ['meal'],
+          evidence: IngredientEvidence.structured,
+        ),
+      ],
+      buySummary: 'Meal item',
+    ),
+    chosenStore: null,
+    backupStores: const [],
+    candidateStores: const [],
+    liveProductMatch: null,
+    liveLookupAttempted: false,
+    storeStatusNote: 'Nearby store verification is unavailable for this meal.',
+    offlineAvailabilityContext: AvailabilityContext.grocery,
   );
 }
 

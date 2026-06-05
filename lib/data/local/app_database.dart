@@ -24,9 +24,10 @@ class AppDatabase {
 
     _database = await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
+        await db.rawQuery('PRAGMA journal_mode = WAL');
       },
       onCreate: (db, version) async {
         await _createSchema(db);
@@ -45,7 +46,8 @@ class AppDatabase {
               await db.rawQuery('SELECT COUNT(*) FROM foods'),
             ) ??
             0;
-        if (count == 0) {
+        final expectedCount = (await _seedLoader.loadFoods()).length;
+        if (count == 0 || count != expectedCount) {
           await _syncSeedFoods(db);
         } else {
           await _backfillCacheEntries(db);
@@ -194,6 +196,16 @@ class AppDatabase {
 
   Future<void> _syncSeedFoods(Database db) async {
     final foods = await _seedLoader.loadFoods();
+    final expectedCount = foods.length;
+    final existingCount =
+        Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM foods'),
+        ) ??
+        0;
+    if (existingCount == expectedCount) {
+      return;
+    }
+
     final batch = db.batch();
     final now = DateTime.now().toUtc();
     final createdAt = now.toIso8601String();

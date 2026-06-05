@@ -89,80 +89,34 @@ class OnboardingSplashStep extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 10,
-            runSpacing: 10,
+          const SizedBox(height: 18),
+          Column(
             children: [
-              _FeaturePill(
-                icon: Icons.route_rounded,
-                label: copy.splashAccessTitle,
-              ),
-              _FeaturePill(
-                icon: Icons.shield_outlined,
-                label: copy.splashExplainableTitle,
-              ),
-              _FeaturePill(
-                icon: Icons.phone_iphone_rounded,
+              _FeatureRow(
+                key: const ValueKey('splash-feature-offline'),
+                icon: Icons.download_done_rounded,
                 label: copy.splashLocalFirstTitle,
+                detail: copy.splashLocalFirstDetail,
+              ),
+              const SizedBox(height: 10),
+              _FeatureRow(
+                key: const ValueKey('splash-feature-explainable'),
+                icon: Icons.fact_check_rounded,
+                label: copy.splashExplainableTitle,
+                detail: copy.splashExplainableDetail,
+              ),
+              const SizedBox(height: 10),
+              _FeatureRow(
+                key: const ValueKey('splash-feature-budget'),
+                icon: Icons.payments_rounded,
+                label: copy.splashAccessTitle,
+                detail: copy.splashAccessDetail,
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          SizedBox(
-            height: 534,
-            child: Stack(
-              alignment: Alignment.center,
-              clipBehavior: Clip.none,
-              children: [
-                Positioned(
-                  top: 42,
-                  child: Container(
-                    width: 328,
-                    height: 328,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [Color(0x22A7D4A0), Color(0x00A7D4A0)],
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: -34,
-                  right: -34,
-                  top: 70,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      _GhostPhone(alignment: Alignment.centerLeft),
-                      _GhostPhone(alignment: Alignment.centerRight),
-                    ],
-                  ),
-                ),
-                const _PhonePreview(),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              4,
-              (index) => Container(
-                width: index == 1 ? 18 : 8,
-                height: 8,
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                decoration: BoxDecoration(
-                  color: index == 1
-                      ? const Color(0xFF1A1A1A)
-                      : const Color(0xFFD7D7DB),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
+          _RecommendationMockCard(copy: copy),
+          const SizedBox(height: 16),
           SectionCard(
             borderRadius: 26,
             tintColor: NihPalette.secondaryLight,
@@ -194,10 +148,7 @@ class OnboardingSplashStep extends ConsumerWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        copy.choose(
-                          'Your profile stays on-device. Saved food data keeps recommendations usable when service is limited.',
-                          'Tu perfil se queda en el telefono. Los datos guardados ayudan a que las recomendaciones sigan sirviendo cuando hay poco servicio.',
-                        ),
+                        copy.splashLocalDataDetail,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           height: 1.42,
                           color: const Color(0xFF555761),
@@ -215,32 +166,273 @@ class OnboardingSplashStep extends ConsumerWidget {
   }
 }
 
-class _FeaturePill extends StatelessWidget {
-  const _FeaturePill({required this.icon, required this.label});
+class _FeatureRow extends StatelessWidget {
+  const _FeatureRow({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.detail,
+  });
 
   final IconData icon;
   final String label;
+  final String detail;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE8E0D2)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0E000000),
+            blurRadius: 18,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: NihPalette.success,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 15, color: Colors.white),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: NihPalette.base,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  detail,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: const Color(0xFF6F717A),
+                    height: 1.35,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecommendationMockCard extends StatelessWidget {
+  const _RecommendationMockCard({required this.copy});
+
+  final AppCopy copy;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const ValueKey('splash-recommendation-card'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFDF9F0), Color(0xFFF4EFE2), Color(0xFFF1F6EA)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: const Color(0xFFE6DDCC)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x12000000),
+            blurRadius: 26,
+            offset: Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: const Color(0xFFE6DDCC)),
+                ),
+                child: Text(
+                  copy.choose(
+                    'Sample recommendation',
+                    'Recomendacion de muestra',
+                  ),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF6B6E74),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              const _ScoreBadge(score: 96),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.94),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Icon(
+                  Icons.ramen_dining_rounded,
+                  size: 38,
+                  color: Color(0xFF2E9B51),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      copy.choose(
+                        'Veggie rice bowl',
+                        'Tazon de arroz con verduras',
+                      ),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF17181C),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      copy.choose(
+                        'Strong protein fit, easy pantry overlap, and realistic today.',
+                        'Buen ajuste de proteina, usa despensa y sigue siendo realista hoy.',
+                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF676A72),
+                        height: 1.35,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.88),
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: const Color(0xFFE7E1D4)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.storefront_rounded,
+                      size: 18,
+                      color: Color(0xFF2E9B51),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      copy.choose('Store: Save A Lot', 'Tienda: Save A Lot'),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: NihPalette.base,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  copy.choose('Buy list preview', 'Vista previa de compra'),
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: const Color(0xFF6F717A),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _PreviewTag(
+                      label: copy.choose('brown rice', 'arroz integral'),
+                    ),
+                    _PreviewTag(
+                      label: copy.choose('black beans', 'frijoles negros'),
+                    ),
+                    _PreviewTag(
+                      label: copy.choose(
+                        'frozen spinach',
+                        'espinaca congelada',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScoreBadge extends StatelessWidget {
+  const _ScoreBadge({required this.score});
+
+  final int score;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFF2E9B51),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFE9E9EE)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: const Color(0xFF2E9B51)),
+          const Icon(Icons.auto_awesome_rounded, size: 16, color: Colors.white),
           const SizedBox(width: 6),
           Text(
-            label,
+            '$score',
             style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF555761),
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
             ),
           ),
         ],
@@ -249,303 +441,25 @@ class _FeaturePill extends StatelessWidget {
   }
 }
 
-class _PhonePreview extends StatelessWidget {
-  const _PhonePreview();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 288,
-      height: 522,
-      decoration: BoxDecoration(
-        color: const Color(0xFF111111),
-        borderRadius: BorderRadius.circular(42),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x26000000),
-            blurRadius: 28,
-            offset: Offset(0, 18),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFBFAF7),
-          borderRadius: BorderRadius.circular(34),
-        ),
-        child: SingleChildScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-              Container(
-                width: 86,
-                height: 22,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF6F6F8),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        size: 15,
-                        color: Color(0xFF808088),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    const Expanded(
-                      child: Text(
-                        'Suggested Meals',
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF19191D),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 28),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: _PreviewMealCard(
-                  title: 'Protein Bowl',
-                  subtitle:
-                      'Excellent fit for your calories and protein goals.',
-                  score: 99,
-                  icon: Icons.lunch_dining_rounded,
-                ),
-              ),
-              const SizedBox(height: 14),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: _PreviewMealCard(
-                  title: 'Balanced Plate',
-                  subtitle:
-                      'Simple to reach today and strong on macro balance.',
-                  score: 97,
-                  icon: Icons.dinner_dining_rounded,
-                ),
-              ),
-              const SizedBox(height: 18),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PreviewMealCard extends StatelessWidget {
-  const _PreviewMealCard({
-    required this.title,
-    required this.subtitle,
-    required this.score,
-    required this.icon,
-  });
-
-  final String title;
-  final String subtitle;
-  final int score;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0F000000),
-            blurRadius: 24,
-            offset: Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF7F3EA),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(icon, size: 34, color: const Color(0xFF2A9D50)),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF111114),
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        height: 1.3,
-                        color: Color(0xFF76767E),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color(0xFF38C86C),
-                    width: 2.2,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    '$score',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF38C86C),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _PreviewMacro(label: 'Calories', value: '390 kcal'),
-              _PreviewMacro(label: 'Protein', value: '30 g'),
-              _PreviewMacro(label: 'Carbs', value: '10 g'),
-              _PreviewMacro(label: 'Fat', value: '27 g'),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Access',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1F9E54),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              SizedBox(
-                height: 36,
-                child: FilledButton(
-                  onPressed: () {},
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  child: const Text('Why'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PreviewMacro extends StatelessWidget {
-  const _PreviewMacro({required this.label, required this.value});
+class _PreviewTag extends StatelessWidget {
+  const _PreviewTag({required this.label});
 
   final String label;
-  final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF16161A),
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF92929A),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _GhostPhone extends StatelessWidget {
-  const _GhostPhone({required this.alignment});
-
-  final Alignment alignment;
-
-  @override
-  Widget build(BuildContext context) {
-    return Opacity(
-      opacity: 0.26,
-      child: Transform.scale(
-        scale: 0.84,
-        child: Align(
-          alignment: alignment,
-          child: Container(
-            width: 170,
-            height: 360,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(32),
-            ),
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F2E8),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF5F626A),
         ),
       ),
     );
