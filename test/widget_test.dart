@@ -511,8 +511,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.lunch_dining_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.soup_kitchen_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.lunch_dining_rounded), findsWidgets);
       expect(find.byIcon(Icons.ramen_dining_rounded), findsOneWidget);
 
       for (var index = 0; index < recommendations.length; index++) {

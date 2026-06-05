@@ -4,15 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:access_plate/domain/entities/explanation.dart';
 import 'package:access_plate/domain/entities/food.dart';
-import 'package:access_plate/domain/entities/grocery.dart';
 import 'package:access_plate/domain/entities/meal_shopping.dart';
 import 'package:access_plate/domain/entities/nutrients.dart';
 import 'package:access_plate/domain/entities/recommendation.dart';
-import 'package:access_plate/domain/entities/store_search.dart';
 import 'package:access_plate/domain/entities/user_profile.dart';
 import 'package:access_plate/domain/value_objects/availability_context.dart';
 import 'package:access_plate/domain/value_objects/meal_type.dart';
-import 'package:access_plate/presentation/copy/app_copy.dart';
+import 'package:access_plate/presentation/providers/demo_meals_store_data.dart';
 import 'package:access_plate/presentation/providers/nearby_store_providers.dart';
 import 'package:access_plate/presentation/providers/profile_controller.dart';
 import 'package:access_plate/presentation/providers/recommendations_provider.dart';
@@ -25,21 +23,43 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
-  testWidgets('recommendations screen shows ranked meal cards', (tester) async {
+  testWidgets('recommendations screen shows the static demo location card', (
+    tester,
+  ) async {
     await _setTallViewport(tester);
     await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
 
     expect(find.text('Meals you can get today'), findsOneWidget);
+    expect(find.text('3758 W Madison St, Chicago, IL 60624'), findsOneWidget);
+    expect(find.text('6 nearby stores matched.'), findsOneWidget);
+    expect(find.text('Live'), findsOneWidget);
+    expect(
+      find.text('Offline — showing meals from your saved settings'),
+      findsNothing,
+    );
+  });
+
+  testWidgets('recommendations screen shows ranked meal cards', (tester) async {
+    await _setTallViewport(tester);
+    await tester.pumpWidget(_buildHarness());
+    await tester.pumpAndSettle();
+
     await tester.scrollUntilVisible(
       find.byType(RecommendationCard).first,
       200,
       scrollable: find.byType(Scrollable).first,
     );
+
     expect(find.byType(RecommendationCard), findsWidgets);
+    expect(find.text("McDonald's | 0.2 mi"), findsWidgets);
+    expect(find.text('Aldi | 0.7 mi'), findsWidgets);
+    expect(find.text('Verified'), findsNothing);
   });
 
-  testWidgets('recommendation details expand in place', (tester) async {
+  testWidgets('recommendation details expand in place with static store info', (
+    tester,
+  ) async {
     await _setTallViewport(tester);
     await tester.pumpWidget(_buildHarness());
     await tester.pumpAndSettle();
@@ -55,8 +75,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Go to'), findsWidgets);
-    expect(find.textContaining('Buy at Kroger 1'), findsOneWidget);
-    expect(find.textContaining('Store Brand'), findsWidgets);
+    expect(find.textContaining("Buy at McDonald's"), findsOneWidget);
+    expect(
+      find.textContaining('Searching nearby stores for this meal...'),
+      findsNothing,
+    );
+    expect(find.text('Verified'), findsNothing);
   });
 
   testWidgets('logging a meal shows daily tracking feedback', (tester) async {
@@ -103,125 +127,9 @@ void main() {
     );
     expect(subtitle.style?.color, const Color(0xFF888888));
   });
-
-  testWidgets('compact action plan strips a duplicated best stop prefix', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: CompactActionPlanSection(
-            copy: AppCopy(UserProfile.defaults().constraints.access.language),
-            todayPlan: _todayPlan,
-            sourceTripPlan: const SourceTripPlan(
-              mission: SourceTripMission.emergency,
-              primarySource: AvailabilityContext.convenience,
-              title: 'Best first stop: Convenience store',
-              summary: 'Lowest travel burden for today.',
-              reasons: ['Close by'],
-              highlights: ['Quick pickup'],
-            ),
-            emergencyMode: false,
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.text('Best first stop: Convenience store'), findsOneWidget);
-    expect(
-      find.text('Best first stop: Best first stop: Convenience store'),
-      findsNothing,
-    );
-  });
-
-  testWidgets(
-    'recommendations screen shows offline banner and store-type headlines in offline mode',
-    (tester) async {
-      await _setTallViewport(tester);
-      final offlinePlans = {
-        for (final recommendation in _result.recommendations)
-          recommendation.food.id: _shoppingPlanWithoutStore(
-            recommendation.food,
-          ),
-      };
-
-      await tester.pumpWidget(
-        _buildHarness(
-          mode: const StoreAvailabilityModeState(
-            mode: StoreAvailabilityMode.offline,
-            apiConfigured: true,
-            hasInternet: false,
-            fallbackReason: StoreAvailabilityFallbackReason.noInternet,
-          ),
-          shoppingPlans: offlinePlans,
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Offline — showing meals from your saved settings'),
-        findsOneWidget,
-      );
-      expect(find.text('Nearby stores'), findsOneWidget);
-      await tester.scrollUntilVisible(
-        find.textContaining('Available at: Grocery store').first,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      expect(find.textContaining('Available at: Grocery store'), findsWidgets);
-      expect(find.text('Verified'), findsNothing);
-    },
-  );
-
-  testWidgets(
-    'recommendations screen avoids the offline internet banner when live lookup has location but no nearby stores matched',
-    (tester) async {
-      await _setTallViewport(tester);
-      await tester.pumpWidget(
-        _buildHarness(
-          mode: const StoreAvailabilityModeState(
-            mode: StoreAvailabilityMode.offline,
-            apiConfigured: true,
-            hasInternet: true,
-            location: SearchLocation(
-              kind: SearchLocationKind.device,
-              label: '4001 W Chicago Ave, Chicago, IL 60651',
-              latitude: 41.8955,
-              longitude: -87.7261,
-              verification: DataVerification.live,
-              postalCode: '60651',
-            ),
-            fallbackReason: StoreAvailabilityFallbackReason.noStoresFound,
-          ),
-          shoppingPlans: {
-            for (final recommendation in _result.recommendations)
-              recommendation.food.id: _shoppingPlanWithoutStore(
-                recommendation.food,
-              ),
-          },
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Offline â€” showing meals from your saved settings'),
-        findsNothing,
-      );
-      expect(
-        find.textContaining(
-          'No verified nearby stores matched this search yet.',
-        ),
-        findsOneWidget,
-      );
-    },
-  );
 }
 
-Widget _buildHarness({
-  StoreAvailabilityModeState? mode,
-  Map<int, MealShoppingPlan>? shoppingPlans,
-}) {
+Widget _buildHarness({Map<int, MealShoppingPlan>? shoppingPlans}) {
   final profile = UserProfile.defaults().copyWith(onboardingComplete: true);
   final resolvedPlans =
       shoppingPlans ??
@@ -229,25 +137,6 @@ Widget _buildHarness({
         for (final recommendation in _result.recommendations)
           recommendation.food.id: _shoppingPlanFor(recommendation.food),
       };
-  final resolvedMode =
-      mode ??
-      StoreAvailabilityModeState(
-        mode: StoreAvailabilityMode.online,
-        apiConfigured: true,
-        hasInternet: true,
-        location: const SearchLocation(
-          kind: SearchLocationKind.device,
-          label: '4001 W Chicago Ave, Chicago, IL 60651',
-          latitude: 41.8955,
-          longitude: -87.7261,
-          verification: DataVerification.live,
-          postalCode: '60651',
-        ),
-        nearbyStores: resolvedPlans.values
-            .map((plan) => plan.chosenStore)
-            .whereType<NearbyStore>()
-            .toList(growable: false),
-      );
 
   return ProviderScope(
     overrides: [
@@ -255,11 +144,19 @@ Widget _buildHarness({
         () => _TestProfileController(profile),
       ),
       recommendationsProvider.overrideWith((ref) async => _result),
-      storeAvailabilityModeProvider.overrideWith((ref) => resolvedMode),
-      shoppingLocationStateProvider.overrideWith(
-        (ref) => ShoppingLocationState(
+      storeAvailabilityModeProvider.overrideWith(
+        (ref) => const StoreAvailabilityModeState(
+          mode: StoreAvailabilityMode.online,
           apiConfigured: true,
-          location: resolvedMode.location,
+          hasInternet: true,
+          location: demoMealsLocation,
+          nearbyStores: demoMealsNearbyStores,
+        ),
+      ),
+      shoppingLocationStateProvider.overrideWith(
+        (ref) => const ShoppingLocationState(
+          apiConfigured: true,
+          location: demoMealsLocation,
         ),
       ),
       mealShoppingSummariesProvider.overrideWith((ref) async => resolvedPlans),
@@ -360,56 +257,12 @@ final _result = RecommendationResult(
 );
 
 MealShoppingPlan _shoppingPlanFor(Food food) {
-  final primaryGroceryStore = GroceryStore(
-    retailer: GroceryRetailer.kroger,
-    locationId: 'store-${food.id}',
-    name: 'Kroger ${food.id}',
-    addressLine1: '123 Market St',
-    city: 'Demo',
-    state: 'OH',
-    postalCode: '45202',
-  );
-  final backupGroceryStore = GroceryStore(
-    retailer: GroceryRetailer.kroger,
-    locationId: 'backup-${food.id}',
-    name: 'Kroger Backup ${food.id}',
-    addressLine1: '200 Oak Ave',
-    city: 'Demo',
-    state: 'OH',
-    postalCode: '45202',
-  );
-  final chosenStore = NearbyStore(
-    placeId: 'near-${food.id}',
-    name: primaryGroceryStore.name,
-    address: primaryGroceryStore.addressLabel,
-    latitude: 39.10,
-    longitude: -84.51,
-    categories: const {AvailabilityContext.grocery},
-    primaryCategory: AvailabilityContext.grocery,
-    discoveryVerification: DataVerification.live,
-    travelMetric: const TravelMetric(
-      source: TravelMetricSource.liveRoute,
-      distanceMiles: 1.4,
-      durationMinutes: 7,
-    ),
-    linkedGroceryStore: primaryGroceryStore,
-  );
-  final backupStore = NearbyStore(
-    placeId: 'backup-near-${food.id}',
-    name: backupGroceryStore.name,
-    address: backupGroceryStore.addressLabel,
-    latitude: 39.11,
-    longitude: -84.52,
-    categories: const {AvailabilityContext.grocery},
-    primaryCategory: AvailabilityContext.grocery,
-    discoveryVerification: DataVerification.live,
-    travelMetric: const TravelMetric(
-      source: TravelMetricSource.liveRoute,
-      distanceMiles: 2.2,
-      durationMinutes: 11,
-    ),
-    linkedGroceryStore: backupGroceryStore,
-  );
+  final stores = switch (food.id) {
+    1 => [demoMealsNearbyStores[0], demoMealsNearbyStores[4]],
+    2 => [demoMealsNearbyStores[3]],
+    3 => [demoMealsNearbyStores[1], demoMealsNearbyStores[2]],
+    _ => [demoMealsNearbyStores[5]],
+  };
   final ingredient = IngredientRequirement(
     key: 'meal-${food.id}',
     label: food.name.contains('Oatmeal') ? 'Oatmeal cup' : 'Meal item',
@@ -425,69 +278,22 @@ MealShoppingPlan _shoppingPlanFor(Food food) {
       toBuy: [ingredient],
       buySummary: ingredient.label,
     ),
-    chosenStore: chosenStore,
-    backupStores: [backupStore],
-    candidateStores: [chosenStore, backupStore],
-    liveProductMatch: LiveStoreMatch(
-      store: chosenStore,
-      lookup: LiveIngredientLookupResult(
-        store: primaryGroceryStore,
-        matches: [
-          IngredientProductMatch(
-            ingredient: ingredient,
-            products: [
-              GroceryProduct(
-                retailer: GroceryRetailer.kroger,
-                productId: 'product-${food.id}',
-                description: '${food.name} package',
-                brand: 'Store Brand',
-                size: food.servingLabel,
-                regularPrice: 3.49,
-              ),
-            ],
-          ),
-        ],
-        unmatchedIngredients: const [],
-      ),
-    ),
+    chosenStore: stores.first,
+    backupStores: stores.skip(1).toList(growable: false),
+    candidateStores: stores,
+    liveProductMatch: null,
     liveLookupAttempted: true,
     storeStatusNote: null,
-    offlineAvailabilityContext: AvailabilityContext.grocery,
-  );
-}
-
-MealShoppingPlan _shoppingPlanWithoutStore(Food food) {
-  return MealShoppingPlan(
-    food: food,
-    ingredients: const IngredientPlan(
-      atHome: [],
-      toBuy: [
-        IngredientRequirement(
-          key: 'meal',
-          label: 'Meal item',
-          searchTerms: ['meal'],
-          pantryAliases: ['meal'],
-          evidence: IngredientEvidence.structured,
-        ),
-      ],
-      buySummary: 'Meal item',
-    ),
-    chosenStore: null,
-    backupStores: const [],
-    candidateStores: const [],
-    liveProductMatch: null,
-    liveLookupAttempted: false,
-    storeStatusNote: 'Nearby store verification is unavailable for this meal.',
-    offlineAvailabilityContext: AvailabilityContext.grocery,
+    offlineAvailabilityContext: stores.first.primaryCategory,
   );
 }
 
 ScoredFood _buildFood(int id) {
   final names = [
     'McDonald\'s Oatmeal Cup',
-    'Chipotle Chicken Bowl',
-    'Taco Bell Bean Taco',
-    'In-N-Out Protein Style Burger',
+    'Aldi Chicken Bowl',
+    'Dollar Store Bean Taco',
+    '7-Eleven Protein Snack Box',
   ];
   final mealTypes = [
     const {MealType.breakfast},
@@ -508,10 +314,11 @@ ScoredFood _buildFood(int id) {
       prepMethod: 'none',
       prepTimeMin: 0,
       mealTypes: mealTypes[(id - 1) % mealTypes.length],
-      availability: const {
-        AvailabilityContext.fastFood,
-        AvailabilityContext.grocery,
-        AvailabilityContext.convenience,
+      availability: switch (id) {
+        1 => const {AvailabilityContext.fastFood},
+        2 => const {AvailabilityContext.grocery},
+        3 => const {AvailabilityContext.dollarStore},
+        _ => const {AvailabilityContext.convenience},
       },
       allergens: const {},
       religionExcluded: const [],

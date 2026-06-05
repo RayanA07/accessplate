@@ -1,5 +1,6 @@
 enum GroceryRetailer {
-  kroger('kroger', 'Kroger');
+  kroger('kroger', 'Kroger'),
+  aldi('aldi', 'Aldi');
 
   const GroceryRetailer(this.code, this.label);
 

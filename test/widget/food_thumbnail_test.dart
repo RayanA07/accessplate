@@ -16,6 +16,15 @@ void main() {
             children: [
               FoodThumbnail(
                 food: _food(
+                  id: 1020,
+                  name: 'Taco Bell Power Menu Bowl',
+                  ingredients: {'rice', 'beans', 'chicken'},
+                  availability: {AvailabilityContext.fastFood},
+                ),
+                accent: Colors.green,
+              ),
+              FoodThumbnail(
+                food: _food(
                   id: 179,
                   name: 'Trail mix snack pack',
                   ingredients: {'mixed_nuts', 'dried_fruit'},
@@ -42,16 +51,26 @@ void main() {
                 ),
                 accent: Colors.green,
               ),
+              FoodThumbnail(
+                food: _food(
+                  id: 133,
+                  name: 'Tuna and cracker plate',
+                  ingredients: {'tuna', 'crackers'},
+                ),
+                accent: Colors.green,
+              ),
             ],
           ),
         ),
       ),
     );
 
+    expect(find.byType(Image), findsNothing);
+    expect(find.byIcon(Icons.restaurant_rounded), findsOneWidget);
     expect(find.byIcon(Icons.shopping_bag_rounded), findsOneWidget);
     expect(find.byIcon(Icons.lunch_dining_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.emoji_nature_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.apple_rounded), findsNothing);
+    expect(find.byIcon(Icons.food_bank_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.dinner_dining_rounded), findsOneWidget);
     expect(find.byIcon(Icons.ramen_dining_rounded), findsNothing);
   });
 }
@@ -60,6 +79,7 @@ Food _food({
   required int id,
   required String name,
   required Set<String> ingredients,
+  Set<AvailabilityContext> availability = const {AvailabilityContext.grocery},
 }) {
   return Food(
     id: id,
@@ -72,7 +92,7 @@ Food _food({
     prepMethod: 'none',
     prepTimeMin: 0,
     mealTypes: const {MealType.lunch},
-    availability: const {AvailabilityContext.grocery},
+    availability: availability,
     allergens: const {},
     religionExcluded: const [],
     medicalRules: const [],

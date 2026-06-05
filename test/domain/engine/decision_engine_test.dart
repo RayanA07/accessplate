@@ -536,6 +536,104 @@ void main() {
   );
 
   test(
+    'nutrition-first weighting keeps a stronger whole-food dollar-store meal ahead of fast food when both are accessible',
+    () async {
+      final repo = _FakeFoodRepository([
+        _record(
+          id: 32,
+          name: 'Dollar lentil grain bowl',
+          cost: 4.2,
+          calories: 440,
+          protein: 23,
+          carbs: 52,
+          fat: 10,
+          fiber: 12,
+          sodium: 260,
+          iron: 4.2,
+          calcium: 140,
+          magnesium: 90,
+          zinc: 2.6,
+          vitA: 210,
+          vitC: 18,
+          vitB12: 0.0,
+          folate: 180,
+          availability: const {
+            AvailabilityContext.dollarStore,
+            AvailabilityContext.grocery,
+          },
+          ingredients: const {'lentils', 'rice', 'vegetables'},
+        ),
+        _record(
+          id: 33,
+          name: 'Fast-food chicken sandwich combo',
+          cost: 4.0,
+          calories: 460,
+          protein: 24,
+          carbs: 49,
+          fat: 16,
+          fiber: 3,
+          sodium: 980,
+          iron: 1.4,
+          calcium: 35,
+          magnesium: 18,
+          zinc: 1.2,
+          vitA: 25,
+          vitC: 3,
+          vitB12: 0.6,
+          folate: 45,
+          availability: const {AvailabilityContext.fastFood},
+          ingredients: const {'chicken', 'bread', 'combo'},
+        ),
+      ]);
+      final engine = DecisionEngine(
+        repo: repo,
+        scoreConfigProvider: ScoreConfigProvider(_tables),
+        accessAdvisor: FoodAccessAdvisor(catalog: _balancedAccessCatalog),
+      );
+
+      final user = UserConstraints.defaults().copyWith(
+        targets: const NutritionalTargets(
+          calories: 450,
+          proteinG: 24,
+          carbsG: 50,
+          fatG: 12,
+          fiberG: 10,
+        ),
+        feasibility: const FeasibilityConstraints(
+          maxCostPerMeal: 5,
+          availability: {
+            AvailabilityContext.grocery,
+            AvailabilityContext.dollarStore,
+            AvailabilityContext.fastFood,
+          },
+        ),
+        access: const AccessConstraints(
+          postalCode: '10001',
+          transportation: TransportationMode.car,
+          maxTravelMinutes: 20,
+        ),
+      );
+
+      final result = await engine.recommend(
+        user: user,
+        weights: const CompositeWeights(),
+      );
+
+      expect(
+        result.recommendations.map((item) => item.food.name).take(2),
+        orderedEquals([
+          'Dollar lentil grain bowl',
+          'Fast-food chicken sandwich combo',
+        ]),
+      );
+      expect(
+        result.recommendations.first.displayScore,
+        greaterThan(result.recommendations[1].displayScore),
+      );
+    },
+  );
+
+  test(
     'source trip plan can favor shortlist coverage over generic grocery preference',
     () async {
       final repo = _FakeFoodRepository([
@@ -662,10 +760,7 @@ void main() {
             .firstWhere((fact) => fact.label == 'Evidence')
             .value;
 
-    expect(
-      evidenceFact,
-      'Lower-confidence bundled fallback estimate',
-    );
+    expect(evidenceFact, 'Lower-confidence bundled fallback estimate');
   });
 
   test(
@@ -821,10 +916,7 @@ void main() {
       );
 
       expect(result.sourceTripPlan?.primarySource, AvailabilityContext.grocery);
-      expect(
-        result.sourceTripPlan?.highlights,
-        contains('WIC staples'),
-      );
+      expect(result.sourceTripPlan?.highlights, contains('WIC staples'));
       expect(result.sourceTripPlan?.reasons.join(' '), contains('WIC'));
     },
   );
@@ -957,9 +1049,7 @@ void main() {
           postalCode: '90011',
         ),
       ),
-      access: const AccessConstraints(
-        benefitPrograms: {BenefitProgram.snap},
-      ),
+      access: const AccessConstraints(benefitPrograms: {BenefitProgram.snap}),
     );
 
     final ohioUser = californiaUser.copyWith(
@@ -1024,9 +1114,7 @@ void main() {
           postalCode: '45211',
         ),
       ),
-      access: const AccessConstraints(
-        benefitPrograms: {BenefitProgram.wic},
-      ),
+      access: const AccessConstraints(benefitPrograms: {BenefitProgram.wic}),
     );
 
     final insight = accessAdvisor.inspect(food: groceryStaple, user: user);

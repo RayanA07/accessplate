@@ -2,7 +2,7 @@ import '../../entities/recommendation.dart';
 import '../../entities/user_constraints.dart';
 
 class MacroAlignmentPrioritizer {
-  const MacroAlignmentPrioritizer({this.alignmentBonus = 2.0});
+  const MacroAlignmentPrioritizer({this.alignmentBonus = 10.0});
 
   static const double minimumMacroScore = 0.45;
   static const double proteinTargetRatio = 0.5;
@@ -22,7 +22,9 @@ class MacroAlignmentPrioritizer {
       return food;
     }
 
-    // Gross macro mismatches should not outrank foods that actually fit the meal target.
+    // Rankings now use a 0-100 fit score, so aligned meals need a larger
+    // bonus to preserve the original "target-matching meal beats mismatch"
+    // behavior.
     return food.copyWith(composite: food.composite + alignmentBonus);
   }
 

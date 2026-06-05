@@ -29,6 +29,12 @@ abstract final class MealLogoResolver {
     isFastFood: true,
   );
 
+  static const MealLogoSelection _aldi = MealLogoSelection(
+    assetPath: 'assets/branding/meal_logos/aldi.png',
+    label: 'Aldi',
+    isFastFood: false,
+  );
+
   static const MealLogoSelection _chipotle = MealLogoSelection(
     assetPath: 'assets/branding/meal_logos/chipotle.png',
     label: 'Chipotle',
@@ -76,7 +82,7 @@ abstract final class MealLogoResolver {
     MealShoppingPlan? plan,
     UserConstraints? constraints,
   }) {
-    return _fastFoodLogo(food: food, plan: plan);
+    return _fastFoodLogo(food: food, plan: plan) ?? _storeLogo(plan: plan);
   }
 
   static MealLogoSelection? _fastFoodLogo({
@@ -109,6 +115,7 @@ abstract final class MealLogoResolver {
     'mcdonalds': _mcdonalds,
     'subway': _subway,
     'wendys': _wendys,
+    'aldi': _aldi,
   };
 
   static MealLogoSelection? _logoForBrandKey(String? brandKey) {
@@ -146,6 +153,13 @@ abstract final class MealLogoResolver {
       return _kroger;
     }
 
+    if (liveStore?.retailer == GroceryRetailer.aldi ||
+        (chosenIsGrocery &&
+            chosenStore?.linkedGroceryStore?.retailer ==
+                GroceryRetailer.aldi)) {
+      return _aldi;
+    }
+
     return null;
   }
 
@@ -160,6 +174,9 @@ abstract final class MealLogoResolver {
     }
     if (normalized.contains('chickfila')) {
       return _chickFilA;
+    }
+    if (normalized.contains('aldi')) {
+      return _aldi;
     }
     if (normalized.contains('chipotle')) {
       return _chipotle;

@@ -129,9 +129,7 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
                           availabilityMode: availabilityMode,
                           copy: copy,
                         ),
-                        verified:
-                            availabilityMode.isOnline &&
-                            displayedPlan?.chosenStore != null,
+                        verified: false,
                         verifiedLabel: copy.choose('Verified', 'Verificado'),
                         textStyle: Theme.of(context).textTheme.bodyMedium
                             ?.copyWith(
@@ -676,9 +674,7 @@ class _ExpandedPlan extends StatelessWidget {
                 Text(
                   [
                     chosenStoreName,
-                    if (compactStoreTravelLabel(chosenStore.travelMetric)
-                        case final travel?)
-                      travel,
+                    ?compactStoreTravelLabel(chosenStore.travelMetric),
                   ].join(' | '),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
@@ -1335,17 +1331,16 @@ _ScoreBreakdownModel _scoreBreakdownModelFor({
   required UserConstraints constraints,
   required AppCopy copy,
 }) {
-  final nutritionScore =
-      recommendation.breakdown.macro.clamp(0.0, 1.0).toDouble() * 100;
+  final nutritionScore = _nutritionFitScore(recommendation.breakdown) * 100;
   final budgetScore =
       (1 - recommendation.breakdown.cost).clamp(0.0, 1.0).toDouble() * 100;
   final accessScore =
-      (_baseAccessScore(
+      _baseAccessScore(
         recommendation: recommendation,
         plan: plan,
         constraints: constraints,
       ) *
-      100);
+      100;
   final safetyScore =
       (_isFullySafe(food: recommendation.food, constraints: constraints)
       ? 100.0
@@ -1363,7 +1358,7 @@ _ScoreBreakdownModel _scoreBreakdownModelFor({
       label: copy.choose('Nutrition fit', 'Ajuste nutricional'),
       detail: _nutritionDetail(copy, nutritionScore),
       score: nutritionScore,
-      weight: 0.32,
+      weight: 0.40,
       color: NihPalette.primaryAltDark,
     ),
     _ScoreDimension(
@@ -1373,7 +1368,7 @@ _ScoreBreakdownModel _scoreBreakdownModelFor({
         '\$${recommendation.food.costEstimate.toStringAsFixed(2)} contra tu limite de \$${constraints.feasibility.maxCostPerMeal.toStringAsFixed(0)} por comida.',
       ),
       score: budgetScore,
-      weight: 0.22,
+      weight: 0.20,
       color: const Color(0xFFC98734),
     ),
     _ScoreDimension(
@@ -1387,7 +1382,7 @@ _ScoreBreakdownModel _scoreBreakdownModelFor({
       label: copy.choose('Dietary safety', 'Seguridad alimentaria'),
       detail: _safetyDetail(copy, safe: safetyScore >= 100),
       score: safetyScore,
-      weight: 0.18,
+      weight: 0.10,
       color: NihPalette.success,
     ),
     _ScoreDimension(
@@ -1399,7 +1394,7 @@ _ScoreBreakdownModel _scoreBreakdownModelFor({
         constraints: constraints,
       ),
       score: pantryScore,
-      weight: 0.08,
+      weight: 0.10,
       color: NihPalette.secondaryDark,
     ),
   ];
@@ -1509,42 +1504,16 @@ double _baseAccessScore({
   required MealShoppingPlan? plan,
   required UserConstraints constraints,
 }) {
-  final rankingSignal = ((recommendation.breakdown.access + 0.18) / 0.26).clamp(
-    0.0,
-    1.0,
-  );
-  final enabledSources = constraints.feasibility.availability;
-  final sourceMatches = recommendation.food.availability
-      .where(enabledSources.contains)
-      .length;
-  final sourceSignal = enabledSources.isEmpty
-      ? 0.55
-      : (sourceMatches / enabledSources.length).clamp(0.0, 1.0);
+  return recommendation.breakdown.access.clamp(0.0, 1.0).toDouble();
+}
 
-  double planSignal;
-  if (plan?.chosenStore case final store?) {
-    final maxTravel = constraints.access.maxTravelMinutes <= 0
-        ? 20.0
-        : constraints.access.maxTravelMinutes.toDouble();
-    final duration = store.travelMetric.durationMinutes?.toDouble();
-    final distance = store.travelMetric.distanceMiles;
-    final normalizedTravel = duration != null
-        ? (1 - (duration / (maxTravel * 1.15))).clamp(0.0, 1.0)
-        : distance != null
-        ? (1 - (distance / 6.0)).clamp(0.0, 1.0)
-        : 0.65;
-    planSignal = 0.60 + (normalizedTravel * 0.30);
-    if (plan?.hasLiveProducts == true) {
-      planSignal += 0.10;
-    }
-  } else if (plan?.storeStatusNote != null) {
-    planSignal = 0.35;
-  } else {
-    planSignal = 0.45;
-  }
-
-  return ((rankingSignal * 0.45) + (sourceSignal * 0.20) + (planSignal * 0.35))
-      .clamp(0.0, 1.0);
+double _nutritionFitScore(ScoreBreakdown breakdown) {
+  final macroFit = breakdown.macro.clamp(0.0, 1.0).toDouble();
+  final microFit = breakdown.micro.clamp(0.0, 1.0).toDouble();
+  final penaltyRelief = (1 - breakdown.penalty).clamp(0.0, 1.0).toDouble();
+  return ((macroFit * 0.50) + (microFit * 0.20) + (penaltyRelief * 0.30))
+      .clamp(0.0, 1.0)
+      .toDouble();
 }
 
 bool _isFullySafe({required Food food, required UserConstraints constraints}) {
@@ -1710,32 +1679,6 @@ List<IngredientRequirement> _fallbackBuyItems(Food food) {
       quantityLabel: food.servingLabel,
     ),
   ];
-}
-
-String _travelLabel(TravelMetric metric) {
-  final distance = metric.distanceMiles;
-  final duration = metric.durationMinutes;
-  if (metric.isLive) {
-    if (duration != null && distance != null) {
-      return '$duration min | ${distance.toStringAsFixed(1)} mi | live route';
-    }
-    if (duration != null) {
-      return '$duration min | live route';
-    }
-    if (distance != null) {
-      return '${distance.toStringAsFixed(1)} mi | live route';
-    }
-    return 'Live route';
-  }
-
-  if (metric.isApproximate) {
-    if (distance != null) {
-      return 'Approx. ${distance.toStringAsFixed(1)} mi';
-    }
-    return 'Approximate distance';
-  }
-
-  return 'Travel unavailable';
 }
 
 Color _accentFor(int id) {

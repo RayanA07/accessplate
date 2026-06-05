@@ -6,8 +6,8 @@ const demoSeedLocationLabel = '4001 W Chicago Ave, Chicago, IL 60651';
 const demoSeedLocation = SearchLocation(
   kind: SearchLocationKind.address,
   label: demoSeedLocationLabel,
-  latitude: 41.895282,
-  longitude: -87.726242,
+  latitude: 41.8953,
+  longitude: -87.7239,
   verification: DataVerification.approximate,
   postalCode: demoSeedPostalCode,
   query: demoSeedLocationLabel,
@@ -34,4 +34,16 @@ String resolvedAccessPostalCode(String? currentPostalCode) {
 
 SearchLocation? seededSearchLocationForPostalCode(String? postalCode) {
   return null;
+}
+
+bool isDemoSeedLocation(SearchLocation? location) {
+  if (location == null) {
+    return false;
+  }
+
+  return location.kind == demoSeedLocation.kind &&
+      location.verification == demoSeedLocation.verification &&
+      location.postalCode == demoSeedPostalCode &&
+      (location.latitude - demoSeedLocation.latitude).abs() < 0.0001 &&
+      (location.longitude - demoSeedLocation.longitude).abs() < 0.0001;
 }

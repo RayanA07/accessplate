@@ -110,4 +110,62 @@ void main() {
       ]),
     );
   });
+
+  test('refried bean bowl uses the two-chip pantry-style buy list', () {
+    final plan = planner.build(
+      food: Food(
+        id: 187,
+        name: 'Refried bean bowl',
+        category: 'prepared_meal',
+        servingG: 206,
+        servingLabel: '1 serving',
+        costEstimate: 1.61,
+        costConfidence: 'high',
+        prepMethod: 'none',
+        prepTimeMin: 0,
+        mealTypes: const {MealType.lunch},
+        availability: const {AvailabilityContext.dollarStore},
+        allergens: const {},
+        religionExcluded: const [],
+        medicalRules: const [],
+        ingredients: const {'refried beans', 'corn tortillas'},
+        source: 'test_fixture',
+      ),
+      pantry: const PantryConstraints(),
+    );
+
+    expect(
+      plan.toBuy.map((item) => '${item.label} | ${item.quantityLabel}'),
+      orderedEquals(['Refried beans | 1 can', 'Corn tortillas | 1 pack']),
+    );
+  });
+
+  test('tuna and cracker plate uses the updated buy list', () {
+    final plan = planner.build(
+      food: Food(
+        id: 133,
+        name: 'Tuna and cracker plate',
+        category: 'prepared_meal',
+        servingG: 331,
+        servingLabel: '1 serving',
+        costEstimate: 1.02,
+        costConfidence: 'medium',
+        prepMethod: 'microwave',
+        prepTimeMin: 3,
+        mealTypes: const {MealType.lunch},
+        availability: const {AvailabilityContext.foodPantry},
+        allergens: const {},
+        religionExcluded: const [],
+        medicalRules: const [],
+        ingredients: const {'tuna', 'crackers'},
+        source: 'test_fixture',
+      ),
+      pantry: const PantryConstraints(),
+    );
+
+    expect(
+      plan.toBuy.map((item) => '${item.label} | ${item.quantityLabel}'),
+      orderedEquals(['Canned tuna | 1 can', 'Saltine crackers | 1 box']),
+    );
+  });
 }
