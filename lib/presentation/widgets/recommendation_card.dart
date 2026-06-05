@@ -75,7 +75,12 @@ class _RecommendationCardState extends ConsumerState<RecommendationCard> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FoodThumbnail(food: food, accent: accent),
+                FoodThumbnail(
+                  food: food,
+                  accent: accent,
+                  plan: displayedPlan,
+                  constraints: constraints,
+                ),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(

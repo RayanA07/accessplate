@@ -2,17 +2,33 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_palette.dart';
 import '../../domain/entities/food.dart';
+import '../../domain/entities/meal_shopping.dart';
+import '../../domain/entities/user_constraints.dart';
 import '../../domain/value_objects/availability_context.dart';
+import 'meal_logo_resolver.dart';
 
 class FoodThumbnail extends StatelessWidget {
-  const FoodThumbnail({super.key, required this.food, required this.accent});
+  const FoodThumbnail({
+    super.key,
+    required this.food,
+    required this.accent,
+    this.plan,
+    this.constraints,
+  });
 
   final Food food;
   final Color accent;
+  final MealShoppingPlan? plan;
+  final UserConstraints? constraints;
 
   @override
   Widget build(BuildContext context) {
     final kind = _MealArtKind.fromFood(food);
+    final logo = MealLogoResolver.resolve(
+      food: food,
+      plan: plan,
+      constraints: constraints,
+    );
     return Container(
       width: 112,
       height: 112,
@@ -77,24 +93,26 @@ class FoodThumbnail extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Positioned(
-                          left: 16,
-                          right: 16,
-                          bottom: 6,
-                          child: Container(
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: const Color(0x12000000),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                          ),
-                        ),
-                        _MealArtScene(kind: kind),
-                      ],
-                    ),
+                    child: logo == null
+                        ? Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Positioned(
+                                left: 16,
+                                right: 16,
+                                bottom: 6,
+                                child: Container(
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x12000000),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                ),
+                              ),
+                              _MealArtScene(kind: kind),
+                            ],
+                          )
+                        : _MealLogoScene(logo: logo, accent: accent),
                   ),
                 ),
               ),
@@ -102,6 +120,61 @@ class FoodThumbnail extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _MealLogoScene extends StatelessWidget {
+  const _MealLogoScene({required this.logo, required this.accent});
+
+  final MealLogoSelection logo;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          left: 10,
+          top: 10,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              logo.isFastFood ? 'FAST FOOD' : 'STORE',
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.9,
+                color: Color(0xFF5B5245),
+              ),
+            ),
+          ),
+        ),
+        Positioned.fill(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 24, 10, 10),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F3E9),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0x14000000)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Image.asset(
+                  logo.assetPath,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.medium,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

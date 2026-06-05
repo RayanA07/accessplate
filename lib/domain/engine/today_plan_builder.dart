@@ -67,18 +67,18 @@ class TodayPlanBuilder {
       );
     }
 
-    final pantryFood = inspectedFoods.firstWhere(
-      (entry) => entry.insight.pantryReadyMatches.isNotEmpty,
-      orElse: () => inspectedFoods.first,
-    );
-    final pantryBasket = inspectedBaskets.where(
+    final pantryBasket = inspectedBaskets.firstWhereOrNull(
       (entry) => entry.readyPantryMatches.isNotEmpty,
     );
-    if (pantryFood.insight.pantryReadyMatches.isNotEmpty ||
-        pantryBasket.isNotEmpty) {
+    final pantryFood =
+        pantryBasket?.readyPantryLead ??
+        inspectedFoods.firstWhereOrNull(
+          (entry) => entry.insight.pantryReadyMatches.isNotEmpty,
+        );
+    if (pantryFood != null || pantryBasket != null) {
       return _pantryPlan(
-        pantryFood,
-        pantryBasket.isEmpty ? null : pantryBasket.first,
+        pantryFood ?? pantryBasket!.leadFood,
+        pantryBasket,
         inspectedFoods,
         restockItems,
         sourceTripPlan,
@@ -257,6 +257,7 @@ class TodayPlanBuilder {
     SourceTripPlan? sourceTripPlan,
   ) {
     final copy = _copy;
+    final pantryItems = _pantryStepItems(lead: lead, basket: basket?.basket);
     final preferredSource = _preferredSourceLabel(
       sourceTripPlan: sourceTripPlan,
       mission: SourceTripMission.pantryStretch,
@@ -272,10 +273,15 @@ class TodayPlanBuilder {
               .take(3)
               .toList(growable: false);
     final steps = <String>[
-      copy.choose(
-        'Use ${_listWords(lead.insight.pantryReadyMatches.take(2).toList(growable: false))} from home first.',
-        'Usa primero ${_listWords(lead.insight.pantryReadyMatches.take(2).toList(growable: false))} desde casa.',
-      ),
+      pantryItems.isEmpty
+          ? copy.choose(
+              'Start with what you already have at home first.',
+              'Empieza primero con lo que ya tienes en casa.',
+            )
+          : copy.choose(
+              'Use ${_listWords(pantryItems)} from home first.',
+              'Usa primero ${_listWords(pantryItems)} desde casa.',
+            ),
       if (basket != null && addOnItems.isNotEmpty)
         copy.choose(
           'Buy only ${_itemList(addOnItems)} from ${preferredSource?.toLowerCase() ?? basket.primarySourceLabel.toLowerCase()}.',
@@ -823,7 +829,10 @@ class TodayPlanBuilder {
     SourceTripPlan? sourceTripPlan,
     MealBasketPlan? basket,
   }) {
-    final sourceReason = sourceTripPlan?.routeReason?.trim();
+    final sourceReason = _tripPlanForType(
+      type: type,
+      sourceTripPlan: sourceTripPlan,
+    )?.routeReason?.trim();
     if (sourceReason != null && sourceReason.isNotEmpty) {
       return sourceReason;
     }
@@ -877,7 +886,10 @@ class TodayPlanBuilder {
     required _InspectedFood lead,
     required SourceTripPlan? sourceTripPlan,
   }) {
-    final tripSummary = sourceTripPlan?.benefitSummary?.trim();
+    final tripSummary = _tripPlanForType(
+      type: type,
+      sourceTripPlan: sourceTripPlan,
+    )?.benefitSummary?.trim();
     if (tripSummary != null && tripSummary.isNotEmpty) {
       return tripSummary;
     }
@@ -967,7 +979,7 @@ class TodayPlanBuilder {
     AvailabilityContext? fallbackSource,
     String? fallbackLabel,
   }) {
-    if (sourceTripPlan != null) {
+    if (sourceTripPlan != null && sourceTripPlan.mission == mission) {
       return _copy.sourceLabel(sourceTripPlan.primarySource);
     }
     if (fallbackSource != null) {
@@ -1039,6 +1051,25 @@ class TodayPlanBuilder {
       return true;
     }
     return broadShortage;
+  }
+
+  SourceTripPlan? _tripPlanForType({
+    required TodayPlanType type,
+    required SourceTripPlan? sourceTripPlan,
+  }) {
+    if (sourceTripPlan == null) {
+      return null;
+    }
+    final expectedMission = switch (type) {
+      TodayPlanType.emergency => SourceTripMission.emergency,
+      TodayPlanType.pantryFirst => SourceTripMission.pantryStretch,
+      TodayPlanType.restockRun => SourceTripMission.restock,
+      TodayPlanType.wicStaples ||
+      TodayPlanType.snapRun => SourceTripMission.benefitsRun,
+      TodayPlanType.oneStop => SourceTripMission.oneStopMeal,
+      TodayPlanType.fallback => SourceTripMission.fallback,
+    };
+    return sourceTripPlan.mission == expectedMission ? sourceTripPlan : null;
   }
 
   List<PlannedPurchase> _buildPurchases({
@@ -1169,15 +1200,35 @@ class TodayPlanBuilder {
         .map(
           (item) => PlannedPurchase(
             label: item,
-            priority: PlannedPurchasePriority.buyFirst,
+            priority: switch (type) {
+              TodayPlanType.restockRun ||
+              TodayPlanType.snapRun => PlannedPurchasePriority.buyFirst,
+              _ => PlannedPurchasePriority.ifBudgetLeft,
+            },
             detail: switch (type) {
               TodayPlanType.wicStaples => _copy.choose(
                 'Restock only after the core WIC staples are covered.',
                 'Repone esto solo despues de cubrir los basicos WIC.',
               ),
+              TodayPlanType.pantryFirst => _copy.choose(
+                'Restock this only after the pantry-based meal is covered.',
+                'Repone esto solo despues de cubrir la comida basada en despensa.',
+              ),
               TodayPlanType.snapRun => _copy.choose(
                 'Use benefits on the basic staple items first.',
                 'Usa los beneficios primero en los articulos basicos.',
+              ),
+              TodayPlanType.emergency => _copy.choose(
+                'Only restock this if the first low-burden meal is already covered.',
+                'Repone esto solo si la primera comida de baja carga ya esta cubierta.',
+              ),
+              TodayPlanType.oneStop => _copy.choose(
+                'Add this only if the basket still fits today\'s budget.',
+                'Agrega esto solo si la canasta todavia cabe en el presupuesto de hoy.',
+              ),
+              TodayPlanType.fallback => _copy.choose(
+                'Add this only if the first safe option still leaves room.',
+                'Agrega esto solo si la primera opcion segura todavia deja margen.',
               ),
               _ => _copy.choose(
                 'Basic pantry staple to restock first.',
@@ -1360,7 +1411,12 @@ class TodayPlanBuilder {
     return [
       PlanCheckpoint(
         title: _copy.choose('Now', 'Ahora'),
-        detail: _nowCheckpointDetail(type: type, lead: lead, basket: basket),
+        detail: _nowCheckpointDetail(
+          type: type,
+          lead: lead,
+          basket: basket,
+          restockItems: restockItems,
+        ),
       ),
       PlanCheckpoint(
         title: _copy.choose('Next meal', 'Siguiente comida'),
@@ -1388,6 +1444,7 @@ class TodayPlanBuilder {
     required TodayPlanType type,
     required _InspectedFood lead,
     required MealBasketPlan? basket,
+    required List<String> restockItems,
   }) {
     final basketItems = basket == null ? null : _itemList(basket.items);
     switch (type) {
@@ -1402,7 +1459,7 @@ class TodayPlanBuilder {
                 'Usa $basketItems de inmediato.',
               );
       case TodayPlanType.pantryFirst:
-        final pantryItems = lead.insight.pantryReadyMatches.take(2).toList();
+        final pantryItems = _pantryStepItems(lead: lead, basket: basket);
         if (pantryItems.isNotEmpty) {
           return _copy.choose(
             'Start with ${_listWords(pantryItems)} from home.',
@@ -1415,8 +1472,8 @@ class TodayPlanBuilder {
         );
       case TodayPlanType.restockRun:
         return _copy.choose(
-          'Restock ${_wordList(user.pantry.restockItems.take(2).toList())} first on this trip.',
-          'Repone primero ${_wordList(user.pantry.restockItems.take(2).toList())} en este viaje.',
+          'Restock ${_wordList(_limitedRestockItems(restockItems, limit: 2))} first on this trip.',
+          'Repone primero ${_wordList(_limitedRestockItems(restockItems, limit: 2))} en este viaje.',
         );
       case TodayPlanType.wicStaples:
         return _copy.choose(
@@ -1647,6 +1704,30 @@ class TodayPlanBuilder {
         .toList(growable: false);
   }
 
+  List<String> _pantryStepItems({
+    required _InspectedFood lead,
+    required MealBasketPlan? basket,
+  }) {
+    final leadItems = lead.insight.pantryReadyMatches.take(2).toList();
+    if (leadItems.isNotEmpty || basket == null) {
+      return leadItems;
+    }
+
+    final basketItems = <String>{};
+    for (final item in basket.items) {
+      for (final ingredient in item.food.ingredients) {
+        if (user.pantry.stockFor(ingredient) != PantryStockLevel.enough) {
+          continue;
+        }
+        basketItems.add(ingredient);
+        if (basketItems.length >= 2) {
+          return basketItems.toList(growable: false);
+        }
+      }
+    }
+    return basketItems.toList(growable: false);
+  }
+
   bool _looksStapleLike(Food food) {
     const stapleCategories = {
       'grain_whole',
@@ -1841,8 +1922,28 @@ class _BasketAssessment {
 
   _InspectedFood get leadFood =>
       _InspectedFood(food: basket.items.first, insight: itemInsights.first);
+
+  _InspectedFood? get readyPantryLead {
+    for (var index = 0; index < itemInsights.length; index += 1) {
+      final insight = itemInsights[index];
+      if (insight.pantryReadyMatches.isEmpty) {
+        continue;
+      }
+      return _InspectedFood(food: basket.items[index], insight: insight);
+    }
+    return null;
+  }
 }
 
 extension<T> on Iterable<T> {
   T? get firstOrNull => isEmpty ? null : first;
+
+  T? firstWhereOrNull(bool Function(T item) test) {
+    for (final item in this) {
+      if (test(item)) {
+        return item;
+      }
+    }
+    return null;
+  }
 }
